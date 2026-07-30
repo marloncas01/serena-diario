@@ -69,28 +69,9 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
       ),
-      body: AnimatedSwitcher(
-        duration: BrandDurations.normal,
-        switchInCurve: BrandDurations.standard,
-        switchOutCurve: BrandDurations.accelerate,
-        transitionBuilder: (child, animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.02, 0),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: BrandDurations.standard,
-                ),
-              ),
-              child: child,
-            ),
-          );
-        },
-        child: KeyedSubtree(key: ValueKey(_index), child: _pages[_index]),
+      body: IndexedStack(
+        index: _index,
+        children: _pages,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
