@@ -221,6 +221,8 @@ class EmotionEngine {
       'accidente', 'golpe', 'fractura', 'hemorragia',
       'ruptura', 'separación', 'separacion', 'divorcio',
       'despedido', 'despedida', 'pierde', 'extravio',
+      'ando re mal', 'estoy hecho polvo', 'estoy fatal',
+      'no tengo energía', 'no tengo energia',
     ],
     'ansiedad': [
       'ataque de pánico', 'pánico', 'panico',
@@ -232,6 +234,7 @@ class EmotionEngine {
       'no tiene sentido', 'no vale la pena', 'para qué',
       'para que', 'ya no quiero', 'no aguanto', 'no soporto',
       'quisiera desaparecer', 'no quiero existir',
+      'no doy más', 'no doy mas', 'todo me sale mal',
     ],
   };
 

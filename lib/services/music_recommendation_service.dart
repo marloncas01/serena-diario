@@ -35,27 +35,11 @@ class MusicRecommendationService {
         emotion: 'tristeza',
       ),
       MusicRecommendation(
-        title: 'Chill Hits',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWZDC5ieUZuaE',
-        description:
-            'Éxitos relajados para momentos de melancolía.',
-        emotion: 'tristeza',
-      ),
-      MusicRecommendation(
         title: 'Peaceful Piano',
         spotifyUrl:
             'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq5pBd',
         description:
             'Piano suave para acompañar tus momentos tristes.',
-        emotion: 'tristeza',
-      ),
-      MusicRecommendation(
-        title: 'Chillout Lounge',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWZq8uCjDZS7',
-        description:
-            'Ambientes relajados para procesar emociones.',
         emotion: 'tristeza',
       ),
       MusicRecommendation(
@@ -92,54 +76,14 @@ class MusicRecommendationService {
             'Beats lo-fi para tranquilizar tu mente.',
         emotion: 'ansiedad',
       ),
-      MusicRecommendation(
-        title: 'Mood Booster',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX1g0fEXnMSch',
-        description:
-            'Canciones que elevan tu ánimo y reducen la preocupación.',
-        emotion: 'ansiedad',
-      ),
-      MusicRecommendation(
-        title: 'Acoustic Chill',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWWEJlVGaZieg',
-        description:
-            'Acústicos suaves para calmar los nervios.',
-        emotion: 'ansiedad',
-      ),
     ],
     'estres': [
-      MusicRecommendation(
-        title: 'Lo-Fi Beats',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX0SM0LYsmbMT',
-        description:
-            'Beats lo-fi para liberar el estrés del día.',
-        emotion: 'estres',
-      ),
-      MusicRecommendation(
-        title: 'Chill Hits',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWZDC5ieUZuaE',
-        description:
-            'Éxitos relajados para desconectar del estrés.',
-        emotion: 'estres',
-      ),
-      MusicRecommendation(
-        title: 'Peaceful Piano',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq5pBd',
-        description:
-            'Piano relajante para aliviar la tensión.',
-        emotion: 'estres',
-      ),
       MusicRecommendation(
         title: 'Chillout Lounge',
         spotifyUrl:
             'https://open.spotify.com/playlist/37i9dQZF1DWZq8uCjDZS7',
         description:
-            'Ambientes de lounge para relajarte profundamente.',
+            'Ambientes de lounge para liberar la tensión del día.',
         emotion: 'estres',
       ),
       MusicRecommendation(
@@ -147,7 +91,7 @@ class MusicRecommendationService {
         spotifyUrl:
             'https://open.spotify.com/playlist/37i9dQZF1DX1i3eiOAngUS',
         description:
-            'Meditación profunda para liberar el estrés acumulado.',
+            'Meditación profunda para soltar el estrés acumulado.',
         emotion: 'estres',
       ),
     ],
@@ -161,35 +105,11 @@ class MusicRecommendationService {
         emotion: 'concentracion',
       ),
       MusicRecommendation(
-        title: 'Lofi Beats',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ',
-        description:
-            'Beats lo-fi ideales para estudiar y trabajar.',
-        emotion: 'concentracion',
-      ),
-      MusicRecommendation(
         title: 'Lo-Fi Beats',
         spotifyUrl:
             'https://open.spotify.com/playlist/37i9dQZF1DX0SM0LYsmbMT',
         description:
-            'Lo-fi para mantener el foco y la productividad.',
-        emotion: 'concentracion',
-      ),
-      MusicRecommendation(
-        title: 'Chill Tracks',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX4Fmd0cnu6wF',
-        description:
-            'Canciones sin distracciones para mantenerte en zona.',
-        emotion: 'concentracion',
-      ),
-      MusicRecommendation(
-        title: 'Chill Hits',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWZDC5ieUZuaE',
-        description:
-            'Hits relajados que no interrumpen tu concentración.',
+            'Beats lo-fi ideales para estudiar y trabajar.',
         emotion: 'concentracion',
       ),
     ],
@@ -216,22 +136,6 @@ class MusicRecommendationService {
             'https://open.spotify.com/playlist/37i9dQZF1DX5JhFESzQjLi',
         description:
             'Música profunda para un sueño reparador.',
-        emotion: 'dormir',
-      ),
-      MusicRecommendation(
-        title: 'Chillout Lounge',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWZq8uCjDZS7',
-        description:
-            'Ambientes relajantes para dormir tranquilo.',
-        emotion: 'dormir',
-      ),
-      MusicRecommendation(
-        title: 'Peaceful Piano',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq5pBd',
-        description:
-            'Piano tranquilo para acompañar el sueño.',
         emotion: 'dormir',
       ),
     ],
@@ -268,14 +172,6 @@ class MusicRecommendationService {
             'Indie rock que te hace sentir bien.',
         emotion: 'felicidad',
       ),
-      MusicRecommendation(
-        title: 'Workout Mix',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX1lVhptIYRq8',
-        description:
-            'Energía pura para celebrar tus buenos momentos.',
-        emotion: 'felicidad',
-      ),
     ],
     'motivacion': [
       MusicRecommendation(
@@ -284,30 +180,6 @@ class MusicRecommendationService {
             'https://open.spotify.com/playlist/37i9dQZF1DX1lVhptIYRq8',
         description:
             'Energía intensa para impulsar tu motivación.',
-        emotion: 'motivacion',
-      ),
-      MusicRecommendation(
-        title: 'Good Vibes',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX76PYB5c69Y3',
-        description:
-            'Vibras positivas para mantenerte motivado.',
-        emotion: 'motivacion',
-      ),
-      MusicRecommendation(
-        title: 'Mood Booster',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX1g0fEXnMSch',
-        description:
-            'Sube tu ánimo y recupera la motivación.',
-        emotion: 'motivacion',
-      ),
-      MusicRecommendation(
-        title: 'Feel Good Indie Rock',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX9XIFQuFvzM4',
-        description:
-            'Rock indie inspirador para nuevos retos.',
         emotion: 'motivacion',
       ),
       MusicRecommendation(
@@ -326,30 +198,6 @@ class MusicRecommendationService {
             'https://open.spotify.com/playlist/37i9dQZF1DWZDC5ieUZuaE',
         description:
             'Hits relajados para disfrutar la calma.',
-        emotion: 'calma',
-      ),
-      MusicRecommendation(
-        title: 'Peaceful Piano',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq5pBd',
-        description:
-            'Piano sereno para momentos de paz.',
-        emotion: 'calma',
-      ),
-      MusicRecommendation(
-        title: 'Relax & Unwind',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DWYBO1MoTDhZI',
-        description:
-            'Relájate y desconecta con música suave.',
-        emotion: 'calma',
-      ),
-      MusicRecommendation(
-        title: 'Meditation',
-        spotifyUrl:
-            'https://open.spotify.com/playlist/37i9dQZF1DX10zKzsJ2jva',
-        description:
-            'Música para meditar y encontrar la calma interior.',
         emotion: 'calma',
       ),
       MusicRecommendation(

@@ -467,6 +467,14 @@ class EmotionLexicon {
     'tristeza': [
       const LexiconEntry('tristeza', 1.0),
     ],
+    'mal': [
+      const LexiconEntry('tristeza', 0.6),
+      const LexiconEntry('desesperanza', 0.3),
+    ],
+    'fatal': [
+      const LexiconEntry('tristeza', 0.6),
+      const LexiconEntry('agotamiento', 0.3),
+    ],
     'murió': [
       const LexiconEntry('tristeza', 1.0),
       const LexiconEntry('desesperanza', 0.3),
@@ -886,6 +894,22 @@ class EmotionLexicon {
     'ahogada': [
       const LexiconEntry('ansiedad', 0.7),
     ],
+    'acelerado': [
+      const LexiconEntry('ansiedad', 0.7),
+      const LexiconEntry('estres', 0.4),
+    ],
+    'acelerada': [
+      const LexiconEntry('ansiedad', 0.7),
+      const LexiconEntry('estres', 0.4),
+    ],
+    'abrumado': [
+      const LexiconEntry('ansiedad', 0.6),
+      const LexiconEntry('estres', 0.5),
+    ],
+    'abrumada': [
+      const LexiconEntry('ansiedad', 0.6),
+      const LexiconEntry('estres', 0.5),
+    ],
 
     'estresado': [
       const LexiconEntry('estres', 1.0),
@@ -1184,6 +1208,14 @@ class EmotionLexicon {
       const LexiconEntry('culpa', 0.8),
       const LexiconEntry('tristeza', 0.3),
     ],
+    'decepcionado': [
+      const LexiconEntry('tristeza', 0.8),
+      const LexiconEntry('desesperanza', 0.3),
+    ],
+    'decepcionada': [
+      const LexiconEntry('tristeza', 0.8),
+      const LexiconEntry('desesperanza', 0.3),
+    ],
 
     'vergüenza': [
       const LexiconEntry('vergüenza', 1.0),
@@ -1275,6 +1307,14 @@ class EmotionLexicon {
       const LexiconEntry('confusion', 0.5),
       const LexiconEntry('frustracion', 0.3),
     ],
+    'raro': [
+      const LexiconEntry('confusion', 0.5),
+      const LexiconEntry('incertidumbre', 0.3),
+    ],
+    'rara': [
+      const LexiconEntry('confusion', 0.5),
+      const LexiconEntry('incertidumbre', 0.3),
+    ],
 
     'agotado': [
       const LexiconEntry('agotamiento', 1.0),
@@ -1335,6 +1375,24 @@ class EmotionLexicon {
     'drenada': [
       const LexiconEntry('agotamiento', 0.8),
     ],
+    'mamado': [
+      const LexiconEntry('agotamiento', 0.8),
+    ],
+    'mamada': [
+      const LexiconEntry('agotamiento', 0.8),
+    ],
+    'cansancio': [
+      const LexiconEntry('agotamiento', 0.9),
+    ],
+    'fatiga': [
+      const LexiconEntry('agotamiento', 0.85),
+    ],
+    'exhausto': [
+      const LexiconEntry('agotamiento', 0.95),
+    ],
+    'exhausta': [
+      const LexiconEntry('agotamiento', 0.95),
+    ],
 
     'burnout': [
       const LexiconEntry('burnout', 1.0),
@@ -1360,6 +1418,10 @@ class EmotionLexicon {
     'saturada': [
       const LexiconEntry('burnout', 0.7),
       const LexiconEntry('estres', 0.4),
+    ],
+    'pereza': [
+      const LexiconEntry('burnout', 0.5),
+      const LexiconEntry('desesperanza', 0.2),
     ],
     'desmotivado': [
       const LexiconEntry('burnout', 0.7),

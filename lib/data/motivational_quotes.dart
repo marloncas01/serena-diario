@@ -230,7 +230,7 @@ class MotivationalQuotes {
 
   // ── Neutral (25) ──
   static const _neutral = [
-    '"Tu diario es un espejo de tu crecimiento."',
+    '"Cada palabra que escribes es una semilla que te devuelve a ti."',
     '"A veces, escribir es la mejor forma de respirar."',
     '"No necesitas tenerlo todo claro. Solo empezar."',
     '"Permítete ser, sin juicios."',
@@ -259,7 +259,7 @@ class MotivationalQuotes {
 
   // ── Crecimiento (25) ──
   static const _crecimiento = [
-    '"Escribir es escucharte a ti mismo."',
+    '"Escribir es darte cuenta de lo que llevas dentro."',
     '"Cada entrada es un paso más hacia tu mejor versión."',
     '"El crecimiento no es lineal, pero siempre avanza."',
     '"Aprender de ti es el mayor conocimiento."',
@@ -317,7 +317,7 @@ class MotivationalQuotes {
 
   // ── Esperanza (25) ──
   static const _esperanza = [
-    '"Lo que sientes hoy tiene un propósito, aunque no lo veas."',
+    '"Cada día que escribes, la esperanza se hace más concreta."',
     '"Después de la noche más larga, siempre viene el amanecer."',
     '"Tu historia tiene capítulos hermosos que aún no has leído."',
     '"Las mejores cosas de tu vida están por venir."',

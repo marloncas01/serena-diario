@@ -109,14 +109,14 @@ class SmartAdviceEngine {
         message: 'Llevas varios días con ansiedad. Hoy intenta 5 minutos de respiración profunda. Pequeños momentos de calma hacen gran diferencia.',
         category: 'bienestar',
         emoji: '🧘',
-        priority: 5,
+        priority: 8,
       ));
       advices.add(const SmartAdvice(
         title: 'Reducir el ritmo',
         message: 'La ansiedad puede ser señal de que estás cargando mucho. ¿Puedes delegar algo hoy o tomarte un descanso?',
         category: 'bienestar',
         emoji: '🌿',
-        priority: 4,
+        priority: 7,
       ));
     }
 
@@ -126,14 +126,14 @@ class SmartAdviceEngine {
         message: 'La tristeza persistente mejora con conexión. Llama a alguien que te importe, aunque sea por 5 minutos.',
         category: 'relaciones',
         emoji: '💙',
-        priority: 5,
+        priority: 8,
       ));
       advices.add(const SmartAdvice(
         title: 'Permítete sentir',
         message: 'Está bien estar triste. No necesitas forzar la alegría. Escribe lo que sientes sin juzgarte.',
         category: 'autoconocimiento',
         emoji: '📝',
-        priority: 4,
+        priority: 7,
       ));
     }
 
@@ -143,7 +143,7 @@ class SmartAdviceEngine {
         message: 'El estrés acumulado necesita liberación. Sal a caminar 10 minutos o haz una pausa sin pantallas.',
         category: 'bienestar',
         emoji: '🚶',
-        priority: 5,
+        priority: 8,
       ));
     }
 
@@ -153,7 +153,7 @@ class SmartAdviceEngine {
         message: 'Estás en un momento positivo. Escribir ahora te ayudará a recordar esta sensación en días difíciles.',
         category: 'motivacion',
         emoji: '✨',
-        priority: 3,
+        priority: 6,
       ));
     }
 
@@ -163,7 +163,7 @@ class SmartAdviceEngine {
         message: 'Tu calma actual es una fortaleza. Úsala para reflexionar o planificar algo que te ilusione.',
         category: 'autoconocimiento',
         emoji: '🍃',
-        priority: 2,
+        priority: 5,
       ));
     }
 
@@ -355,7 +355,7 @@ class SmartAdviceEngine {
         message: 'Tu historial muestra mejora. Lo que estás haciendo está funcionando.',
         category: 'motivacion',
         emoji: '📈',
-        priority: 3,
+        priority: 4,
       ));
     }
 
@@ -365,7 +365,7 @@ class SmartAdviceEngine {
         message: 'Parece que estás pasando por un momento complicado. Está bien pedir ayuda.',
         category: 'bienestar',
         emoji: '🤝',
-        priority: 5,
+        priority: 7,
       ));
     }
 
@@ -375,7 +375,7 @@ class SmartAdviceEngine {
         message: 'Serena notó un patrón en tus emociones. Hablar de esto puede ayudarte a entenderlo mejor.',
         category: 'autoconocimiento',
         emoji: '🔍',
-        priority: 3,
+        priority: 4,
       ));
     }
 
