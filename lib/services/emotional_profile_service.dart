@@ -92,7 +92,7 @@ class EmotionalProfileService {
 
     return EmotionalProfile(
       emocionPredominante: predominant,
-      nivelAnsiedad: avgAnsiedad.clamp(0.0, 1.0),
+      nivelAnsiedad: (avgAnsiedad / 100).clamp(0.0, 1.0),
       frecuenciaTristeza: total > 0 ? tristezaCount / total : 0,
       frecuenciaAlegria: total > 0 ? alegriaCount / total : 0,
       horaFrecuente: writingPatterns.horaFrecuente,
@@ -215,7 +215,7 @@ class EmotionalProfileService {
         count++;
       }
     }
-    return count > 0 ? (totalScore / count).clamp(0.0, 1.0) : 0.5;
+    return count > 0 ? ((totalScore / count) / 100).clamp(0.0, 1.0) : 0.5;
   }
 
   List<String> _detectFortalezas(

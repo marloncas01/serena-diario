@@ -44,6 +44,20 @@ class _MessageBank {
 class EmotionalResponseEngine {
   const EmotionalResponseEngine._();
 
+  static const Map<String, String> _bankAliases = {
+    'felicidad': 'alegria',
+    'amor': 'alegria',
+    'gratitud': 'alegria',
+    'agotamiento': 'burnout',
+    'confusion': 'incertidumbre',
+    'vergüenza': 'culpa',
+  };
+
+  static _MessageBank _bankFor(String emotionId) =>
+      _banks[emotionId] ??
+      _banks[_bankAliases[emotionId] ?? ''] ??
+      _banks['tristeza']!;
+
   static final Map<String, _MessageBank> _banks = {
     'tristeza': const _MessageBank(
       greetings: [
@@ -1332,7 +1346,7 @@ class EmotionalResponseEngine {
     }
 
     final primary = interpretation.primaryEmotions.first.emotion.id;
-    final bank = _banks[primary] ?? _banks['tristeza']!;
+    final bank = _bankFor(primary);
 
     return EmotionalResponse(
       greeting: _pick(bank.greetings, interpretation),
@@ -1425,7 +1439,7 @@ class EmotionalResponseEngine {
 
     final primary =
         context.interpretation.primaryEmotions.first.emotion.id;
-    final bank = _banks[primary] ?? _banks['tristeza']!;
+    final bank = _bankFor(primary);
 
     final greeting = _pickUnique(
       bank.greetings,

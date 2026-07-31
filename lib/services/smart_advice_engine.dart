@@ -92,7 +92,7 @@ class SmartAdviceEngine {
     final counts = <String, int>{};
     for (final a in recent) {
       for (final r in a.rankings.take(2)) {
-        counts[r.emotion.name] = (counts[r.emotion.name] ?? 0) + 1;
+        counts[r.emotion.id] = (counts[r.emotion.id] ?? 0) + 1;
       }
     }
 
@@ -101,7 +101,7 @@ class SmartAdviceEngine {
     final tristezaCount = (counts['tristeza'] ?? 0) + (counts['soledad'] ?? 0);
     final estresCount = (counts['estres'] ?? 0) + (counts['frustracion'] ?? 0);
     final alegriaCount = (counts['alegria'] ?? 0) + (counts['felicidad'] ?? 0);
-    final calmaCount = (counts['calma'] ?? 0) + (counts['serenidad'] ?? 0);
+    final calmaCount = counts['calma'] ?? 0;
 
     if (ansiedadCount >= 3) {
       advices.add(const SmartAdvice(

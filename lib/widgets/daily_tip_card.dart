@@ -3,16 +3,29 @@ import '../widgets/glass_card.dart';
 import '../core/app_constants.dart';
 import '../services/daily_wellness_service.dart';
 
-class DailyTipCard extends StatelessWidget {
+class DailyTipCard extends StatefulWidget {
   const DailyTipCard({super.key});
+
+  @override
+  State<DailyTipCard> createState() => _DailyTipCardState();
+}
+
+class _DailyTipCardState extends State<DailyTipCard> {
+  final _service = DailyWellnessService();
+  late final Future<WellnessTip> _tipFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _tipFuture = _service.getTodayTip();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final service = DailyWellnessService();
 
     return FutureBuilder<WellnessTip>(
-      future: service.getTodayTip(),
+      future: _tipFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return GlassCard(
@@ -34,7 +47,7 @@ class DailyTipCard extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final categoryName = service.getCategoryName(tip.category);
+        final categoryName = _service.getCategoryName(tip.category);
 
         return GlassCard(
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),

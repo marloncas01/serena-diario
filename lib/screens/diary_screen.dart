@@ -55,6 +55,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
   bool _showEntryForm = false;
   final _pipeline = EmotionPipeline();
   EmotionPipelineResult? _lastPipelineResult;
+  JournalEntry? _lastAiEntry;
   final _profileService = EmotionalProfileService();
   final _historyService = EmotionalHistoryService();
   final _insightsService = EmotionalInsightsService();
@@ -151,6 +152,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
     if (!mounted) return;
     setState(() => _isSaving = false);
     if (saved) {
+      _lastAiEntry = context.read<JournalProvider>().entries.isNotEmpty
+          ? context.read<JournalProvider>().entries.first
+          : null;
       _noteController.clear();
       _tagsController.clear();
       await AppPreferences().clearDraft();
@@ -167,12 +171,18 @@ class _DiaryScreenState extends State<DiaryScreen> {
         final detectedMood = MoodEmotionMapper.moodFromEmotionAnalysis(
           result.analysis,
         );
-        final entries = context.read<JournalProvider>().entries;
-        if (entries.isNotEmpty) {
-          final lastEntry = entries.first;
-          if (lastEntry.mood == 'Normal' && detectedMood != 'Normal') {
+        final savedEntry = _lastAiEntry;
+        if (savedEntry != null) {
+          final current = context
+              .read<JournalProvider>()
+              .entries
+              .where((entry) => entry.id == savedEntry.id)
+              .toList();
+          if (current.isNotEmpty &&
+              current.first.mood == 'Normal' &&
+              detectedMood != 'Normal') {
             await context.read<JournalProvider>().update(
-              lastEntry.copyWith(mood: detectedMood),
+              current.first.copyWith(mood: detectedMood),
             );
           }
         }
@@ -536,12 +546,18 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         _selectedMood = moodName;
                         _showMoodOverride = false;
                       });
-                      final entries = context.read<JournalProvider>().entries;
-                      if (entries.isNotEmpty) {
-                        final lastEntry = entries.first;
-                        await context.read<JournalProvider>().update(
-                          lastEntry.copyWith(mood: moodName),
-                        );
+                      final target = _lastAiEntry;
+                      if (target != null) {
+                        final current = context
+                            .read<JournalProvider>()
+                            .entries
+                            .where((entry) => entry.id == target.id)
+                            .toList();
+                        if (current.isNotEmpty) {
+                          await context.read<JournalProvider>().update(
+                            current.first.copyWith(mood: moodName),
+                          );
+                        }
                       }
                     },
                   ),
@@ -895,11 +911,14 @@ class _DiaryScreenState extends State<DiaryScreen> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Text(
-                    '$_wordCount palabras · $_readingTime min',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: theme.colorScheme.onSurfaceVariant,
+                  Flexible(
+                    child: Text(
+                      '$_wordCount palabras · $_readingTime min',
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
