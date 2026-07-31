@@ -1,3 +1,4 @@
+import '../models/emotion.dart';
 import 'emotion_interpreter.dart';
 import 'crisis_detector.dart';
 import 'ai_provider.dart';
@@ -116,6 +117,8 @@ class EmotionalResponseEngine {
         '¿Hay algo que estés evitando enfrentar?',
         '¿Qué te gustaría que alguien te dijera ahora?',
         '¿Cuándo fue la última vez que te sentiste en paz?',
+        '¿Qué pasó antes de sentirte así?',
+        '¿Cómo te gustaría sentirte mañana?',
       ],
     ),
     'ansiedad': const _MessageBank(
@@ -172,7 +175,7 @@ class EmotionalResponseEngine {
         '¿Qué tal si haces una pausa de 5 minutos?',
         'Escuchar sonidos de la naturaleza puede relajarte.',
         'Estirar el cuerpo puede liberar la tensión acumulada.',
-        'A veces solo necesitas que alguien te diga que todo estará bien.',
+        'Decirte en voz baja que todo estará bien puede darte un respiro ahora.',
       ],
       questions: [
         '¿Qué es lo que más te está preocupando?',
@@ -185,6 +188,8 @@ class EmotionalResponseEngine {
         '¿Hay algo que estés postergando por miedo?',
         '¿Qué cambiaría si pudieras soltar un poco?',
         '¿Cuándo fue la última vez que te sentiste tranquilo?',
+        '¿Cómo comenzó ese sentimiento?',
+        '¿Qué crees que provocó esto?',
       ],
     ),
     'estres': const _MessageBank(
@@ -314,6 +319,7 @@ class EmotionalResponseEngine {
         '¿Hay algo que estés exigiéndote de más?',
         '¿Qué sería un pequeño paso adelante?',
         '¿Cuándo fue la última vez que algo te salió bien?',
+        '¿Qué pasó antes de que creciera tu frustración?',
       ],
     ),
     'culpa': const _MessageBank(
@@ -376,6 +382,7 @@ class EmotionalResponseEngine {
         '¿Qué sería diferente si pudieras volver atrás?',
         '¿Estás siendo justo contigo mismo?',
         '¿Qué necesitas para sentir paz?',
+        '¿Qué necesitas escuchar para soltar la culpa?',
       ],
     ),
     'miedo': const _MessageBank(
@@ -460,7 +467,7 @@ class EmotionalResponseEngine {
         'Es humano equivocarse.',
         'No necesitas ser perfecto.',
         'Mereces compasión, especialmente la tuya.',
-        'No estás tan mal como crees.',
+        'Puede que te estés viendo con más dureza de la que mereces.',
         'No eres tu error.',
         'Tu error no te hace una mala persona.',
         'La vergüenza es una emoción humana.',
@@ -501,6 +508,7 @@ class EmotionalResponseEngine {
         '¿Qué sería diferente si pudieras empezar de nuevo?',
         '¿Qué necesitas para sentirte aceptado?',
         '¿Qué cambiaría si pudieras verlo desde otro ángulo?',
+        '¿Cómo te gustaría sentirte al recordar esto en el futuro?',
       ],
     ),
     'alegria': const _MessageBank(
@@ -1350,7 +1358,7 @@ class EmotionalResponseEngine {
             'Parece que estás pasando por un momento muy difícil.',
         suggestion:
             'Hay personas que pueden ayudarte. Línea de la Vida: 800 911 2000. '
-            'No estás solo.',
+            'Estoy aquí, contigo.',
         reflectionQuestion: '¿Hay alguien con quien puedas hablar ahora?',
         emergencyRisk: true,
       );
@@ -1369,7 +1377,16 @@ class EmotionalResponseEngine {
 
   static final List<String> _recentGreetings = [];
   static final List<String> _recentValidations = [];
+  static final List<String> _recentSuggestions = [];
+  static final List<String> _recentQuestions = [];
   static const int _maxRecent = 8;
+
+  static int _structureVariant(EmotionInterpretation interp) {
+    final seed = interp.summary.hashCode +
+        interp.primaryEmotions.length +
+        DateTime.now().millisecondsSinceEpoch;
+    return seed.abs() % 3;
+  }
 
   static String _pickUnique(
     List<String> messages,
@@ -1423,6 +1440,7 @@ class EmotionalResponseEngine {
 
     final parts = <String>[context.interpretation.summary];
 
+    var notedPattern = false;
     if (context.history.length >= 3) {
       final recentEmotions = <String>{};
       for (final a in context.history.takeLast(5)) {
@@ -1435,6 +1453,18 @@ class EmotionalResponseEngine {
           'He notado un patrón en tus emociones recientes: '
           '${recentEmotions.join(", ")}.',
         );
+        notedPattern = true;
+      }
+    }
+
+    if (!notedPattern && context.history.length >= 2) {
+      final previous = context.history[context.history.length - 2];
+      if (previous.rankings.isNotEmpty) {
+        final prevEmotion = previous.rankings.first.emotion;
+        if (prevEmotion.id == primary &&
+            prevEmotion.category != EmotionCategory.positiva) {
+          parts.add('Veo que la ${prevEmotion.name} sigue presente hoy.');
+        }
       }
     }
 
@@ -1451,7 +1481,7 @@ class EmotionalResponseEngine {
       if (cc.tendenciaEmocional == 'mejorando') {
         parts.add(
           'He visto que tus emociones han mejorado recientemente. '
-          'Sigue así.',
+          'Me alegra ver que estás avanzando.',
         );
       } else if (cc.tendenciaEmocional == 'empeorando') {
         parts.add(
@@ -1469,16 +1499,21 @@ class EmotionalResponseEngine {
 
     final interpretation = parts.join(' ');
 
-    final suggestion = _pickUnique(
-      bank.suggestions,
-      [],
-      context.interpretation,
-    );
-    final question = _pickUnique(
-      bank.questions,
-      [],
-      context.interpretation,
-    );
+    final variant = _structureVariant(context.interpretation);
+    final suggestion = variant == 1
+        ? ''
+        : _pickUnique(
+            bank.suggestions,
+            _recentSuggestions,
+            context.interpretation,
+          );
+    final question = variant == 2
+        ? ''
+        : _pickUnique(
+            bank.questions,
+            _recentQuestions,
+            context.interpretation,
+          );
 
     return EmotionalResponse(
       greeting: greeting,
