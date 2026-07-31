@@ -14,7 +14,7 @@ class BrandDurations {
 
   // ── Semantic aliases ──
   static const Duration micro = instant;
-  static const Duration transition = normal;
+  static const Duration transition = Duration(milliseconds: 200);
   static const Duration reveal = slow;
 
   // ── Curves ──

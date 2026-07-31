@@ -27,7 +27,6 @@ class HeroHeaderPremium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final streak = JournalInsights.streak(entries);
     final mood = JournalInsights.predominantMood(entries);
     final screenWidth = MediaQuery.sizeOf(context).width;

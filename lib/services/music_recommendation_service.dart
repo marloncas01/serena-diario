@@ -273,7 +273,7 @@ class MusicRecommendationService {
         spotifyUrl:
             'https://open.spotify.com/playlist/37i9dQZF1DX1lVhptIYRq8',
         description:
-            'Energía pura para celebrar tus buenas moments.',
+            'Energía pura para celebrar tus buenos momentos.',
         emotion: 'felicidad',
       ),
     ],

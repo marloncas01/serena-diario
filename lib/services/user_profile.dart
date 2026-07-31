@@ -76,24 +76,28 @@ class UserProfile extends ChangeNotifier {
   }
 
   Future<void> setUserName(String value) async {
+    if (_userName == value) return;
     _userName = value;
     notifyListeners();
     await (await SharedPreferences.getInstance()).setString(_userNameKey, value);
   }
 
   Future<void> setDiaryName(String value) async {
+    if (_diaryName == value) return;
     _diaryName = value;
     notifyListeners();
     await (await SharedPreferences.getInstance()).setString(_diaryNameKey, value);
   }
 
   Future<void> setAvatar(String value) async {
+    if (_avatar == value) return;
     _avatar = value;
     notifyListeners();
     await (await SharedPreferences.getInstance()).setString(_avatarKey, value);
   }
 
   Future<void> setThemeColor(AppThemeColor value) async {
+    if (_themeColor == value) return;
     _themeColor = value;
     notifyListeners();
     await (await SharedPreferences.getInstance())
@@ -101,12 +105,14 @@ class UserProfile extends ChangeNotifier {
   }
 
   Future<void> setGoal(String value) async {
+    if (_goal == value) return;
     _goal = value;
     notifyListeners();
     await (await SharedPreferences.getInstance()).setString(_goalKey, value);
   }
 
   Future<void> setPersonality(SerenaPersonality value) async {
+    if (_personality == value) return;
     _personality = value;
     notifyListeners();
     await (await SharedPreferences.getInstance())

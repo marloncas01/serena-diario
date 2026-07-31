@@ -21,14 +21,19 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _index = 0;
+  final _pages = List<Widget?>.filled(5, null);
 
-  static const _pages = [
-    DiaryScreen(),
-    CalendarScreen(),
-    WellbeingScreen(),
-    StatisticsScreen(),
-    SettingsScreen(),
-  ];
+  Widget _page(int index) {
+    _pages[index] ??= switch (index) {
+      0 => const DiaryScreen(),
+      1 => const CalendarScreen(),
+      2 => const WellbeingScreen(),
+      3 => const StatisticsScreen(),
+      4 => const SettingsScreen(),
+      _ => const SizedBox.shrink(),
+    };
+    return _pages[index]!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +76,7 @@ class _AppShellState extends State<AppShell> {
       ),
       body: IndexedStack(
         index: _index,
-        children: _pages,
+        children: List.generate(5, (i) => _page(i)),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,

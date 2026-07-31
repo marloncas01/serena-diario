@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
+import 'ui/fade_in_child.dart';
 
 class AppCard extends StatelessWidget {
   const AppCard({
@@ -24,8 +25,10 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final card = Container(
-      margin: margin,
+    final card = FadeInChild(
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        margin: margin,
       padding: padding ?? const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: gradient != null
@@ -53,6 +56,7 @@ class AppCard extends StatelessWidget {
             : AppShadows.soft,
       ),
       child: child,
+    ),
     );
     if (onTap != null) {
       return Material(

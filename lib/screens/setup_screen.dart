@@ -55,6 +55,7 @@ class _SetupScreenState extends State<SetupScreen> {
         leading: _page > 0
             ? IconButton(
                 icon: const Icon(Icons.arrow_back_rounded),
+                tooltip: 'Atrás',
                 onPressed: () => _controller.previousPage(
                   duration: AppDurations.normal,
                   curve: Curves.easeOutCubic,

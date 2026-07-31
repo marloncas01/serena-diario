@@ -594,6 +594,74 @@ class EmotionLexicon {
       LexiconEntry('tristeza', 0.7),
       LexiconEntry('ansiedad', 0.3),
     ],
+    'me siento vacio': [
+      LexiconEntry('vacio', 1.0),
+      LexiconEntry('tristeza', 0.4),
+    ],
+    'me siento vacía': [
+      LexiconEntry('vacio', 1.0),
+      LexiconEntry('tristeza', 0.4),
+    ],
+    'me siento roto': [
+      LexiconEntry('tristeza', 0.9),
+      LexiconEntry('desesperanza', 0.5),
+      LexiconEntry('vacio', 0.4),
+    ],
+    'me siento rota': [
+      LexiconEntry('tristeza', 0.9),
+      LexiconEntry('desesperanza', 0.5),
+      LexiconEntry('vacio', 0.4),
+    ],
+    'no tengo ganas': [
+      LexiconEntry('agotamiento', 0.7),
+      LexiconEntry('burnout', 0.5),
+      LexiconEntry('vacio', 0.4),
+    ],
+    'sin ganas': [
+      LexiconEntry('agotamiento', 0.7),
+      LexiconEntry('vacio', 0.4),
+      LexiconEntry('desesperanza', 0.3),
+    ],
+    'extraño mucho': [
+      LexiconEntry('nostalgia', 1.0),
+      LexiconEntry('tristeza', 0.5),
+    ],
+    'todo me da igual': [
+      LexiconEntry('vacio', 0.8),
+      LexiconEntry('desesperanza', 0.6),
+      LexiconEntry('apathy', 0.5),
+    ],
+    'no encuentro sentido': [
+      LexiconEntry('desesperanza', 0.8),
+      LexiconEntry('vacio', 0.7),
+    ],
+    'sin rumbo': [
+      LexiconEntry('incertidumbre', 0.7),
+      LexiconEntry('confusion', 0.5),
+      LexiconEntry('desesperanza', 0.3),
+    ],
+    'no valgo': [
+      LexiconEntry('tristeza', 0.7),
+      LexiconEntry('desesperanza', 0.6),
+    ],
+    'no sirvo': [
+      LexiconEntry('tristeza', 0.7),
+      LexiconEntry('frustracion', 0.5),
+      LexiconEntry('desesperanza', 0.5),
+    ],
+    'no merezco': [
+      LexiconEntry('culpa', 0.7),
+      LexiconEntry('tristeza', 0.5),
+    ],
+    'quiero llorar': [
+      LexiconEntry('tristeza', 0.9),
+      LexiconEntry('desesperanza', 0.3),
+    ],
+    'no quiero hacer nada': [
+      LexiconEntry('agotamiento', 0.7),
+      LexiconEntry('burnout', 0.5),
+      LexiconEntry('vacio', 0.4),
+    ],
 
     'solo': [
       LexiconEntry('soledad', 0.9),

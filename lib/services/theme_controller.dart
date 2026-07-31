@@ -29,12 +29,15 @@ class ThemeController extends ChangeNotifier {
   }
 
   Future<void> setDarkMode(bool enabled) async {
-    _mode = enabled ? ThemeMode.dark : ThemeMode.light;
+    final newMode = enabled ? ThemeMode.dark : ThemeMode.light;
+    if (_mode == newMode) return;
+    _mode = newMode;
     notifyListeners();
     await AppPreferences().setDarkMode(enabled);
   }
 
   Future<void> updateSeedColor(Color color) async {
+    if (_seedColor == color) return;
     _seedColor = color;
     notifyListeners();
     await AppPreferences().setSeedColorValue(color.toARGB32());

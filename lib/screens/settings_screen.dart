@@ -344,12 +344,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-                trailing: Radio<SerenaPersonality>(
-                  value: p,
-                  groupValue: profile.personality,
-                  onChanged: (value) {
-                    if (value != null) profile.setPersonality(value);
-                  },
+                trailing: Icon(
+                  selected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                  color: selected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                 ),
                 onTap: () => profile.setPersonality(p),
               );
@@ -668,7 +665,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 onTap: () async {
                   await AIProviderManager().clearConversationHistory();
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   AppFeedback.success(context, 'Historial limpiado');
                   setState(() {});
                 },

@@ -9,11 +9,13 @@ class GeminiProvider implements AIProvider {
   GeminiProvider({
     required String apiKey,
     String modelId = 'gemini-1.5-flash',
-  })  : _apiKey = apiKey,
-        _modelId = modelId;
+  }) {
+    _apiKey = apiKey;
+    _modelId = modelId;
+  }
 
-  final String _apiKey;
-  final String _modelId;
+  late final String _apiKey;
+  late final String _modelId;
 
   GenerativeModel? _model;
   bool _available = false;

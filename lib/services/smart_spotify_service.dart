@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/journal_entry.dart';
 import '../models/memory_item.dart';
@@ -52,7 +50,6 @@ class SmartSpotifyService {
 
   static const _usageKey = 'spotify_playlist_usage_v1';
   final _recService = MusicRecommendationService();
-  final _random = Random();
 
   final _genreMap = const {
     'Sad Songs': 'Pop melancólico',

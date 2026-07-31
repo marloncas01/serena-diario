@@ -194,7 +194,7 @@ class AchievementService {
   Future<void> checkAll(List<JournalEntry> entries) async {
     if (entries.isEmpty) return;
 
-    if (entries.length >= 1) await checkAndUnlock('first_entry');
+    if (entries.isNotEmpty) await checkAndUnlock('first_entry');
     if (entries.length >= 3) await checkAndUnlock('three_entries');
     if (entries.length >= 7) await checkAndUnlock('seven_entries');
     if (entries.length >= 10) await checkAndUnlock('entries_10');
@@ -209,7 +209,6 @@ class AchievementService {
     if (streak >= 30) await checkAndUnlock('streak_30');
 
     final now = DateTime.now();
-    final hour = now.hour;
     final isWeekend = now.weekday == 6 || now.weekday == 7;
 
     if (entries.isNotEmpty) {

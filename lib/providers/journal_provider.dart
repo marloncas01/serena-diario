@@ -18,8 +18,6 @@ class JournalProvider extends ChangeNotifier {
 
   Future<void> initialize() async {
     try {
-      _status = JournalStatus.loading;
-      notifyListeners();
       await _database.initialize();
       _entries = _database.readAll();
       _status = JournalStatus.ready;
@@ -63,6 +61,12 @@ class JournalProvider extends ChangeNotifier {
         tags: _normalizeTags(entry.tags),
       );
       if (updated.note.isEmpty) return false;
+      final existing = _entries.firstWhere((e) => e.id == updated.id);
+      if (existing.note == updated.note &&
+          existing.mood == updated.mood &&
+          _listEquals(existing.tags, updated.tags)) {
+        return true;
+      }
       await _database.save(updated);
       _entries = _entries
           .map((item) => item.id == updated.id ? updated : item)
@@ -74,6 +78,14 @@ class JournalProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  static bool _listEquals(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   Future<JournalEntry?> delete(String id) async {

@@ -203,6 +203,7 @@ class EmotionResponseCard extends StatelessWidget {
                     size: 20,
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
+                  tooltip: 'Descartar',
                 ),
             ],
           ),

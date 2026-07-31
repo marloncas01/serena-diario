@@ -10,7 +10,6 @@ import '../models/memory_item.dart';
 import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../services/app_preferences.dart';
-import '../services/user_profile.dart';
 
 import '../theme/brand/brand_durations.dart';
 
@@ -27,7 +26,6 @@ import '../services/emotional_insights_service.dart';
 import '../services/recommendation_engine.dart';
 import '../services/journal_summary_service.dart';
 import '../services/mood_emotion_mapper.dart';
-import '../widgets/dashboard_components.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/emotion_response_card.dart';
 import '../widgets/glass_card.dart';
@@ -407,7 +405,6 @@ class _DiaryScreenState extends State<DiaryScreen> {
   @override
   Widget build(BuildContext context) {
     final journal = context.watch<JournalProvider>();
-    final profile = context.watch<UserProfile>();
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final screenWidth = MediaQuery.sizeOf(context).width;
