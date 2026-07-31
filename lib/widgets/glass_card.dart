@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
+import '../theme/brand/brand_durations.dart';
 
 class GlassCard extends StatelessWidget {
   const GlassCard({
@@ -28,7 +29,7 @@ class GlassCard extends StatelessWidget {
     final card = Semantics(
       container: true,
       child: AnimatedContainer(
-        duration: AppDurations.fast,
+        duration: BrandDurations.fast,
         margin: margin,
         padding: padding ?? const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
@@ -64,7 +65,10 @@ class GlassCard extends StatelessWidget {
                     ])
               : null,
         ),
-        child: child,
+        child: Material(
+          type: MaterialType.transparency,
+          child: child,
+        ),
       ),
     );
     if (onTap != null) {

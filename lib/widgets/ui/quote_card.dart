@@ -45,7 +45,7 @@ class QuoteCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(BrandRadius.sm),
             ),
             child: Icon(
-              Icons.format_quote_rounded,
+              icon ?? Icons.format_quote_rounded,
               size: 20,
               color: theme.colorScheme.primary,
             ),

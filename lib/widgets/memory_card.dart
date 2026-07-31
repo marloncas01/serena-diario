@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/memory_item.dart';
+import '../theme/brand/brand_spacing.dart';
 import 'glass_card.dart';
 
 class MemoryCard extends StatelessWidget {
@@ -58,8 +59,8 @@ class MemoryCard extends StatelessWidget {
                   onPressed: onViewAll,
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
+                      horizontal: 12,
+                      vertical: 4,
                     ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -67,7 +68,7 @@ class MemoryCard extends StatelessWidget {
                   child: Text(
                     'Ver todo',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.tertiary,
                     ),
@@ -75,7 +76,7 @@ class MemoryCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: BrandSpacing.sm),
           ...memories.take(5).map((memory) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),

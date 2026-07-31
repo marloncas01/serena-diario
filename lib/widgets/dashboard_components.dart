@@ -9,6 +9,7 @@ import '../models/mood.dart';
 import '../services/spotify_service.dart';
 import '../services/user_profile.dart';
 import '../theme/app_colors.dart';
+import '../theme/brand/brand_durations.dart';
 import '../utils/journal_insights.dart';
 import 'breathing_exercise_dialog.dart';
 import 'glass_card.dart';
@@ -22,7 +23,7 @@ class QuoteBar extends StatelessWidget {
     final theme = Theme.of(context);
     final quote = MotivationalQuotes.dailyQuote();
     return AnimatedOpacity(
-      duration: AppDurations.slow,
+      duration: BrandDurations.slow,
       opacity: 1,
       child: Text(
         quote,
@@ -76,7 +77,7 @@ class HeroHeader extends StatelessWidget {
           Row(
             children: [
               AnimatedContainer(
-                duration: AppDurations.normal,
+                duration: BrandDurations.normal,
                 width: isWide ? 56 : 48,
                 height: isWide ? 56 : 48,
                 decoration: BoxDecoration(
@@ -167,40 +168,38 @@ class _HeroStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 16),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 16),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
                 ),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    fontSize: 11,
-                  ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontSize: 11,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -408,7 +407,7 @@ class _QuickActionsState extends State<QuickActions> {
   }
 
   void _openMusic(BuildContext context) async {
-    final currentMood = widget.mood ?? 'normal';
+    final currentMood = widget.mood ?? 'Normal';
     final launched = await SpotifyService().openPlaylistByEmotion(currentMood);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -696,7 +695,7 @@ class _ActionButtonState extends State<_ActionButton>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: AppDurations.instant,
+      duration: BrandDurations.instant,
     );
     _scale = Tween<double>(begin: 1, end: 0.92).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeOut),
@@ -731,7 +730,7 @@ class _ActionButtonState extends State<_ActionButton>
             },
             onTapCancel: () => _animController.reverse(),
             child: AnimatedContainer(
-              duration: AppDurations.fast,
+              duration: BrandDurations.fast,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: widget.color.withValues(alpha: 0.1),

@@ -132,7 +132,7 @@ class _SmartDashboardState extends State<SmartDashboard> {
       streak: streak,
     );
 
-    final currentMood = widget.selectedMood ?? 'normal';
+    final currentMood = widget.selectedMood ?? 'Normal';
     final music = SmartSpotifyService().getSmartRecommendation(
       currentMood: currentMood,
       recentEntries: widget.entries,
@@ -499,9 +499,9 @@ class _SmartMusicCard extends StatelessWidget {
               color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.music_note_rounded,
-              color: Colors.white,
+              color: theme.colorScheme.primary,
               size: 22,
             ),
           ),
@@ -530,8 +530,8 @@ class _SmartMusicCard extends StatelessWidget {
                 Text(
                   recommendation.reason,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    height: 1.3,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                    height: 1.4,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

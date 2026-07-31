@@ -91,7 +91,7 @@ class RecommendationsCard extends StatelessWidget {
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: prioridadColor,
                     fontWeight: FontWeight.w700,
-                    fontSize: 10,
+                    fontSize: 11,
                   ),
                 ),
               ),

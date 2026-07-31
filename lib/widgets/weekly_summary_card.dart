@@ -125,7 +125,7 @@ class WeeklySummaryCard extends StatelessWidget {
     IconData icon,
   ) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
           Icon(icon, size: 16, color: theme.colorScheme.secondary),

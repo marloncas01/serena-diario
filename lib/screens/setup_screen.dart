@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../core/app_constants.dart';
 import '../services/app_preferences.dart';
 import '../services/user_profile.dart';
+import '../theme/brand/brand_durations.dart';
 import 'app_shell.dart';
 
 class SetupScreen extends StatefulWidget {
@@ -57,7 +57,7 @@ class _SetupScreenState extends State<SetupScreen> {
                 icon: const Icon(Icons.arrow_back_rounded),
                 tooltip: 'Atrás',
                 onPressed: () => _controller.previousPage(
-                  duration: AppDurations.normal,
+                  duration: BrandDurations.normal,
                   curve: Curves.easeOutCubic,
                 ),
               )
@@ -128,17 +128,20 @@ class _SetupScreenState extends State<SetupScreen> {
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 32),
-          FilledButton(
-            onPressed: _nameController.text.trim().isEmpty
-                ? null
-                : () => _controller.nextPage(
-                    duration: AppDurations.normal,
-                    curve: Curves.easeOutCubic,
-                  ),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(56),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _nameController.text.trim().isEmpty
+                  ? null
+                  : () => _controller.nextPage(
+                      duration: BrandDurations.normal,
+                      curve: Curves.easeOutCubic,
+                    ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
+              ),
+              child: const Text('Continuar'),
             ),
-            child: const Text('Continuar'),
           ),
           const Spacer(flex: 2),
         ],
@@ -167,7 +170,7 @@ class _SetupScreenState extends State<SetupScreen> {
               return GestureDetector(
                 onTap: () => setState(() => _selectedAvatar = a),
                 child: AnimatedContainer(
-                  duration: AppDurations.fast,
+                  duration: BrandDurations.fast,
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
@@ -201,7 +204,7 @@ class _SetupScreenState extends State<SetupScreen> {
               return GestureDetector(
                 onTap: () => setState(() => _selectedColor = c),
                 child: AnimatedContainer(
-                  duration: AppDurations.fast,
+                  duration: BrandDurations.fast,
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
@@ -220,15 +223,18 @@ class _SetupScreenState extends State<SetupScreen> {
             }).toList(),
           ),
           const SizedBox(height: 32),
-          FilledButton(
-            onPressed: () => _controller.nextPage(
-              duration: AppDurations.normal,
-              curve: Curves.easeOutCubic,
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => _controller.nextPage(
+                duration: BrandDurations.normal,
+                curve: Curves.easeOutCubic,
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
+              ),
+              child: const Text('Continuar'),
             ),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(56),
-            ),
-            child: const Text('Continuar'),
           ),
           const Spacer(flex: 2),
         ],
@@ -309,15 +315,18 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () => _controller.nextPage(
-              duration: AppDurations.normal,
-              curve: Curves.easeOutCubic,
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => _controller.nextPage(
+                duration: BrandDurations.normal,
+                curve: Curves.easeOutCubic,
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
+              ),
+              child: const Text('Continuar'),
             ),
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(56),
-            ),
-            child: const Text('Continuar'),
           ),
           const SizedBox(height: 16),
         ],
@@ -413,12 +422,15 @@ class _SetupScreenState extends State<SetupScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _finish,
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(56),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: _finish,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
+              ),
+              child: const Text('¡Comenzar!'),
             ),
-            child: const Text('¡Comenzar!'),
           ),
           const SizedBox(height: 16),
         ],

@@ -6,6 +6,7 @@ import '../core/app_constants.dart';
 import '../models/journal_entry.dart';
 import '../models/mood.dart';
 import '../providers/journal_provider.dart';
+import '../theme/brand/brand_durations.dart';
 
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
@@ -425,7 +426,7 @@ class _ActivityLine extends StatelessWidget {
           ),
         ],
       ),
-      duration: AppDurations.slow,
+      duration: BrandDurations.slow,
       curve: Curves.easeOutCubic,
     );
   }
@@ -534,7 +535,7 @@ class _WeeklyChart extends StatelessWidget {
           ),
         ),
       ),
-      duration: AppDurations.slow,
+      duration: BrandDurations.slow,
       curve: Curves.easeOutCubic,
     );
   }

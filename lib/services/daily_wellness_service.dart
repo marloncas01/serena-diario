@@ -221,7 +221,7 @@ class DailyWellnessService {
     const WellnessTip(id: 'ali_03', title: 'Fruta de la temporada', message: 'Compra una fruta de temporada y disfrútala. Fresca, más económica y más nutritiva que cualquier suplemento.', category: 'alimentacion', emoji: '🍑'),
     const WellnessTip(id: 'ali_04', title: 'Cocina algo simple', message: 'Prepara algo sencillo en casa: una ensalada, una sopa o un sándwich con ingredientes frescos.', category: 'alimentacion', emoji: '🥗'),
     const WellnessTip(id: 'ali_05', title: 'Semillas en tu comida', message: 'Añade chía, linaza o girasol a tu comida. Son pequeñas pero están llenas de omega-3 y fibra.', category: 'alimentacion', emoji: '🌻'),
-    const WellnessTip(id: 'ali_06', title: 'Reduce el azúcar', message: 'Hoy intenta no agregar azúcar a nada. Usa canela o vainilla como alternativa para endulzar naturalmente.', category: 'alimentacion', emoji: '🚫'),
+    const WellnessTip(id: 'ali_06', title: 'Reduce el azúcar', message: 'Hoy intenta no añadir azúcar a nada. Usa canela o vainilla como alternativa para endulzar naturalmente.', category: 'alimentacion', emoji: '🚫'),
     const WellnessTip(id: 'ali_07', title: 'Snack saludable', message: 'Ten frutas secas, zanahoria con hummus o yogur como alternativas al snack procesado.', category: 'alimentacion', emoji: '🥕'),
     const WellnessTip(id: 'ali_08', title: 'Verduras crudas', message: 'Come una porción de verduras crudas hoy: apio, pepino, zanahoria. Conservan todas sus vitaminas.', category: 'alimentacion', emoji: '🥦'),
     const WellnessTip(id: 'ali_09', title: 'Cena ligera', message: 'Cena al menos 2 horas antes de dormir y que sea ligera: ensalada, sopa o vegetales al vapor.', category: 'alimentacion', emoji: '🌙'),
@@ -238,7 +238,7 @@ class DailyWellnessService {
     const WellnessTip(id: 'ali_20', title: 'Comparte una comida', message: 'Si es posible, come acompañado. Compartir comida fortalece vínculos y hace la experiencia más placentera.', category: 'alimentacion', emoji: '👨‍👩‍👧'),
     const WellnessTip(id: 'ali_21', title: 'Nueces y almendras', message: 'Un puñado de nueces o almendras es un snack perfecto: proteína, grasas buenas y minerales esenciales.', category: 'alimentacion', emoji: '🥜'),
     const WellnessTip(id: 'ali_22', title: 'Plato no lleno', message: 'Sirve un poco menos de lo que crees necesario. Puedes repetir si sigues con hambre, pero empieza con moderación.', category: 'alimentacion', emoji: '🫙'),
-    const WellnessTip(id: 'ali_23', title: 'Té o café sin azúcar', message: 'Hoy prueba tu té o café sin agregar azúcar. Tu paladar se adapta y descubres los sabores reales.', category: 'alimentacion', emoji: '☕'),
+    const WellnessTip(id: 'ali_23', title: 'Té o café sin azúcar', message: 'Hoy prueba tu té o café sin añadir azúcar. Tu paladar se adapta y descubres los sabores reales.', category: 'alimentacion', emoji: '☕'),
     const WellnessTip(id: 'ali_24', title: 'Gracias por la comida', message: 'Antes de comer, toma un momento para agradecer. No tiene que ser religioso, solo consciente y sincero.', category: 'alimentacion', emoji: '🙏'),
 
     // ═══════════════════════════════════════════════════════════════════════

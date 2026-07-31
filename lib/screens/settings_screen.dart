@@ -101,26 +101,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.all(BrandSpacing.xl),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => _showAvatarPicker(context, profile),
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(BrandRadius.lg),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+          Semantics(
+            button: true,
+            label: 'Cambiar avatar',
+            child: GestureDetector(
+              onTap: () => _showAvatarPicker(context, profile),
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(BrandRadius.lg),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    profile.avatar,
+                    style: const TextStyle(fontSize: 28),
                   ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  profile.avatar,
-                  style: const TextStyle(fontSize: 28),
                 ),
               ),
             ),
@@ -878,7 +882,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Text(
                       profile.goal.isNotEmpty
                           ? profile.goal
-                          : 'Toca para agregar tu frase motivacional',
+                          : 'Toca para añadir tu frase motivacional',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: profile.goal.isNotEmpty
                             ? theme.colorScheme.onSurface

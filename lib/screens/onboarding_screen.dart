@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../widgets/branding/serena_logo.dart';
 import '../core/app_constants.dart';
 import '../services/app_preferences.dart';
+import '../theme/brand/brand_durations.dart';
 
 
 class OnboardingScreen extends StatefulWidget {
@@ -113,11 +114,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       itemBuilder: (context, index) {
         final slide = _slides[index];
         return AnimatedOpacity(
-          duration: AppDurations.slow,
+          duration: BrandDurations.slow,
           opacity: _page == index ? 1 : 0.3,
           child: AnimatedScale(
             scale: _page == index ? 1.0 : 0.9,
-            duration: AppDurations.slow,
+            duration: BrandDurations.slow,
             curve: Curves.easeOutCubic,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -189,7 +190,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       children: List.generate(
         _slides.length,
         (index) => AnimatedContainer(
-          duration: AppDurations.normal,
+          duration: BrandDurations.normal,
           curve: Curves.easeOutCubic,
           margin: const EdgeInsets.all(4),
           width: _page == index ? 32 : 8,
@@ -212,7 +213,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         onPressed: _page == _slides.length - 1
             ? _finish
             : () => _controller.nextPage(
-                duration: AppDurations.slow,
+                duration: BrandDurations.slow,
                 curve: Curves.easeOutCubic,
               ),
         style: FilledButton.styleFrom(

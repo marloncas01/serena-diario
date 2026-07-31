@@ -32,7 +32,7 @@ class SectionTitle extends StatelessWidget {
               ),
               child: Icon(icon, size: 16, color: theme.colorScheme.primary),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.sm),
           ],
           Expanded(
             child: Text(

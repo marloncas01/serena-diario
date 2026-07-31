@@ -134,7 +134,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
     if (wordCount < 20) return 'Sigue escribiendo, estás empezando bien...';
     if (wordCount < 50) return 'Vas muy bien, ya tienes ideas claras.';
     if (wordCount < 100) return '¡Excelente reflexión! ¿Algo más que quieras añadir?';
-    if (wordCount < 200) return 'Buen texto. ¿Quieres agregar etiquetas?';
+    if (wordCount < 200) return '¡Muy bien! ¿Quieres añadir etiquetas a esta entrada?';
     return '¡Gran entrada! Puedes guardar cuando quieras.';
   }
 
@@ -242,10 +242,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
       isScrollControlled: true,
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.fromLTRB(
-          20,
-          20,
-          20,
-          MediaQuery.viewInsetsOf(sheetContext).bottom + 20,
+          24,
+          24,
+          24,
+          MediaQuery.viewInsetsOf(sheetContext).bottom + 24,
         ),
         child: StatefulBuilder(
           builder: (context, setSheetState) => SingleChildScrollView(
@@ -266,16 +266,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
                 const SizedBox(height: 20),
                 Text(
                   AppTexts.editEntry,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Wrap(
                   spacing: 8,
+                  runSpacing: 8,
                   children: moods
                       .map(
                         (item) => AnimatedScale(
                           scale: mood == item.name ? 1.05 : 1.0,
-                          duration: AppDurations.fast,
+                          duration: BrandDurations.fast,
                           curve: Curves.easeOutCubic,
                           child: ChoiceChip(
                             label: Text('${item.emoji} ${item.name}'),
@@ -353,11 +357,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
         builder: (ctx, scrollController) => Column(
           children: [
             Container(
-              width: 40,
+              width: 36,
               height: 4,
-              margin: const EdgeInsets.only(top: 12),
               decoration: BoxDecoration(
-                color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.2),
+                color: Theme.of(ctx).colorScheme.outlineVariant,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -580,19 +583,13 @@ class _DiaryScreenState extends State<DiaryScreen> {
               ]),
             ),
           ),
-          if (filtered.isEmpty)
+          if (filtered.isEmpty && _query.isNotEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
               child: EmptyState(
-                icon: _query.isEmpty
-                    ? Icons.menu_book_outlined
-                    : Icons.search_off_rounded,
-                title: _query.isEmpty
-                    ? AppTexts.noEntries
-                    : 'No encontramos coincidencias',
-                message: _query.isEmpty
-                    ? AppTexts.noEntriesHint
-                    : 'Prueba con otras palabras o etiquetas.',
+                icon: Icons.search_off_rounded,
+                title: 'No encontramos coincidencias',
+                message: 'Prueba con otras palabras o etiquetas.',
               ),
             )
           else
@@ -602,7 +599,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final entry = filtered[index];
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.only(bottom: BrandSpacing.md),
                     child: Dismissible(
                       key: ValueKey(entry.id),
                       direction: DismissDirection.horizontal,
@@ -673,7 +670,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
               label: 'Crear nueva entrada de diario',
               child: GlassCard(
               onTap: () => setState(() => _showEntryForm = true),
-              padding: const EdgeInsets.all(BrandSpacing.lg),
+              padding: const EdgeInsets.all(BrandSpacing.base),
               child: Row(
                 children: [
                   Container(

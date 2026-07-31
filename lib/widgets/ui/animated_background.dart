@@ -129,7 +129,7 @@ class _ParticlePainter extends CustomPainter {
       final dy = (p.y + cos(progress * pi * 2 * p.speed + p.phase) * 0.05) *
           size.height;
 
-      paint.color = color.withValues(alpha: 0.4);
+      paint.color = color;
       canvas.drawCircle(Offset(dx, dy), p.radius, paint);
     }
   }

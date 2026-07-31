@@ -16,6 +16,7 @@ class DailyTipCard extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return GlassCard(
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
@@ -56,7 +57,7 @@ class DailyTipCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Consejo de hoy',

@@ -156,8 +156,8 @@ class _StatChip extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.6),
-                      fontSize: 10,
+                      color: Colors.white.withValues(alpha: 0.7),
+                      fontSize: 11,
                     ),
                   ),
                 ],

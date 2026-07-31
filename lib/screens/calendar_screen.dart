@@ -7,6 +7,7 @@ import '../core/app_constants.dart';
 import '../models/journal_entry.dart';
 import '../models/mood.dart';
 import '../providers/journal_provider.dart';
+import '../theme/brand/brand_durations.dart';
 
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
@@ -155,7 +156,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     ),
                     Expanded(
                       child: AnimatedSwitcher(
-                        duration: AppDurations.normal,
+                        duration: BrandDurations.normal,
                         transitionBuilder: (child, animation) => FadeTransition(
                           opacity: animation,
                           child: SlideTransition(
@@ -234,7 +235,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         },
                         borderRadius: BorderRadius.circular(AppRadii.pill),
                         child: AnimatedContainer(
-                          duration: AppDurations.fast,
+                          duration: BrandDurations.fast,
                           curve: Curves.easeOutCubic,
                           margin: const EdgeInsets.all(3),
                           alignment: Alignment.center,
@@ -298,7 +299,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
           // ── Selected day detail ──
           AnimatedSwitcher(
-            duration: AppDurations.slow,
+            duration: BrandDurations.slow,
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
             child: selectedEntries.isEmpty

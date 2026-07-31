@@ -52,7 +52,7 @@ class EmotionalProfileCard extends StatelessWidget {
                 _TrendBadge(report: historyReport!),
             ],
           ),
-          const SizedBox(height: BrandSpacing.md),
+          const SizedBox(height: BrandSpacing.sm),
           _buildPlainLanguageSummary(theme, historyReport),
           const SizedBox(height: BrandSpacing.md),
           _buildMetricRow(

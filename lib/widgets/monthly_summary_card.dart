@@ -58,13 +58,13 @@ class MonthlySummaryCard extends StatelessWidget {
           ),
           _buildSection(
             theme,
-            'Positivas',
+            'Emociones positivas',
             summary.cambioPositivas,
             Icons.sentiment_satisfied,
           ),
           _buildSection(
             theme,
-            'Trabajar',
+            'A trabajar',
             summary.aspectoTrabajar,
             Icons.build,
           ),

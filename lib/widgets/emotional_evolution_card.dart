@@ -197,6 +197,6 @@ class EmotionalEvolutionCard extends StatelessWidget {
   Color _statusColor(ThemeData theme) {
     if (report.hayMejora) return theme.colorScheme.tertiary;
     if (report.hayRecaida) return theme.colorScheme.primary;
-    return theme.colorScheme.primary;
+    return theme.colorScheme.secondary;
   }
 }

@@ -5,9 +5,11 @@ import '../core/app_constants.dart';
 import '../models/journal_entry.dart';
 import '../models/mood.dart';
 import '../providers/journal_provider.dart';
+import '../theme/brand/brand_durations.dart';
 
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
+import '../widgets/empty_state.dart';
 
 class WellbeingScreen extends StatelessWidget {
   const WellbeingScreen({super.key});
@@ -17,6 +19,17 @@ class WellbeingScreen extends StatelessWidget {
     final entries = context.select<JournalProvider, List<JournalEntry>>(
       (provider) => provider.entries,
     );
+
+    if (entries.isEmpty) {
+      return const SafeArea(
+        child: EmptyState(
+          icon: Icons.spa_outlined,
+          title: 'Tu bienestar empieza con una entrada',
+          message: 'Escribe una reflexión para ver tus indicadores.',
+        ),
+      );
+    }
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -140,7 +153,7 @@ class WellbeingScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           AnimatedContainer(
-                            duration: AppDurations.normal,
+                            duration: BrandDurations.normal,
                             curve: Curves.easeOutCubic,
                             width: 28,
                             height: height,
@@ -387,7 +400,7 @@ class _Metric extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 20, color: Colors.white),
+            child: Icon(icon, size: 20, color: color),
           ),
           const SizedBox(height: 12),
           Text(

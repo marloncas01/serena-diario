@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/emotion.dart';
+import '../theme/brand/brand_spacing.dart';
 import 'glass_card.dart';
 
 class EmotionTrendCard extends StatelessWidget {
@@ -58,7 +59,7 @@ class EmotionTrendCard extends StatelessWidget {
               if (totalEntries > 0)
                 Flexible(
                   child: Text(
-                    'últimos 7 días',
+                    'Últimos 7 días',
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: theme.textTheme.labelSmall?.copyWith(
@@ -68,14 +69,14 @@ class EmotionTrendCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: BrandSpacing.sm),
           ...trends.entries.take(5).map((entry) {
             final emotion = _findEmotion(entry.key);
             final color = emotion.color;
             final percentage = maxCount > 0 ? entry.value / maxCount : 0.0;
 
             return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: 8),
               child: _buildTrendRow(
                 theme,
                 emotion,
