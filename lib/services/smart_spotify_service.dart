@@ -162,7 +162,7 @@ class SmartSpotifyService {
   }
 
   String _resolveEmotionKey(String mood) {
-    final emotionMap = const {
+    const emotionMap = {
       'feliz': 'felicidad',
       'en calma': 'calma',
       'normal': 'calma',

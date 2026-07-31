@@ -49,12 +49,16 @@ class SerenaLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final logoAsset = isDark ? 'assets/images/logo_dark.png' : 'assets/images/logo.png';
+    final cacheWidth =
+        (size * MediaQuery.devicePixelRatioOf(context)).round();
 
     if (variant == SerenaLogoVariant.isotipo) {
       return Image.asset(
         logoAsset,
         width: size,
         height: size,
+        cacheWidth: cacheWidth,
+        filterQuality: FilterQuality.medium,
       );
     }
 
@@ -78,6 +82,8 @@ class SerenaLogo extends StatelessWidget {
             logoAsset,
             width: iconSize,
             height: iconSize,
+            cacheWidth: cacheWidth,
+            filterQuality: FilterQuality.medium,
           ),
           SizedBox(width: size * 0.18),
           LogoText(
@@ -97,6 +103,8 @@ class SerenaLogo extends StatelessWidget {
           logoAsset,
           width: iconSize,
           height: iconSize,
+          cacheWidth: cacheWidth,
+          filterQuality: FilterQuality.medium,
         ),
         SizedBox(height: size * 0.12),
         LogoText(

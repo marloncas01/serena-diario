@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../theme/brand/brand_durations.dart';
 
 class AnimatedCounter extends StatefulWidget {
   const AnimatedCounter({
@@ -72,7 +73,7 @@ class _AnimatedCounterState extends State<AnimatedCounter>
   @override
   Widget build(BuildContext context) {
     return AnimatedDefaultTextStyle(
-      duration: const Duration(milliseconds: 200),
+      duration: BrandDurations.transition,
       style: widget.style ?? Theme.of(context).textTheme.headlineMedium!,
       child: Text('$_displayedValue'),
     );

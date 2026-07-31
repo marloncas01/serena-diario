@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import '../../theme/brand/brand_durations.dart';
 import '../../theme/brand/brand_radius.dart';
 import '../../theme/brand/brand_shadows.dart';
 
@@ -36,7 +37,7 @@ class GlassCard extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: BrandDurations.transition,
           margin: margin,
           padding: padding ?? const EdgeInsets.all(16),
           decoration: BoxDecoration(

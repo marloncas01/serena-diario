@@ -119,7 +119,7 @@ class EmotionalInsightsService {
     }
 
     if (highWordEntries > 0 && highWordPositive / highWordEntries > 0.5) {
-      insights.add(Insight(
+      insights.add(const Insight(
         titulo: 'Escritura y emoción',
         descripcion:
             'Cuando escribes más de 100 palabras, tu estado emocional tiende a mejorar.',
@@ -128,7 +128,7 @@ class EmotionalInsightsService {
       ));
     }
     if (lowWordEntries > 0 && lowWordPositive / lowWordEntries < 0.3) {
-      insights.add(Insight(
+      insights.add(const Insight(
         titulo: 'Entradas cortas',
         descripcion:
             'Las entradas más cortas suelen asociarse con emociones negativas.',
@@ -170,7 +170,7 @@ class EmotionalInsightsService {
     if (hasPhysical) {
       final anxietyCount = _countEmotion(history, 'ansiedad');
       if (anxietyCount > 2) {
-        insights.add(Insight(
+        insights.add(const Insight(
           titulo: 'Actividad física',
           descripcion:
               'Tu ansiedad disminuye cuando mencionas actividad física.',
@@ -180,7 +180,7 @@ class EmotionalInsightsService {
       }
     }
     if (hasMusic) {
-      insights.add(Insight(
+      insights.add(const Insight(
         titulo: 'Música',
         descripcion:
             'La música parece tener un efecto positivo en tu estado de ánimo.',
@@ -196,7 +196,7 @@ class EmotionalInsightsService {
     if (familyMemories.length >= 2) {
       final posCount = _countPositiveEmotions(history);
       if (posCount > history.length * 0.3) {
-        insights.add(Insight(
+        insights.add(const Insight(
           titulo: 'Familia y relaciones',
           descripcion:
               'La mayoría de tus entradas positivas hablan de tu familia o seres queridos.',
@@ -347,7 +347,7 @@ class EmotionalInsightsService {
         .where((e) => _isNegative(e.key))
         .fold<int>(0, (sum, e) => sum + e.value);
     if (negCount >= 4 && negCount / total >= 0.5) {
-      insights.add(Insight(
+      insights.add(const Insight(
         titulo: 'Tendencia emocional',
         descripcion:
             'Las emociones negativas han predominado recientemente. '
@@ -372,7 +372,7 @@ class EmotionalInsightsService {
     final secondPos = _positiveRatio(secondHalf);
 
     if (secondPos - firstPos > 0.2) {
-      insights.add(Insight(
+      insights.add(const Insight(
         titulo: 'Mejorando',
         descripcion:
             'Tus emociones positivas han aumentado recientemente. '
@@ -381,7 +381,7 @@ class EmotionalInsightsService {
         icono: '📈',
       ));
     } else if (firstPos - secondPos > 0.2) {
-      insights.add(Insight(
+      insights.add(const Insight(
         titulo: 'Atención',
         descripcion:
             'Las emociones negativas han aumentado un poco. '

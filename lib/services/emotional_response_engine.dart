@@ -44,7 +44,7 @@ class EmotionalResponseEngine {
   const EmotionalResponseEngine._();
 
   static final Map<String, _MessageBank> _banks = {
-    'tristeza': _MessageBank(
+    'tristeza': const _MessageBank(
       greetings: [
         'Veo que hoy no es un día fácil para ti.',
         'Gracias por confiarme lo que sientes.',
@@ -118,7 +118,7 @@ class EmotionalResponseEngine {
         '¿Cuándo fue la última vez que te sentiste en paz?',
       ],
     ),
-    'ansiedad': _MessageBank(
+    'ansiedad': const _MessageBank(
       greetings: [
         'Veo que tu mente está muy activa hoy.',
         'Parece que hay mucha preocupación en lo que escribes.',
@@ -187,7 +187,7 @@ class EmotionalResponseEngine {
         '¿Cuándo fue la última vez que te sentiste tranquilo?',
       ],
     ),
-    'estres': _MessageBank(
+    'estres': const _MessageBank(
       greetings: [
         'Parece que hoy estás cargando mucho.',
         'Veo que las cosas no están fáciles.',
@@ -254,7 +254,7 @@ class EmotionalResponseEngine {
         '¿Qué sería diferente si pudieras pausar todo?',
       ],
     ),
-    'frustracion': _MessageBank(
+    'frustracion': const _MessageBank(
       greetings: [
         'Veo que algo te está frustrando.',
         'Parece que no han sido las cosas como esperabas.',
@@ -316,7 +316,7 @@ class EmotionalResponseEngine {
         '¿Cuándo fue la última vez que algo te salió bien?',
       ],
     ),
-    'culpa': _MessageBank(
+    'culpa': const _MessageBank(
       greetings: [
         'Veo que te estás juzgando con dureza.',
         'Parece que cargas con algo pesado.',
@@ -378,7 +378,7 @@ class EmotionalResponseEngine {
         '¿Qué necesitas para sentir paz?',
       ],
     ),
-    'miedo': _MessageBank(
+    'miedo': const _MessageBank(
       greetings: [
         'Veo que algo te está generando temor.',
         'Parece que hay una preocupación profunda.',
@@ -440,7 +440,7 @@ class EmotionalResponseEngine {
         '¿Qué necesitas para sentirte a salvo?',
       ],
     ),
-    'vergüenza': _MessageBank(
+    'vergüenza': const _MessageBank(
       greetings: [
         'Veo que te sientes expuesto.',
         'Parece que algo te hizo sentir mal contigo mismo.',
@@ -503,7 +503,7 @@ class EmotionalResponseEngine {
         '¿Qué cambiaría si pudieras verlo desde otro ángulo?',
       ],
     ),
-    'alegria': _MessageBank(
+    'alegria': const _MessageBank(
       greetings: [
         '¡Qué bueno ver que algo te hizo sonreír!',
         'Me alegra que estés pasando un buen momento.',
@@ -565,7 +565,7 @@ class EmotionalResponseEngine {
         '¿Qué necesitas para seguir sintiéndote así?',
       ],
     ),
-    'esperanza': _MessageBank(
+    'esperanza': const _MessageBank(
       greetings: [
         'Veo que algo te está dando fuerzas.',
         'Parece que hay luz en tu horizonte.',
@@ -627,7 +627,7 @@ class EmotionalResponseEngine {
         '¿Cómo te sientes respecto al futuro?',
       ],
     ),
-    'orgullo': _MessageBank(
+    'orgullo': const _MessageBank(
       greetings: [
         '¡Qué bueno que te sientas orgulloso!',
         'Se nota que lograste algo importante.',
@@ -689,7 +689,7 @@ class EmotionalResponseEngine {
         '¿Qué sigue después de esto?',
       ],
     ),
-    'soledad': _MessageBank(
+    'soledad': const _MessageBank(
       greetings: [
         'Veo que te sientes solo.',
         'Parece que la soledad se ha sentido fuerte.',
@@ -751,7 +751,7 @@ class EmotionalResponseEngine {
         '¿Qué necesitas para sentirte conectado?',
       ],
     ),
-    'vacio': _MessageBank(
+    'vacio': const _MessageBank(
       greetings: [
         'Parece que algo se siente vacío.',
         'Gracias por escribir esto.',
@@ -813,7 +813,7 @@ class EmotionalResponseEngine {
         '¿Qué te gustaría descubrir de ti?',
       ],
     ),
-    'burnout': _MessageBank(
+    'burnout': const _MessageBank(
       greetings: [
         'Veo que estás agotado.',
         'Parece que llevas mucho peso.',
@@ -875,7 +875,7 @@ class EmotionalResponseEngine {
         '¿Qué sería diferente si priorizaras tu salud?',
       ],
     ),
-    'nostalgia': _MessageBank(
+    'nostalgia': const _MessageBank(
       greetings: [
         'Veo que estás recordando.',
         'Parece que algo del pasado te está llamando.',
@@ -937,7 +937,7 @@ class EmotionalResponseEngine {
         '¿Qué sigue después de mirar atrás?',
       ],
     ),
-    'calma': _MessageBank(
+    'calma': const _MessageBank(
       greetings: [
         'Parece que estás en un buen lugar.',
         'Tu calma se nota.',
@@ -999,7 +999,7 @@ class EmotionalResponseEngine {
         '¿Cómo te sientes en este momento?',
       ],
     ),
-    'desesperanza': _MessageBank(
+    'desesperanza': const _MessageBank(
       greetings: [
         'Veo que estás pasando por un momento muy difícil.',
         'Parece que todo se siente pesado.',
@@ -1061,7 +1061,7 @@ class EmotionalResponseEngine {
         '¿Qué necesitas para seguir adelante?',
       ],
     ),
-    'incertidumbre': _MessageBank(
+    'incertidumbre': const _MessageBank(
       greetings: [
         'Veo que hay muchas dudas.',
         'Parece que no sabes qué hacer.',
@@ -1123,7 +1123,7 @@ class EmotionalResponseEngine {
         '¿Qué te dice tu instinto?',
       ],
     ),
-    'enojo': _MessageBank(
+    'enojo': const _MessageBank(
       greetings: [
         'Veo que algo te está molestando.',
         'Parece que algo te hizo enojar.',
@@ -1185,7 +1185,7 @@ class EmotionalResponseEngine {
         '¿Qué te ayudaría a calmarte?',
       ],
     ),
-    'motivacion': _MessageBank(
+    'motivacion': const _MessageBank(
       greetings: [
         '¡Veo que estás motivado!',
         'Tu energía se nota.',
@@ -1247,7 +1247,7 @@ class EmotionalResponseEngine {
         '¿Qué sigue?',
       ],
     ),
-    'inspiracion': _MessageBank(
+    'inspiracion': const _MessageBank(
       greetings: [
         '¡Veo que algo te está inspirando!',
         'Tu creatividad se nota.',
@@ -1343,7 +1343,7 @@ class EmotionalResponseEngine {
     final base = generate(interpretation);
 
     if (crisis.highRisk) {
-      return EmotionalResponse(
+      return const EmotionalResponse(
         greeting: 'Gracias por escribir. Sé que no es fácil.',
         validation: 'Lo que estás sintiendo es real y válido.',
         interpretation:

@@ -49,6 +49,9 @@ class _AppShellState extends State<AppShell> {
               isDark ? 'assets/images/logo_dark.png' : 'assets/images/logo.png',
               width: 26,
               height: 26,
+              cacheWidth:
+                  (26 * MediaQuery.devicePixelRatioOf(context)).round(),
+              filterQuality: FilterQuality.medium,
             ),
             const SizedBox(width: 8),
             LogoText(size: 18, color: logoColor),

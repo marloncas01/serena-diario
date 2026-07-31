@@ -138,6 +138,9 @@ class _SplashScreenState extends State<SplashScreen>
                   isDark ? 'assets/images/logo_dark.png' : 'assets/images/logo.png',
                   width: 120,
                   height: 120,
+                  cacheWidth:
+                      (120 * MediaQuery.devicePixelRatioOf(context)).round(),
+                  filterQuality: FilterQuality.medium,
                 ),
             ),
           ),
@@ -149,7 +152,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget _buildTitle() {
     return FadeTransition(
       opacity: _fadeTitle,
-      child: LogoText(
+      child: const LogoText(
         size: 46,
         color: Colors.white,
       ),

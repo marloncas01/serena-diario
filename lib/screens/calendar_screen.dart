@@ -302,8 +302,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
             child: selectedEntries.isEmpty
-                ? EmptyState(
-                    key: const ValueKey('empty'),
+                ? const EmptyState(
+                    key: ValueKey('empty'),
                     icon: Icons.event_available_outlined,
                     title: 'Sin entrada este día',
                     message: 'Elige otro día o escribe una nueva reflexión.',

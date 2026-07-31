@@ -750,6 +750,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 isDark ? 'assets/images/logo_dark.png' : 'assets/images/logo.png',
                 width: 64,
                 height: 64,
+                cacheWidth:
+                    (64 * MediaQuery.devicePixelRatioOf(context)).round(),
+                filterQuality: FilterQuality.medium,
               ),
               const SizedBox(height: 12),
               Text(
@@ -824,7 +827,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: theme.colorScheme.error,
                 ),
                 title: const Text('Creado por'),
-                subtitle: Text(AppTexts.developedBy),
+                subtitle: const Text(AppTexts.developedBy),
               ),
             ],
           ),

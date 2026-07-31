@@ -87,7 +87,7 @@ class EmotionalHistoryService {
   List<String> _detectCycles(List<EmotionAnalysis> history) {
     if (history.length < 6) return [];
     final cycles = <String>[];
-    final windowSize = 3;
+    const windowSize = 3;
     var wasNegative = false;
     var wasPositive = false;
     var switchCount = 0;

@@ -118,7 +118,7 @@ class HeroHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          QuoteBar(),
+          const QuoteBar(),
           const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
@@ -232,7 +232,7 @@ class _QuickActionsState extends State<QuickActions> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionTitle(title: 'Acciones rápidas'),
+          const SectionTitle(title: 'Acciones rápidas'),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
@@ -920,7 +920,7 @@ class InsightsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(title: 'Insights', icon: Icons.lightbulb_outline_rounded),
+        const SectionTitle(title: 'Insights', icon: Icons.lightbulb_outline_rounded),
         const SizedBox(height: AppSpacing.sm),
         Wrap(
           spacing: AppSpacing.sm,
@@ -1022,7 +1022,7 @@ class ActivityTimeline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(title: 'Actividad reciente', icon: Icons.history_rounded),
+        const SectionTitle(title: 'Actividad reciente', icon: Icons.history_rounded),
         const SizedBox(height: AppSpacing.sm),
         ...recent.asMap().entries.map((entry) {
           final i = entry.key;
@@ -1146,7 +1146,7 @@ class GoalProgressWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionTitle(title: 'Objetivos'),
+          const SectionTitle(title: 'Objetivos'),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [

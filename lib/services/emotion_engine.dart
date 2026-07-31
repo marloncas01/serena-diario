@@ -8,10 +8,10 @@ class EmotionEngine {
 
   static EmotionAnalysis analyze(String text) {
     if (text.trim().isEmpty) {
-      return EmotionAnalysis(
-        rankings: const [],
+      return const EmotionAnalysis(
+        rankings: [],
         confidence: 0,
-        detectedKeywords: const [],
+        detectedKeywords: [],
         explanation: 'No hay texto suficiente para analizar.',
       );
     }

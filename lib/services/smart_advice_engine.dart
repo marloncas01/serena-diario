@@ -104,14 +104,14 @@ class SmartAdviceEngine {
     final calmaCount = (counts['calma'] ?? 0) + (counts['serenidad'] ?? 0);
 
     if (ansiedadCount >= 3) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Calma interior',
         message: 'Llevas varios días con ansiedad. Hoy intenta 5 minutos de respiración profunda. Pequeños momentos de calma hacen gran diferencia.',
         category: 'bienestar',
         emoji: '🧘',
         priority: 5,
       ));
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Reducir el ritmo',
         message: 'La ansiedad puede ser señal de que estás cargando mucho. ¿Puedes delegar algo hoy o tomarte un descanso?',
         category: 'bienestar',
@@ -121,14 +121,14 @@ class SmartAdviceEngine {
     }
 
     if (tristezaCount >= 3) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Conexión humana',
         message: 'La tristeza persistente mejora con conexión. Llama a alguien que te importe, aunque sea por 5 minutos.',
         category: 'relaciones',
         emoji: '💙',
         priority: 5,
       ));
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Permítete sentir',
         message: 'Está bien estar triste. No necesitas forzar la alegría. Escribe lo que sientes sin juzgarte.',
         category: 'autoconocimiento',
@@ -138,7 +138,7 @@ class SmartAdviceEngine {
     }
 
     if (estresCount >= 3) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Pausa necesaria',
         message: 'El estrés acumulado necesita liberación. Sal a caminar 10 minutos o haz una pausa sin pantallas.',
         category: 'bienestar',
@@ -148,7 +148,7 @@ class SmartAdviceEngine {
     }
 
     if (alegriaCount >= 3) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Aprovecha el impulso',
         message: 'Estás en un momento positivo. Escribir ahora te ayudará a recordar esta sensación en días difíciles.',
         category: 'motivacion',
@@ -158,7 +158,7 @@ class SmartAdviceEngine {
     }
 
     if (calmaCount >= 2) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Momento de serenidad',
         message: 'Tu calma actual es una fortaleza. Úsala para reflexionar o planificar algo que te ilusione.',
         category: 'autoconocimiento',
@@ -175,7 +175,7 @@ class SmartAdviceEngine {
     final advices = <SmartAdvice>[];
 
     if (hour < 7) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Amanecer tranquilo',
         message: 'Es temprano. Aprovecha este momento de silencio para una reflexión breve.',
         category: 'mindfulness',
@@ -183,7 +183,7 @@ class SmartAdviceEngine {
         priority: 2,
       ));
     } else if (hour < 12) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Energía matutina',
         message: 'La mañana es buen momento para escribir. Tu mente está fresca y tus ideas más claras.',
         category: 'escritura',
@@ -191,7 +191,7 @@ class SmartAdviceEngine {
         priority: 2,
       ));
     } else if (hour < 15) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Mediodía',
         message: 'Un respiro entre horas. ¿Cómo va tu día? Una entrada corta cuenta.',
         category: 'escritura',
@@ -199,7 +199,7 @@ class SmartAdviceEngine {
         priority: 1,
       ));
     } else if (hour < 19) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Tarde de reflexión',
         message: 'La tarde invita a pensar. ¿Qué momentos te marcaron hoy?',
         category: 'escritura',
@@ -207,7 +207,7 @@ class SmartAdviceEngine {
         priority: 2,
       ));
     } else {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Cierre del día',
         message: 'Antes de dormir, escribe algo breve. Cerrar el día con una reflexión mejora tu descanso.',
         category: 'sueno',
@@ -223,7 +223,7 @@ class SmartAdviceEngine {
     final advices = <SmartAdvice>[];
 
     if (streak == 0) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Nuevo comienzo',
         message: 'No importa cuándo empezaste. Hoy es buen día para escribir tu primera entrada.',
         category: 'motivacion',
@@ -231,7 +231,7 @@ class SmartAdviceEngine {
         priority: 3,
       ));
     } else if (streak == 1) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Primer día',
         message: '¡Bien por empezar! La constancia se construye día a día.',
         category: 'motivacion',
@@ -293,7 +293,7 @@ class SmartAdviceEngine {
     final advices = <SmartAdvice>[];
 
     if (profile.nivelAnsiedad > 0.5) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Cuidar tu ansiedad',
         message: 'Tu nivel de ansiedad ha sido alto. Una actividad física ligera puede ayudarte a regularla.',
         category: 'bienestar',
@@ -303,7 +303,7 @@ class SmartAdviceEngine {
     }
 
     if (profile.frecuenciaTristeza > 0.4) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Momentos de luz',
         message: 'Has sentido tristeza con frecuencia. Intenta anotar 3 cosas buenas de hoy, por pequeñas que sean.',
         category: 'autoconocimiento',
@@ -313,7 +313,7 @@ class SmartAdviceEngine {
     }
 
     if (profile.promedioPalabras < 30 && profile.promedioPalabras > 0) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Profundizar',
         message: 'Tus entradas son breves. Intenta escribir un poco más: ¿por qué sientes lo que sientes?',
         category: 'escritura',
@@ -323,7 +323,7 @@ class SmartAdviceEngine {
     }
 
     if (profile.estabilidadEmocional > 0.7) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Estabilidad emocional',
         message: 'Tu estabilidad es una fortaleza. Úsala para enfrentar nuevos retos con confianza.',
         category: 'motivacion',
@@ -333,7 +333,7 @@ class SmartAdviceEngine {
     }
 
     if (profile.nivelProgreso > 0.6) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Progreso notable',
         message: 'Estás avanzando. Reconocer tu progreso es parte del camino.',
         category: 'motivacion',
@@ -350,7 +350,7 @@ class SmartAdviceEngine {
     final advices = <SmartAdvice>[];
 
     if (report.hayMejora) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Tendencia positiva',
         message: 'Tu historial muestra mejora. Lo que estás haciendo está funcionando.',
         category: 'motivacion',
@@ -360,7 +360,7 @@ class SmartAdviceEngine {
     }
 
     if (report.hayRecaida) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Momento difícil',
         message: 'Parece que estás pasando por un momento complicado. Está bien pedir ayuda.',
         category: 'bienestar',
@@ -370,7 +370,7 @@ class SmartAdviceEngine {
     }
 
     if (report.ciclosDetectados.isNotEmpty) {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Patrones detectados',
         message: 'Serena notó un patrón en tus emociones. Hablar de esto puede ayudarte a entenderlo mejor.',
         category: 'autoconocimiento',
@@ -387,7 +387,7 @@ class SmartAdviceEngine {
     final advices = <SmartAdvice>[];
 
     if (quality == 'malo' || quality == 'regular') {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Descanso importante',
         message: 'Dormiste mal. Reduce la cafeína hoy, evita pantallas antes de dormir y trata de acostarte temprano.',
         category: 'sueno',
@@ -404,7 +404,7 @@ class SmartAdviceEngine {
     final advices = <SmartAdvice>[];
 
     if (activity == 'caminata') {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Movimiento activo',
         message: 'Caminar es excelente para tu bienestar. ¿Notaste cómo te sentiste durante el paseo?',
         category: 'ejercicio',
@@ -412,7 +412,7 @@ class SmartAdviceEngine {
         priority: 2,
       ));
     } else if (activity == 'meditacion') {
-      advices.add(SmartAdvice(
+      advices.add(const SmartAdvice(
         title: 'Mente en calma',
         message: 'La meditación reduce el estrés. Practicarla regularmente transforma tu día a día.',
         category: 'mindfulness',
@@ -426,21 +426,21 @@ class SmartAdviceEngine {
 
   SmartAdvice _fallbackAdvice() {
     final fallbacks = [
-      SmartAdvice(
+      const SmartAdvice(
         title: 'Bienvenida',
         message: 'Escribe cómo te sientes hoy. Cada entrada es un paso para conocerte mejor.',
         category: 'escritura',
         emoji: '📝',
         priority: 1,
       ),
-      SmartAdvice(
+      const SmartAdvice(
         title: 'Un momento para ti',
         message: 'Reservar unos minutos para escribir es un acto de cuidado personal.',
         category: 'bienestar',
         emoji: '💜',
         priority: 1,
       ),
-      SmartAdvice(
+      const SmartAdvice(
         title: 'Tu espacio seguro',
         message: 'Este es tu espacio. Escribe sin filtro, sin juicio. Solo tú leerás esto.',
         category: 'autoconocimiento',

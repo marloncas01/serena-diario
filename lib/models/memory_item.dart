@@ -56,21 +56,21 @@ extension MemoryCategoryExtension on MemoryCategory {
   };
 
   Color get color => switch (this) {
-    MemoryCategory.persona => Color(0xFF5C6BC0),
-    MemoryCategory.evento => Color(0xFF42A5F5),
-    MemoryCategory.meta => Color(0xFF66BB6A),
-    MemoryCategory.miedo => Color(0xFFEF5350),
-    MemoryCategory.problema => Color(0xFFFF7043),
-    MemoryCategory.logro => Color(0xFFFFB300),
-    MemoryCategory.gusto => Color(0xFF26A69A),
-    MemoryCategory.rutina => Color(0xFF78909C),
-    MemoryCategory.salud => Color(0xFFEC407A),
-    MemoryCategory.trabajo => Color(0xFF5C6BC0),
-    MemoryCategory.estudio => Color(0xFFAB47BC),
-    MemoryCategory.mascota => Color(0xFF8D6E63),
-    MemoryCategory.familia => Color(0xFFFF8A65),
-    MemoryCategory.relacion => Color(0xFFE91E63),
-    MemoryCategory.otro => Color(0xFF90A4AE),
+    MemoryCategory.persona => const Color(0xFF5C6BC0),
+    MemoryCategory.evento => const Color(0xFF42A5F5),
+    MemoryCategory.meta => const Color(0xFF66BB6A),
+    MemoryCategory.miedo => const Color(0xFFEF5350),
+    MemoryCategory.problema => const Color(0xFFFF7043),
+    MemoryCategory.logro => const Color(0xFFFFB300),
+    MemoryCategory.gusto => const Color(0xFF26A69A),
+    MemoryCategory.rutina => const Color(0xFF78909C),
+    MemoryCategory.salud => const Color(0xFFEC407A),
+    MemoryCategory.trabajo => const Color(0xFF5C6BC0),
+    MemoryCategory.estudio => const Color(0xFFAB47BC),
+    MemoryCategory.mascota => const Color(0xFF8D6E63),
+    MemoryCategory.familia => const Color(0xFFFF8A65),
+    MemoryCategory.relacion => const Color(0xFFE91E63),
+    MemoryCategory.otro => const Color(0xFF90A4AE),
   };
 
   static MemoryCategory fromString(String value) {
