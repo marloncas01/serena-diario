@@ -8,19 +8,21 @@ import '../ai_config_service.dart';
 class GeminiProvider implements AIProvider {
   GeminiProvider({
     required String apiKey,
-    String modelId = 'gemini-1.5-flash',
-  }) {
-    _apiKey = apiKey;
-    _modelId = modelId;
+    String? modelId,
+  })  : _apiKey = ApiKeyDiagnostics.sanitize(apiKey),
+        _modelId = modelId ?? AIConfigService.geminiModelFromEnvironment {
+    ApiKeyDiagnostics.logSummary(_apiKey, origin: 'Gemini');
   }
 
-  late final String _apiKey;
-  late final String _modelId;
+  final String _apiKey;
+  final String _modelId;
 
   GenerativeModel? _model;
   bool _available = false;
 
   bool get isInitialized => _available;
+
+  String get modelId => _modelId;
 
   GenerativeModel get _getModel {
     _model ??= GenerativeModel(
@@ -49,18 +51,21 @@ class GeminiProvider implements AIProvider {
   bool get isAvailable => _available;
 
   Future<void> init() async {
+    if (_apiKey.isEmpty) {
+      debugPrint('[Gemini] Init: SKIP (API key vacía tras normalizar)');
+      _available = false;
+      AIConfigService().setProviderAvailable(false);
+      return;
+    }
     try {
-      final testModel = GenerativeModel(
-        model: _modelId,
-        apiKey: _apiKey,
-      );
-      final response = await testModel.generateContent([
+      final response = await _getModel.generateContent([
         Content.text('hola'),
       ]);
       _available = response.text != null && response.text!.isNotEmpty;
-      debugPrint('[Gemini] Init: ${_available ? "OK" : "FAIL"}');
+      debugPrint('[Gemini] Init: ${_available ? "OK" : "FAIL"} '
+          '(modelo: $_modelId)');
     } catch (e) {
-      debugPrint('[Gemini] Init failed: $e');
+      debugPrint('[Gemini] Init failed: ${e.runtimeType}: $e');
       _available = false;
     }
     AIConfigService().setProviderAvailable(_available);
@@ -92,7 +97,7 @@ class GeminiProvider implements AIProvider {
         aiMessage: response.text,
       );
     } catch (e) {
-      debugPrint('[Gemini] Error: $e');
+      debugPrint('[Gemini] Error: ${e.runtimeType}: $e');
       _available = false;
       return await FallbackProvider().generateResponse(context);
     }
@@ -107,7 +112,8 @@ class GeminiProvider implements AIProvider {
       final response =
           await _getModel.generateContent([Content.text(prompt)]);
       return response.text ?? '';
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[Gemini] Insight error: ${e.runtimeType}: $e');
       _available = false;
       return '';
     }

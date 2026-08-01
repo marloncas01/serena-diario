@@ -227,7 +227,150 @@ const List<EmotionDefinition> allEmotions = [
     color: Color(0xFFB0BEC5),
     category: EmotionCategory.mixta,
   ),
+  EmotionDefinition(
+    id: 'entusiasmo',
+    name: 'Entusiasmo',
+    emoji: '🥳',
+    color: Color(0xFFFFB74D),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'ternura',
+    name: 'Ternura',
+    emoji: '🥰',
+    color: Color(0xFFF8BBD0),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'ilusion',
+    name: 'Ilusión',
+    emoji: '💫',
+    color: Color(0xFFE1BEE7),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'alivio',
+    name: 'Alivio',
+    emoji: '😮‍💨',
+    color: Color(0xFFA5D6A7),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'optimismo',
+    name: 'Optimismo',
+    emoji: '🌞',
+    color: Color(0xFFFFF59D),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'confianza',
+    name: 'Confianza',
+    emoji: '🤝',
+    color: Color(0xFF90CAF9),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'diversion',
+    name: 'Diversión',
+    emoji: '🎉',
+    color: Color(0xFFFFF176),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'paz',
+    name: 'Paz',
+    emoji: '🕊️',
+    color: Color(0xFFB2DFDB),
+    category: EmotionCategory.positiva,
+  ),
+  EmotionDefinition(
+    id: 'vulnerabilidad',
+    name: 'Vulnerabilidad',
+    emoji: '🥺',
+    color: Color(0xFFFFCCBC),
+    category: EmotionCategory.negativa,
+  ),
+  EmotionDefinition(
+    id: 'irritabilidad',
+    name: 'Irritabilidad',
+    emoji: '😒',
+    color: Color(0xFFE57373),
+    category: EmotionCategory.negativa,
+  ),
+  EmotionDefinition(
+    id: 'inseguridad',
+    name: 'Inseguridad',
+    emoji: '😟',
+    color: Color(0xFFA0AEC0),
+    category: EmotionCategory.negativa,
+  ),
+  EmotionDefinition(
+    id: 'decepcion',
+    name: 'Decepción',
+    emoji: '😞',
+    color: Color(0xFFBCAAA4),
+    category: EmotionCategory.negativa,
+  ),
+  EmotionDefinition(
+    id: 'aburrimiento',
+    name: 'Aburrimiento',
+    emoji: '😑',
+    color: Color(0xFFCFD8DC),
+    category: EmotionCategory.negativa,
+  ),
+  EmotionDefinition(
+    id: 'cansancio',
+    name: 'Cansancio',
+    emoji: '😪',
+    color: Color(0xFFB0BEC5),
+    category: EmotionCategory.negativa,
+  ),
+  EmotionDefinition(
+    id: 'melancolia',
+    name: 'Melancolía',
+    emoji: '🌧️',
+    color: Color(0xFF9575CD),
+    category: EmotionCategory.mixta,
+  ),
+  EmotionDefinition(
+    id: 'curiosidad',
+    name: 'Curiosidad',
+    emoji: '🤔',
+    color: Color(0xFF80DEEA),
+    category: EmotionCategory.mixta,
+  ),
+  EmotionDefinition(
+    id: 'anticipacion',
+    name: 'Anticipación',
+    emoji: '🎢',
+    color: Color(0xFFFFAB40),
+    category: EmotionCategory.mixta,
+  ),
+  EmotionDefinition(
+    id: 'neutral',
+    name: 'Neutral',
+    emoji: '😐',
+    color: Color(0xFF9E9E9E),
+    category: EmotionCategory.mixta,
+  ),
 ];
+
+/// Emoción dominante de una entrada, derivada del análisis emocional.
+class DominantEmotion {
+  const DominantEmotion({
+    required this.emotion,
+    required this.intensity,
+    required this.percentage,
+  });
+
+  final EmotionDefinition emotion;
+
+  /// Intensidad normalizada entre 0.0 y 1.0.
+  final double intensity;
+
+  /// Porcentaje que la emoción representa sobre el total detectado (0-100).
+  final double percentage;
+}
 
 EmotionDefinition? emotionById(String id) {
   for (final e in allEmotions) {

@@ -16,6 +16,7 @@ import 'services/emotion_pipeline.dart';
 import 'services/theme_controller.dart';
 import 'services/user_profile.dart';
 import 'theme/app_theme.dart';
+import 'widgets/ui/serena_background.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,12 +54,22 @@ class SerenaApp extends StatelessWidget {
       builder: (context, theme, _) => MaterialApp(
         title: AppTexts.appName,
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(seedColor: theme.seedColor),
-        darkTheme: AppTheme.dark(seedColor: theme.seedColor),
+        theme: AppTheme.light(style: theme.themeStyle, font: theme.font),
+        darkTheme: AppTheme.dark(style: theme.themeStyle, font: theme.font),
         themeMode: theme.mode,
         locale: const Locale('es', 'ES'),
         supportedLocales: const [Locale('es', 'ES')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
+        builder: (context, child) => Stack(
+          fit: StackFit.expand,
+          children: [
+            SerenaBackgroundView(
+              background: theme.background,
+              isDark: Theme.of(context).brightness == Brightness.dark,
+            ),
+            child ?? const SizedBox.shrink(),
+          ],
+        ),
         home: const StartupGate(),
       ),
     ),

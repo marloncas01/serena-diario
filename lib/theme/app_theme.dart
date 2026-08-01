@@ -1,48 +1,70 @@
 import 'package:flutter/material.dart';
 import '../core/app_constants.dart';
 import 'app_colors.dart';
+import '../services/theme_controller.dart';
 
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData light({Color seedColor = AppColors.softPurple}) =>
-      _build(Brightness.light, seedColor);
-  static ThemeData dark({Color seedColor = AppColors.softPurple}) =>
-      _build(Brightness.dark, seedColor);
+  static ThemeData light({
+    required SerenaThemeStyle style,
+    required SerenaFont font,
+  }) => _build(Brightness.light, style, font);
 
-  static ThemeData _build(Brightness brightness, [Color seedColor = AppColors.softPurple]) {
+  static ThemeData dark({
+    required SerenaThemeStyle style,
+    required SerenaFont font,
+  }) => _build(Brightness.dark, style, font);
+
+  static ThemeData _build(
+    Brightness brightness,
+    SerenaThemeStyle style,
+    SerenaFont font,
+  ) {
     final isDark = brightness == Brightness.dark;
+    final isAmoled = isDark && style == SerenaThemeStyle.amoled;
     final scheme = ColorScheme.fromSeed(
-      seedColor: seedColor,
+      seedColor: style.seedColor,
       brightness: brightness,
     ).copyWith(surfaceTint: Colors.transparent);
+
+    final scaffold = isDark
+        ? (isAmoled ? const Color(0xFF000000) : style.darkScaffold)
+        : scheme.surfaceContainerLowest;
+    final card = isDark
+        ? (isAmoled ? const Color(0xFF0E0E10) : scheme.surfaceContainerLow)
+        : Colors.white;
+    final elevated = isDark
+        ? (isAmoled ? const Color(0xFF17171B) : scheme.surfaceContainerHigh)
+        : Colors.white;
+
+    final textTheme = _textTheme(brightness, font);
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
       brightness: brightness,
-      scaffoldBackgroundColor: isDark
-          ? AppColors.darkScaffold
-          : AppColors.canvas,
+      scaffoldBackgroundColor: Colors.transparent,
+
+      fontFamily: font.bodyFamily,
+
+      textTheme: textTheme,
 
       appBarTheme: AppBarTheme(
-        backgroundColor: isDark
-            ? AppColors.darkScaffold.withValues(alpha: 0.85)
-            : AppColors.canvas.withValues(alpha: 0.85),
+        backgroundColor: scaffold.withValues(alpha: 0.85),
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0.5,
         centerTitle: false,
-        titleTextStyle: TextStyle(
+        titleTextStyle: textTheme.titleLarge?.copyWith(
           color: scheme.onSurface,
-          fontSize: 18,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.3,
         ),
       ),
 
       cardTheme: CardThemeData(
-        color: isDark ? AppColors.darkCard : Colors.white,
+        color: card,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -52,7 +74,7 @@ class AppTheme {
 
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: isDark ? AppColors.darkElevated : scheme.primary,
+        backgroundColor: isDark ? elevated : scheme.primary,
         contentTextStyle: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w500,
@@ -63,35 +85,10 @@ class AppTheme {
         ),
       ),
 
-      textTheme: const TextTheme(
-        displaySmall: TextStyle(
-          fontWeight: FontWeight.w800,
-          letterSpacing: -0.5,
-          height: 1.2,
-        ),
-        headlineSmall: TextStyle(
-          fontWeight: FontWeight.w700,
-          letterSpacing: -0.3,
-          height: 1.25,
-        ),
-        titleLarge: TextStyle(fontWeight: FontWeight.w700, letterSpacing: -0.2),
-        titleMedium: TextStyle(
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.1,
-        ),
-        titleSmall: TextStyle(fontWeight: FontWeight.w600),
-        bodyLarge: TextStyle(height: 1.5, letterSpacing: 0.1),
-        bodyMedium: TextStyle(height: 1.45, letterSpacing: 0.1),
-        bodySmall: TextStyle(height: 1.4, letterSpacing: 0.2),
-        labelLarge: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.2),
-        labelMedium: TextStyle(fontWeight: FontWeight.w500, letterSpacing: 0.3),
-        labelSmall: TextStyle(fontWeight: FontWeight.w500, letterSpacing: 0.5),
-      ),
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isDark
-            ? AppColors.darkLight.withValues(alpha: 0.5)
+            ? scheme.surfaceContainerHigh.withValues(alpha: 0.4)
             : const Color(0xFFF2EFF8),
         hintStyle: TextStyle(
           color: isDark ? Colors.grey.shade500 : AppColors.muted,
@@ -127,7 +124,7 @@ class AppTheme {
         height: 72,
         elevation: 0,
         backgroundColor: isDark
-            ? AppColors.darkScaffold.withValues(alpha: 0.95)
+            ? elevated.withValues(alpha: 0.95)
             : Colors.white.withValues(alpha: 0.92),
         surfaceTintColor: Colors.transparent,
         indicatorColor: scheme.secondaryContainer,
@@ -177,14 +174,14 @@ class AppTheme {
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         elevation: 8,
-        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+        backgroundColor: card,
       ),
 
       bottomSheetTheme: BottomSheetThemeData(
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+        backgroundColor: card,
         showDragHandle: true,
         dragHandleColor: isDark
             ? Colors.white.withValues(alpha: 0.2)
@@ -217,7 +214,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppRadii.lg),
         ),
         elevation: 4,
-        color: isDark ? AppColors.darkElevated : Colors.white,
+        color: isDark ? elevated : Colors.white,
       ),
 
       scrollbarTheme: ScrollbarThemeData(
@@ -253,7 +250,7 @@ class AppTheme {
 
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.darkElevated : scheme.primary,
+          color: isDark ? elevated : scheme.primary,
           borderRadius: BorderRadius.circular(AppRadii.sm),
         ),
         textStyle: const TextStyle(
@@ -261,6 +258,94 @@ class AppTheme {
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
+      ),
+
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.macOS: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.fuchsia: FadeForwardsPageTransitionsBuilder(),
+        },
+      ),
+    );
+  }
+
+  static TextTheme _textTheme(Brightness brightness, SerenaFont font) {
+    final display = font.displayFamily;
+    final body = font.bodyFamily;
+    return TextTheme(
+      displaySmall: TextStyle(
+        fontFamily: display,
+        fontSize: 34,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -0.5,
+        height: 1.2,
+      ),
+      headlineSmall: TextStyle(
+        fontFamily: display,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+        height: 1.25,
+      ),
+      titleLarge: TextStyle(
+        fontFamily: body,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.2,
+      ),
+      titleMedium: TextStyle(
+        fontFamily: body,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.1,
+      ),
+      titleSmall: TextStyle(
+        fontFamily: body,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+      ),
+      bodyLarge: TextStyle(
+        fontFamily: body,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        letterSpacing: 0.1,
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: body,
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        height: 1.45,
+        letterSpacing: 0.1,
+      ),
+      bodySmall: TextStyle(
+        fontFamily: body,
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 1.4,
+        letterSpacing: 0.2,
+      ),
+      labelLarge: TextStyle(
+        fontFamily: body,
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.2,
+      ),
+      labelMedium: TextStyle(
+        fontFamily: body,
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.3,
+      ),
+      labelSmall: TextStyle(
+        fontFamily: body,
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.5,
       ),
     );
   }

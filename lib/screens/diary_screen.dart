@@ -26,12 +26,16 @@ import '../services/emotional_insights_service.dart';
 import '../services/recommendation_engine.dart';
 import '../services/journal_summary_service.dart';
 import '../services/mood_emotion_mapper.dart';
+import '../services/emotion_engine.dart';
+import '../utils/entry_actions.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/emotion_response_card.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/smart_dashboard.dart';
 import '../widgets/section_title.dart';
 import '../widgets/journal_entry_card.dart';
+import 'entry_detail_screen.dart';
+import 'history_screen.dart';
 
 class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
@@ -171,6 +175,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
         final detectedMood = MoodEmotionMapper.moodFromEmotionAnalysis(
           result.analysis,
         );
+        final dominant = EmotionEngine.dominantFromAnalysis(result.analysis);
         final savedEntry = _lastAiEntry;
         if (savedEntry != null) {
           final current = context
@@ -178,11 +183,20 @@ class _DiaryScreenState extends State<DiaryScreen> {
               .entries
               .where((entry) => entry.id == savedEntry.id)
               .toList();
-          if (current.isNotEmpty &&
-              current.first.mood == 'Normal' &&
-              detectedMood != 'Normal') {
+          if (current.isNotEmpty) {
+            final entry = current.first;
+            final newMood = entry.mood == 'Normal' && detectedMood != 'Normal'
+                ? detectedMood
+                : entry.mood;
             await context.read<JournalProvider>().update(
-              current.first.copyWith(mood: detectedMood),
+              entry.copyWith(
+                mood: newMood,
+                dominantEmotionId: dominant?.emotion.id,
+                dominantEmotionName: dominant?.emotion.name,
+                dominantEmotionEmoji: dominant?.emotion.emoji,
+                dominantEmotionCategory: dominant?.emotion.category.name,
+                dominantEmotionIntensity: dominant?.intensity,
+              ),
             );
           }
         }
@@ -205,151 +219,10 @@ class _DiaryScreenState extends State<DiaryScreen> {
     }
   }
 
-  Future<bool> _confirmDelete(String id) async {
-    HapticFeedback.mediumImpact();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        icon: const Icon(Icons.delete_outline_rounded),
-        title: const Text('¿Eliminar esta entrada?'),
-        content: const Text(
-          'Podrás deshacer esta acción durante unos segundos.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text(AppTexts.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text(AppTexts.deleteEntry),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return false;
-    final deleted = await context.read<JournalProvider>().delete(id);
-    if (!mounted || deleted == null) return false;
-    HapticFeedback.mediumImpact();
-    AppFeedback.show(
-      context,
-      'Entrada eliminada',
-      action: SnackBarAction(
-        label: AppTexts.undo.toUpperCase(),
-        onPressed: () => context.read<JournalProvider>().restore(deleted),
-      ),
-    );
-    return true;
-  }
+  Future<bool> _confirmDelete(String id) => confirmDeleteEntry(context, id);
 
   Future<void> _editEntry(JournalEntry entry) async {
-    HapticFeedback.lightImpact();
-    final note = TextEditingController(text: entry.note);
-    final tags = TextEditingController(text: entry.tags.join(', '));
-    var mood = entry.mood;
-    final saved = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          24,
-          24,
-          MediaQuery.viewInsetsOf(sheetContext).bottom + 24,
-        ),
-        child: StatefulBuilder(
-          builder: (context, setSheetState) => SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  AppTexts.editEntry,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: moods
-                      .map(
-                        (item) => AnimatedScale(
-                          scale: mood == item.name ? 1.05 : 1.0,
-                          duration: BrandDurations.fast,
-                          curve: Curves.easeOutCubic,
-                          child: ChoiceChip(
-                            label: Text('${item.emoji} ${item.name}'),
-                            selected: mood == item.name,
-                            selectedColor: item.color,
-                            onSelected: (_) =>
-                                setSheetState(() => mood = item.name),
-                          ),
-                        ),
-                      )
-                      .toList(growable: false),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: note,
-                  minLines: 4,
-                  maxLines: 8,
-                  autofocus: true,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    hintText: 'Escribe tu reflexión',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: tags,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.sell_outlined),
-                    hintText: AppTexts.tagsCommaHint,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => Navigator.pop(sheetContext, true),
-                    child: const Text('Guardar cambios'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    if (!mounted || saved != true) {
-      note.dispose();
-      tags.dispose();
-      return;
-    }
-    final updated = await context.read<JournalProvider>().update(
-      entry.copyWith(mood: mood, note: note.text, tags: tags.text.split(',')),
-    );
-    note.dispose();
-    tags.dispose();
-    if (mounted) {
-      updated
-          ? AppFeedback.success(context, AppTexts.editSaved)
-          : AppFeedback.error(context, AppTexts.editFailed);
-    }
+    await editEntrySheet(context, entry);
   }
 
   void _showAllMemories(BuildContext context) {
@@ -588,7 +461,6 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
                 _buildSearchBar(theme, isDark),
                 const SizedBox(height: BrandSpacing.md),
-
                 SectionTitle(
                   title: _query.isEmpty
                       ? 'Entradas recientes'
@@ -638,9 +510,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           ),
                           borderRadius: BorderRadius.circular(BrandRadius.lg),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.edit_outlined,
-                          color: Colors.white,
+                          color: theme.colorScheme.onPrimary,
                         ),
                       ),
                       secondaryBackground: Container(
@@ -649,19 +521,32 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              theme.colorScheme.errorContainer,
                               theme.colorScheme.error,
+                              Color.lerp(
+                                theme.colorScheme.error,
+                                Colors.black,
+                                0.2,
+                              )!,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(BrandRadius.lg),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.delete_outline_rounded,
-                          color: Colors.white,
+                          color: theme.colorScheme.onError,
                         ),
                       ),
                       child: JournalEntryCard(
                         entry: entry,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  EntryDetailScreen(entryId: entry.id),
+                            ),
+                          );
+                        },
                         onEdit: () => _editEntry(entry),
                         onDelete: () => _confirmDelete(entry.id),
                       ),
@@ -757,41 +642,74 @@ class _DiaryScreenState extends State<DiaryScreen> {
   Widget _buildSearchBar(ThemeData theme, bool isDark) {
     return Semantics(
       label: 'Buscar en tu diario',
-      child: GlassCard(
-        padding: EdgeInsets.zero,
-        elevation: false,
-        child: TextField(
-          controller: _searchController,
-          onChanged: (value) => setState(() => _query = value),
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.search_rounded,
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
-            suffixIcon: _query.isEmpty
-                ? null
-                : Tooltip(
-                    message: 'Limpiar búsqueda',
-                    child: IconButton(
-                      icon: const Icon(Icons.close, size: 20),
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        _searchController.clear();
-                        setState(() => _query = '');
-                      },
-                    ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GlassCard(
+              padding: EdgeInsets.zero,
+              elevation: false,
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) => setState(() => _query = value),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: theme.colorScheme.onSurfaceVariant
+                        .withValues(alpha: 0.6),
                   ),
-            hintText: 'Buscar en tu diario',
-            border: InputBorder.none,
-            enabledBorder: InputBorder.none,
-            focusedBorder: InputBorder.none,
-            filled: false,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
+                  suffixIcon: _query.isEmpty
+                      ? null
+                      : Tooltip(
+                          message: 'Limpiar búsqueda',
+                          child: IconButton(
+                            icon: const Icon(Icons.close, size: 20),
+                            onPressed: () {
+                              HapticFeedback.lightImpact();
+                              _searchController.clear();
+                              setState(() => _query = '');
+                            },
+                          ),
+                        ),
+                  hintText: 'Buscar en tu diario',
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  filled: false,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+          const SizedBox(width: 8),
+          Semantics(
+            button: true,
+            label: 'Ver historial completo',
+            child: GlassCard(
+              padding: EdgeInsets.zero,
+              elevation: false,
+              child: IconButton(
+                tooltip: 'Historial completo',
+                icon: Icon(
+                  Icons.manage_search_rounded,
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.8,
+                  ),
+                ),
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const HistoryScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

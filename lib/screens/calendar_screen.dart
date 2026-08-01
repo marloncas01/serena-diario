@@ -9,9 +9,13 @@ import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../theme/brand/brand_durations.dart';
 
+import '../utils/entry_actions.dart';
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
+import '../widgets/dominant_emotion_badge.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/ui/glass_bottom_sheet.dart';
+import 'entry_detail_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -44,6 +48,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1);
       _selected = DateTime(_currentMonth.year, _currentMonth.month, 1);
     });
+  }
+
+  void _showDayEntries(DateTime day) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => _DayEntriesSheet(day: day),
+    );
   }
 
   @override
@@ -232,6 +244,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         onTap: () {
                           HapticFeedback.selectionClick();
                           setState(() => _selected = day);
+                          _showDayEntries(day);
                         },
                         borderRadius: BorderRadius.circular(AppRadii.pill),
                         child: AnimatedContainer(
@@ -306,7 +319,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ? const EmptyState(
                     key: ValueKey('empty'),
                     icon: Icons.event_available_outlined,
-                    title: 'Sin entrada este día',
+                    title: 'No registraste emociones este día',
                     message: 'Elige otro día o escribe una nueva reflexión.',
                   )
                 : AppCard(
@@ -526,6 +539,168 @@ class _MonthStat extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Bottom sheet con las entradas de un día del calendario y sus acciones.
+class _DayEntriesSheet extends StatefulWidget {
+  const _DayEntriesSheet({required this.day});
+
+  final DateTime day;
+
+  @override
+  State<_DayEntriesSheet> createState() => _DayEntriesSheetState();
+}
+
+class _DayEntriesSheetState extends State<_DayEntriesSheet> {
+  void _openEntry(BuildContext context, JournalEntry entry) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => EntryDetailScreen(entryId: entry.id),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final journal = context.watch<JournalProvider>();
+    final entries = journal.entries
+        .where((e) => DateUtils.isSameDay(e.createdAt, widget.day))
+        .toList(growable: false)
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return GlassBottomSheet(
+      title: toBeginningOfSentenceCase(
+        DateFormat('EEEE, d', 'es_ES').format(widget.day),
+      ),
+      subtitle: entries.length == 1
+          ? '1 entrada este día'
+          : '${entries.length} entradas este día',
+      child: entries.isEmpty
+          ? EmptyState(
+              icon: Icons.event_available_outlined,
+              title: 'No registraste emociones este día',
+              message: 'Elige otro día o escribe una nueva reflexión.',
+            )
+          : ListView.separated(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+              shrinkWrap: true,
+              itemCount: entries.length,
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final entry = entries[index];
+                final mood = moodByName(entry.mood);
+                return AppCard(
+                  onTap: () => _openEntry(context, entry),
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  mood.color,
+                                  mood.color.withValues(alpha: 0.6),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              mood.emoji,
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  mood.name,
+                                  style: theme.textTheme.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  DateFormat('HH:mm', 'es_ES').format(
+                                    entry.createdAt,
+                                  ),
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuButton<String>(
+                            tooltip: 'Opciones de la entrada',
+                            icon: Icon(
+                              Icons.more_vert_rounded,
+                              size: 20,
+                              color: theme.colorScheme.onSurfaceVariant
+                                  .withValues(alpha: 0.5),
+                            ),
+                            onSelected: (value) {
+                              if (value == 'view') _openEntry(context, entry);
+                              if (value == 'edit') {
+                                editEntrySheet(context, entry);
+                              }
+                              if (value == 'delete') {
+                                confirmDeleteEntry(context, entry.id);
+                              }
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(
+                                value: 'view',
+                                child: Text('Ver completo'),
+                              ),
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: Text('Editar'),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Eliminar'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      if (entry.dominantEmotionId != null) ...[
+                        const SizedBox(height: 10),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: DominantEmotionBadge(
+                            emotionId: entry.dominantEmotionId,
+                            name: entry.dominantEmotionName,
+                            emoji: entry.dominantEmotionEmoji,
+                            intensity: entry.dominantEmotionIntensity,
+                            compact: true,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 8),
+                      Text(
+                        entry.note,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 }

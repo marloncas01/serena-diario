@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../services/app_preferences.dart';
+import '../services/theme_controller.dart';
 import '../services/user_profile.dart';
 import '../theme/brand/brand_durations.dart';
 import 'app_shell.dart';
@@ -19,7 +20,7 @@ class _SetupScreenState extends State<SetupScreen> {
 
   final _nameController = TextEditingController();
   var _selectedAvatar = '🙂';
-  var _selectedColor = AppThemeColor.morado;
+  var _selectedColor = SerenaThemeStyle.lavanda;
   var _goal = '';
   var _selectedPersonality = SerenaPersonality.amigable;
 
@@ -32,11 +33,12 @@ class _SetupScreenState extends State<SetupScreen> {
 
   Future<void> _finish() async {
     final profile = context.read<UserProfile>();
+    final themeCtrl = context.read<ThemeController>();
     await profile.setUserName(_nameController.text.trim());
     await profile.setAvatar(_selectedAvatar);
-    await profile.setThemeColor(_selectedColor);
     await profile.setGoal(_goal.trim());
     await profile.setPersonality(_selectedPersonality);
+    await themeCtrl.setThemeStyle(_selectedColor);
     await AppPreferences().completeSetup();
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
@@ -199,7 +201,7 @@ class _SetupScreenState extends State<SetupScreen> {
             spacing: 16,
             runSpacing: 16,
             alignment: WrapAlignment.center,
-            children: AppThemeColor.values.map((c) {
+            children: SerenaThemeStyle.values.map((c) {
               final selected = _selectedColor == c;
               return GestureDetector(
                 onTap: () => setState(() => _selectedColor = c),
@@ -208,7 +210,7 @@ class _SetupScreenState extends State<SetupScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: c.color,
+                    color: c.seedColor,
                     shape: BoxShape.circle,
                     border: selected
                         ? Border.all(

@@ -16,7 +16,9 @@ import '../theme/brand/brand_radius.dart';
 import '../theme/brand/brand_shadows.dart';
 import '../theme/brand/brand_spacing.dart';
 import '../widgets/glass_card.dart';
+import '../widgets/ui/serena_background.dart';
 import '../services/cloud/auth_service_firebase.dart';
+import 'edit_profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -56,13 +58,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildGoalSection(context, profile, theme),
           const SizedBox(height: BrandSpacing.xl),
 
-          _buildColorSection(context, profile, themeController, theme, isDark),
-          const SizedBox(height: BrandSpacing.xl),
-
           _buildPersonalitySection(context, profile, theme),
           const SizedBox(height: BrandSpacing.xl),
 
-          _buildPreferencesSection(context, themeController, theme),
+          _buildAppearanceSection(context, themeController, theme, isDark),
+          const SizedBox(height: BrandSpacing.xl),
+
+          _buildPreferencesSection(context, theme),
           const SizedBox(height: BrandSpacing.xl),
 
           _buildAccountSection(context, theme),
@@ -99,89 +101,308 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       borderColor: Colors.transparent,
       padding: const EdgeInsets.all(BrandSpacing.xl),
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => const EditProfileScreen()),
+        );
+      },
       child: Row(
         children: [
-          Semantics(
-            button: true,
-            label: 'Cambiar avatar',
-            child: GestureDetector(
-              onTap: () => _showAvatarPicker(context, profile),
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(BrandRadius.lg),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(BrandRadius.lg),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
-                child: Center(
-                  child: Text(
-                    profile.avatar,
-                    style: const TextStyle(fontSize: 28),
-                  ),
-                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                profile.avatar,
+                style: const TextStyle(fontSize: 28),
               ),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: GestureDetector(
-              onTap: () => _showEditNameDialog(context, profile),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          profile.userName.isNotEmpty
-                              ? profile.userName
-                              : 'Tu espacio personal',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.2,
-                          ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        profile.userName.isNotEmpty
+                            ? profile.userName
+                            : 'Tu espacio personal',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 14,
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
-                    ],
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 14,
+                      color: Colors.white.withValues(alpha: 0.6),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
                   ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(BrandRadius.pill),
-                    ),
-                    child: const Text(
-                      'Toca para editar',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(BrandRadius.pill),
+                  ),
+                  child: const Text(
+                    'Editar perfil',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          const Icon(
+            Icons.chevron_right_rounded,
+            color: Colors.white,
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppearanceSection(
+    BuildContext context,
+    ThemeController controller,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeader(title: 'Apariencia'),
+        const SizedBox(height: BrandSpacing.sm),
+        GlassCard(
+          padding: EdgeInsets.zero,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildThemeStylePicker(context, controller, theme, isDark),
+              const Divider(height: 1, indent: 16, endIndent: 16),
+              _buildBackgroundPicker(context, controller, theme, isDark),
+              const Divider(height: 1, indent: 16, endIndent: 16),
+              _buildFontPicker(context, controller, theme),
+              const Divider(height: 1, indent: 68),
+              SwitchListTile(
+                secondary: _SettingsIcon(
+                  icon: Icons.dark_mode_outlined,
+                  color: theme.colorScheme.primary,
+                ),
+                title: const Text(AppTexts.darkMode),
+                subtitle: Text(
+                  controller.mode == ThemeMode.dark ? 'Activado' : 'Desactivado',
+                ),
+                value: controller.mode == ThemeMode.dark,
+                onChanged: controller.setDarkMode,
               ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildThemeStylePicker(
+    BuildContext context,
+    ThemeController controller,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(BrandSpacing.base),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.palette_outlined,
+                size: 18,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Tema',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                controller.themeStyle.label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: BrandSpacing.md),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: SerenaThemeStyle.values.map((style) {
+              final selected = controller.themeStyle == style;
+              return GestureDetector(
+                onTap: () async {
+                  HapticFeedback.selectionClick();
+                  await controller.setThemeStyle(style);
+                },
+                child: AnimatedContainer(
+                  duration: BrandDurations.fast,
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: style.seedColor,
+                    shape: BoxShape.circle,
+                    border: selected
+                        ? Border.all(
+                            color: isDark
+                                ? Colors.white
+                                : theme.colorScheme.onSurface,
+                            width: 3,
+                          )
+                        : null,
+                    boxShadow: selected
+                        ? BrandShadows.colored(style.seedColor, opacity: 0.4)
+                        : null,
+                  ),
+                  child: selected
+                      ? const Icon(Icons.check, color: Colors.white, size: 22)
+                      : null,
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBackgroundPicker(
+    BuildContext context,
+    ThemeController controller,
+    ThemeData theme,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: BrandSpacing.base,
+        vertical: BrandSpacing.base,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.landscape_outlined,
+                size: 18,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Fondo',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: BrandSpacing.md),
+          SizedBox(
+            height: 92,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: SerenaBackground.values.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (_, index) {
+                final bg = SerenaBackground.values[index];
+                final selected = controller.background == bg;
+                return GestureDetector(
+                  onTap: () async {
+                    HapticFeedback.selectionClick();
+                    await controller.setBackground(bg);
+                  },
+                  child: AnimatedContainer(
+                    duration: BrandDurations.fast,
+                    width: 84,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(BrandRadius.lg),
+                      border: Border.all(
+                        color: selected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
+                        width: selected ? 2.5 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SerenaBackgroundPreview(
+                          background: bg,
+                          isDark: isDark,
+                          width: 64,
+                          height: 40,
+                        ),
+                        const SizedBox(height: 6),
+                        Icon(
+                          bg.icon,
+                          size: 14,
+                          color: selected
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          bg.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontWeight: selected ? FontWeight.w700 : null,
+                            color: selected
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -189,134 +410,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showEditNameDialog(BuildContext context, UserProfile profile) {
-    final controller = TextEditingController(text: profile.userName);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Tu nombre'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            hintText: '¿Cómo te llamas?',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                profile.setUserName(name);
-              }
-              Navigator.pop(ctx);
-            },
-            child: const Text('Guardar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAvatarPicker(BuildContext context, UserProfile profile) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.3,
-        maxChildSize: 0.85,
-        expand: false,
-        builder: (ctx, scrollController) {
-          final theme = Theme.of(ctx);
-          return Column(
+  Widget _buildFontPicker(
+    BuildContext context,
+    ThemeController controller,
+    ThemeData theme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(BrandSpacing.base),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+              Icon(
+                Icons.text_fields_rounded,
+                size: 18,
+                color: theme.colorScheme.primary,
               ),
+              const SizedBox(width: 8),
               Text(
-                'Elige tu avatar',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: avatarCategories.length,
-                  itemBuilder: (_, catIdx) {
-                    final cat = avatarCategories.keys.elementAt(catIdx);
-                    final avatars = avatarCategories[cat]!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16, bottom: 8),
-                          child: Text(
-                            cat,
-                            style: theme.textTheme.labelLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: avatars.map((emoji) {
-                            final selected = profile.avatar == emoji;
-                            return GestureDetector(
-                              onTap: () {
-                                profile.setAvatar(emoji);
-                                Navigator.pop(ctx);
-                              },
-                              child: AnimatedContainer(
-                                duration: BrandDurations.fast,
-                                width: 52,
-                                height: 52,
-                                decoration: BoxDecoration(
-                                  color: selected
-                                      ? theme.colorScheme.primaryContainer
-                                      : theme.colorScheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(BrandRadius.lg),
-                                  border: selected
-                                      ? Border.all(
-                                          color: theme.colorScheme.primary,
-                                          width: 2,
-                                        )
-                                      : null,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    emoji,
-                                    style: const TextStyle(fontSize: 26),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    );
-                  },
+                'Tipografía',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
-          );
-        },
+          ),
+          const SizedBox(height: BrandSpacing.md),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: SerenaFont.values.map((font) {
+              final selected = controller.font == font;
+              return ChoiceChip(
+                label: Text(
+                  font.label,
+                  style: TextStyle(
+                    fontFamily: font.bodyFamily,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                selected: selected,
+                selectedColor: theme.colorScheme.primaryContainer,
+                labelStyle: TextStyle(
+                  color: selected
+                      ? theme.colorScheme.onPrimaryContainer
+                      : theme.colorScheme.onSurface,
+                ),
+                onSelected: (_) async {
+                  HapticFeedback.selectionClick();
+                  await controller.setFont(font);
+                },
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
@@ -361,62 +509,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildColorSection(
-    BuildContext context,
-    UserProfile profile,
-    ThemeController themeController,
-    ThemeData theme,
-    bool isDark,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _SectionHeader(title: 'Color del tema'),
-        const SizedBox(height: BrandSpacing.sm),
-        GlassCard(
-          child: Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: AppThemeColor.values.map((c) {
-              final selected = profile.themeColor == c;
-              return GestureDetector(
-                onTap: () async {
-                  await profile.setThemeColor(c);
-                  if (!mounted) return;
-                  themeController.updateSeedColor(c.color);
-                },
-                child: AnimatedContainer(
-                  duration: BrandDurations.fast,
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: c.color,
-                    shape: BoxShape.circle,
-                    border: selected
-                        ? Border.all(
-                            color: isDark ? Colors.white : theme.colorScheme.onSurface,
-                            width: 3,
-                          )
-                        : null,
-                    boxShadow: selected
-                        ? BrandShadows.colored(c.color, opacity: 0.4)
-                        : null,
-                  ),
-                  child: selected
-                      ? const Icon(Icons.check, color: Colors.white, size: 22)
-                      : null,
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPreferencesSection(
     BuildContext context,
-    ThemeController themeController,
     ThemeData theme,
   ) {
     return Column(
@@ -428,21 +522,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              SwitchListTile(
-                secondary: _SettingsIcon(
-                  icon: Icons.dark_mode_outlined,
-                  color: theme.colorScheme.primary,
-                ),
-                title: const Text(AppTexts.darkMode),
-                subtitle: Text(
-                  themeController.mode == ThemeMode.dark
-                      ? 'Activado'
-                      : 'Desactivado',
-                ),
-                value: themeController.mode == ThemeMode.dark,
-                onChanged: themeController.setDarkMode,
-              ),
-              const Divider(height: 1, indent: 68),
               ListTile(
                 leading: _SettingsIcon(
                   icon: Icons.lock_outline_rounded,
@@ -640,7 +719,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: Text(
                   'API: ${config.hasAPIKey ? "Detectada" : "No encontrada"}\n'
                   'Proveedor: ${geminiActive ? "Google Gemini" : "Local"}\n'
-                  'Modelo: ${geminiActive ? "Gemini 1.5 Flash" : "Fallback local"}\n'
+                  'Modelo: ${geminiActive ? config.modelLabel : "Fallback local"}\n'
                   'Historial: ${config.historyLabel}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,

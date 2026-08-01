@@ -8,6 +8,46 @@ import 'emotional_response_engine.dart';
 import 'ai_config_service.dart';
 import 'providers/gemini_provider.dart';
 
+/// Utilidad para inspeccionar una API key sin exponerla nunca completa.
+class ApiKeyDiagnostics {
+  ApiKeyDiagnostics._();
+
+  static void logSummary(String key, {String origin = 'AI'}) {
+    if (key.isEmpty) {
+      debugPrint('[$origin] API KEY: vacía '
+          '(no se pasó --dart-define=GEMINI_API_KEY)');
+      return;
+    }
+    debugPrint('[$origin] API LENGTH: ${key.length}');
+    debugPrint(
+        '[$origin] START: ${key.substring(0, key.length >= 6 ? 6 : key.length)}');
+    debugPrint(
+        '[$origin] END: ${key.length > 4 ? key.substring(key.length - 4) : key}');
+    final invalidChars = <int>[];
+    for (final unit in key.codeUnits) {
+      final char = String.fromCharCode(unit);
+      if (!RegExp(r'[A-Za-z0-9_-]').hasMatch(char)) invalidChars.add(unit);
+    }
+    if (invalidChars.isNotEmpty) {
+      debugPrint(
+          '[$origin] [WARNING] La key contiene caracteres no permitidos '
+          '(espacios, comillas, saltos de línea...). codePoints=$invalidChars');
+    }
+  }
+
+  /// Normaliza una API key: elimina espacios, saltos de línea, tabulaciones
+  /// y comillas simples/dobles que se hayan colado al copiar/pegar.
+  static String sanitize(String raw) {
+    var key = raw.trim();
+    if (key.length >= 2 &&
+        ((key.startsWith('"') && key.endsWith('"')) ||
+            (key.startsWith("'") && key.endsWith("'")))) {
+      key = key.substring(1, key.length - 1).trim();
+    }
+    return key.replaceAll(RegExp(r'[\r\n\t]'), '');
+  }
+}
+
 class ResponseContext {
   const ResponseContext({
     required this.text,
@@ -88,17 +128,19 @@ class AIProviderManager {
     try {
       const apiKey = String.fromEnvironment('GEMINI_API_KEY');
       if (apiKey.isNotEmpty) {
-        debugPrint('[AI] API key detected, initializing Gemini...');
+        debugPrint('[AI] API key detectada, inicializando Gemini...');
+        ApiKeyDiagnostics.logSummary(apiKey, origin: 'AI');
         final gemini = GeminiProvider(apiKey: apiKey);
         registerProvider(gemini);
         await gemini.init();
-        debugPrint('[AI] Gemini available: ${gemini.isAvailable}');
+        debugPrint('[AI] Gemini available: ${gemini.isAvailable} '
+            '(modelo: ${gemini.modelId})');
       } else {
         debugPrint('[AI] No API key, local mode only');
         useFallback();
       }
     } catch (e) {
-      debugPrint('[AI] Init error: $e');
+      debugPrint('[AI] Init error: ${e.runtimeType}: $e');
       useFallback();
     }
   }

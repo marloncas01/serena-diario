@@ -26,6 +26,7 @@ import '../widgets/recommendations_card.dart';
 import '../widgets/monthly_summary_card.dart';
 import '../widgets/weekly_summary_card.dart';
 import '../widgets/daily_tip_card.dart';
+import '../widgets/emotional_summary_card.dart';
 import '../theme/brand/brand_spacing.dart';
 
 class _DashboardSection {
@@ -192,6 +193,19 @@ class _SmartDashboardState extends State<SmartDashboard> {
         builder: (_) => Column(
           children: [
             MoodSummaryCard(entries: widget.entries),
+            const SizedBox(height: BrandSpacing.md),
+          ],
+        ),
+      ));
+    }
+
+    if (widget.entries.isNotEmpty) {
+      sections.add(_DashboardSection(
+        id: 'emotional_summary',
+        priority: 93,
+        builder: (_) => Column(
+          children: [
+            EmotionalSummaryCard(entries: widget.entries),
             const SizedBox(height: BrandSpacing.md),
           ],
         ),

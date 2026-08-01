@@ -198,7 +198,7 @@ class SyncGoal {
 /// Represents app configuration for cloud synchronization.
 class SyncConfig {
   const SyncConfig({
-    this.themeColor = 'Morado',
+    this.themeColor = 'lavanda',
     this.personality = 'amigable',
     this.avatar = '🙂',
     this.diaryName = 'Mi diario',
@@ -223,7 +223,7 @@ class SyncConfig {
   };
 
   factory SyncConfig.fromMap(Map<String, dynamic> map) => SyncConfig(
-    themeColor: map['themeColor'] as String? ?? 'Morado',
+    themeColor: map['themeColor'] as String? ?? 'lavanda',
     personality: map['personality'] as String? ?? 'amigable',
     avatar: map['avatar'] as String? ?? '🙂',
     diaryName: map['diaryName'] as String? ?? 'Mi diario',

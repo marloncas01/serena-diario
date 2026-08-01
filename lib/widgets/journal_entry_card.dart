@@ -6,6 +6,7 @@ import '../core/app_texts.dart';
 import '../models/journal_entry.dart';
 import '../models/mood.dart';
 import 'app_card.dart';
+import 'dominant_emotion_badge.dart';
 
 class JournalEntryCard extends StatelessWidget {
   const JournalEntryCard({
@@ -13,11 +14,13 @@ class JournalEntryCard extends StatelessWidget {
     required this.entry,
     required this.onDelete,
     required this.onEdit,
+    this.onTap,
   });
 
   final JournalEntry entry;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +32,7 @@ class JournalEntryCard extends StatelessWidget {
         .length;
 
     return AppCard(
+      onTap: onTap,
       padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,6 +80,21 @@ class JournalEntryCard extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    if (entry.dominantEmotionEmoji != null &&
+                        entry.dominantEmotionName != null) ...[
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: DominantEmotionBadge(
+                          emotionId: entry.dominantEmotionId,
+                          name: entry.dominantEmotionName,
+                          emoji: entry.dominantEmotionEmoji,
+                          intensity: entry.dominantEmotionIntensity,
+                          compact: true,
+                          showIntensity: false,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 2),
                     Text(
                       DateFormat(

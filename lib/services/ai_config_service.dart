@@ -35,6 +35,18 @@ class AIConfigService {
   static final AIConfigService _instance = AIConfigService._();
   factory AIConfigService() => _instance;
 
+  /// Gemini 1.5 Flash fue retirado por Google (shutdown 24/09/2025).
+  /// Se usa un modelo activo; puede sobrescribirse con:
+  /// --dart-define=GEMINI_MODEL=gemini-3.5-flash
+  static const String defaultGeminiModel = 'gemini-3.5-flash';
+
+  static String get geminiModelFromEnvironment {
+    const model = String.fromEnvironment('GEMINI_MODEL');
+    return model.isNotEmpty ? model : defaultGeminiModel;
+  }
+
+  String get modelLabel => geminiModelFromEnvironment;
+
   static const _aiEnabledKey = 'ai_conversational_enabled_v1';
   static const _historyKey = 'ai_conversation_history_v1';
   static const _maxHistory = 20;

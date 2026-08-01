@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
 import '../models/mood.dart';
 
@@ -78,4 +79,67 @@ class JournalInsights {
     }
     return 'Mantienes un ritmo constante esta semana.';
   }
+
+  // ── Emociones dominantes (30 emociones) ──
+
+  /// Conteo de entradas por id de emoción dominante (ignora entradas sin
+  /// análisis previo al guardado).
+  static Map<String, int> dominantEmotionCounts(List<JournalEntry> entries) {
+    final counts = <String, int>{};
+    for (final entry in entries) {
+      final id = entry.dominantEmotionId;
+      if (id == null || id.isEmpty) continue;
+      counts.update(id, (count) => count + 1, ifAbsent: () => 1);
+    }
+    return counts;
+  }
+
+  /// Conteo de entradas por categoría de la emoción dominante.
+  static Map<EmotionCategory, int> categoryCounts(List<JournalEntry> entries) {
+    final counts = {
+      for (final category in EmotionCategory.values) category: 0,
+    };
+    for (final entry in entries) {
+      final id = entry.dominantEmotionId;
+      if (id == null) continue;
+      final emotion = emotionById(id);
+      if (emotion != null) {
+        counts[emotion.category] = counts[emotion.category]! + 1;
+      }
+    }
+    return counts;
+  }
+
+  /// Emoción dominante más frecuente (conteo) o null si no hay datos.
+  static EmotionDefinition? predominantEmotion(List<JournalEntry> entries) {
+    final counts = dominantEmotionCounts(entries);
+    if (counts.isEmpty) return null;
+    String? bestId;
+    var bestCount = 0;
+    counts.forEach((id, count) {
+      if (count > bestCount) {
+        bestCount = count;
+        bestId = id;
+      }
+    });
+    return emotionById(bestId!);
+  }
+
+  /// Intensidad promedio (0.0-1.0) de las emociones dominantes registradas.
+  static double averageIntensity(List<JournalEntry> entries) {
+    final values = entries
+        .map((entry) => entry.dominantEmotionIntensity)
+        .whereType<double>()
+        .toList(growable: false);
+    if (values.isEmpty) return 0;
+    return values.fold(0.0, (sum, value) => sum + value) / values.length;
+  }
+
+  /// Entradas con análisis emocional registrado (no nulo).
+  static List<JournalEntry> withEmotion(List<JournalEntry> entries) =>
+      entries
+          .where((entry) =>
+              entry.dominantEmotionId != null &&
+              entry.dominantEmotionId!.isNotEmpty)
+          .toList(growable: false);
 }

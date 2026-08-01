@@ -59,6 +59,7 @@ class EmotionLexicon {
     'divertido': [
       const LexiconEntry('alegria', 0.8),
       const LexiconEntry('felicidad', 0.6),
+      const LexiconEntry('diversion', 0.8),
     ],
     'reir': [
       const LexiconEntry('alegria', 0.9),
@@ -80,6 +81,7 @@ class EmotionLexicon {
     'fiesta': [
       const LexiconEntry('alegria', 0.6),
       const LexiconEntry('felicidad', 0.5),
+      const LexiconEntry('diversion', 0.7),
     ],
 
     'amor': [
@@ -194,10 +196,12 @@ class EmotionLexicon {
     'confio': [
       const LexiconEntry('esperanza', 0.9),
       const LexiconEntry('calma', 0.2),
+      const LexiconEntry('confianza', 0.9),
     ],
     'confianza': [
       const LexiconEntry('esperanza', 0.7),
       const LexiconEntry('calma', 0.3),
+      const LexiconEntry('confianza', 1.0),
     ],
     'futuro': [
       const LexiconEntry('esperanza', 0.5),
@@ -218,6 +222,7 @@ class EmotionLexicon {
     'ilusion': [
       const LexiconEntry('esperanza', 0.8),
       const LexiconEntry('alegria', 0.3),
+      const LexiconEntry('ilusion', 0.9),
     ],
     'meta': [
       const LexiconEntry('esperanza', 0.4),
@@ -241,6 +246,7 @@ class EmotionLexicon {
     'paz': [
       const LexiconEntry('calma', 0.9),
       const LexiconEntry('gratitud', 0.2),
+      const LexiconEntry('paz', 1.0),
     ],
     'sereno': [
       const LexiconEntry('calma', 0.95),
@@ -265,6 +271,7 @@ class EmotionLexicon {
     'armonia': [
       const LexiconEntry('calma', 0.8),
       const LexiconEntry('felicidad', 0.2),
+      const LexiconEntry('paz', 0.5),
     ],
     'equilibrio': [
       const LexiconEntry('calma', 0.7),
@@ -440,7 +447,8 @@ class EmotionLexicon {
       const LexiconEntry('motivacion', 0.4),
     ],
     'curiosidad': [
-      const LexiconEntry('inspiracion', 0.6),
+      const LexiconEntry('inspiracion', 0.4),
+      const LexiconEntry('curiosidad', 1.0),
     ],
     'arte': [
       const LexiconEntry('inspiracion', 0.5),
@@ -457,6 +465,330 @@ class EmotionLexicon {
     'poesia': [
       const LexiconEntry('inspiracion', 0.5),
       const LexiconEntry('nostalgia', 0.3),
+    ],
+
+    // ── Nuevas emociones ──
+    'entusiasmo': [
+      const LexiconEntry('entusiasmo', 1.0),
+      const LexiconEntry('alegria', 0.4),
+    ],
+    'entusiasmado': [
+      const LexiconEntry('entusiasmo', 1.0),
+      const LexiconEntry('alegria', 0.4),
+    ],
+    'entusiasmada': [
+      const LexiconEntry('entusiasmo', 1.0),
+      const LexiconEntry('alegria', 0.4),
+    ],
+    'emocionado': [
+      const LexiconEntry('entusiasmo', 0.9),
+      const LexiconEntry('alegria', 0.4),
+      const LexiconEntry('anticipacion', 0.3),
+    ],
+    'emocionada': [
+      const LexiconEntry('entusiasmo', 0.9),
+      const LexiconEntry('alegria', 0.4),
+      const LexiconEntry('anticipacion', 0.3),
+    ],
+
+    'ternura': [
+      const LexiconEntry('ternura', 1.0),
+      const LexiconEntry('amor', 0.6),
+    ],
+    'tierno': [
+      const LexiconEntry('ternura', 0.8),
+      const LexiconEntry('amor', 0.4),
+    ],
+    'tierna': [
+      const LexiconEntry('ternura', 0.8),
+      const LexiconEntry('amor', 0.4),
+    ],
+    'conmovedor': [
+      const LexiconEntry('ternura', 0.7),
+      const LexiconEntry('tristeza', 0.2),
+    ],
+    'conmovedora': [
+      const LexiconEntry('ternura', 0.7),
+      const LexiconEntry('tristeza', 0.2),
+    ],
+    'mimo': [
+      const LexiconEntry('ternura', 0.6),
+      const LexiconEntry('amor', 0.4),
+    ],
+    'mimos': [
+      const LexiconEntry('ternura', 0.6),
+      const LexiconEntry('amor', 0.4),
+    ],
+
+    'ilusionado': [
+      const LexiconEntry('ilusion', 0.9),
+      const LexiconEntry('esperanza', 0.4),
+      const LexiconEntry('alegria', 0.3),
+    ],
+    'ilusionada': [
+      const LexiconEntry('ilusion', 0.9),
+      const LexiconEntry('esperanza', 0.4),
+      const LexiconEntry('alegria', 0.3),
+    ],
+
+    'alivio': [
+      const LexiconEntry('alivio', 1.0),
+      const LexiconEntry('calma', 0.4),
+    ],
+    'aliviado': [
+      const LexiconEntry('alivio', 0.9),
+      const LexiconEntry('calma', 0.3),
+    ],
+    'aliviada': [
+      const LexiconEntry('alivio', 0.9),
+      const LexiconEntry('calma', 0.3),
+    ],
+    'respiro': [
+      const LexiconEntry('alivio', 0.7),
+      const LexiconEntry('calma', 0.3),
+    ],
+    'tranquilidad': [
+      const LexiconEntry('calma', 0.6),
+      const LexiconEntry('alivio', 0.3),
+    ],
+
+    'optimista': [
+      const LexiconEntry('optimismo', 0.9),
+      const LexiconEntry('esperanza', 0.4),
+    ],
+    'optimismo': [
+      const LexiconEntry('optimismo', 1.0),
+      const LexiconEntry('esperanza', 0.3),
+    ],
+    'positivo': [
+      const LexiconEntry('optimismo', 0.5),
+      const LexiconEntry('alegria', 0.3),
+    ],
+    'positiva': [
+      const LexiconEntry('optimismo', 0.5),
+      const LexiconEntry('alegria', 0.3),
+    ],
+    'todo saldrá bien': [
+      const LexiconEntry('optimismo', 0.9),
+      const LexiconEntry('esperanza', 0.6),
+    ],
+    'todo va a estar bien': [
+      const LexiconEntry('optimismo', 0.8),
+      const LexiconEntry('esperanza', 0.6),
+      const LexiconEntry('calma', 0.3),
+    ],
+    'salir adelante': [
+      const LexiconEntry('optimismo', 0.7),
+      const LexiconEntry('esperanza', 0.5),
+      const LexiconEntry('motivacion', 0.3),
+    ],
+
+    'seguridad': [
+      const LexiconEntry('confianza', 0.7),
+      const LexiconEntry('calma', 0.3),
+    ],
+    'seguro de mi': [
+      const LexiconEntry('confianza', 0.8),
+      const LexiconEntry('orgullo', 0.3),
+    ],
+    'segura de mi': [
+      const LexiconEntry('confianza', 0.8),
+      const LexiconEntry('orgullo', 0.3),
+    ],
+    'creo en mi': [
+      const LexiconEntry('confianza', 0.8),
+      const LexiconEntry('orgullo', 0.3),
+    ],
+
+    'diversión': [
+      const LexiconEntry('diversion', 1.0),
+      const LexiconEntry('alegria', 0.6),
+    ],
+    'divertirme': [
+      const LexiconEntry('diversion', 0.9),
+      const LexiconEntry('alegria', 0.5),
+    ],
+    'divertida': [
+      const LexiconEntry('diversion', 0.8),
+      const LexiconEntry('alegria', 0.5),
+    ],
+    'pasarla bien': [
+      const LexiconEntry('diversion', 0.8),
+      const LexiconEntry('alegria', 0.5),
+    ],
+    'me la pasé bien': [
+      const LexiconEntry('diversion', 0.9),
+      const LexiconEntry('alegria', 0.5),
+    ],
+
+    'en paz': [
+      const LexiconEntry('paz', 0.9),
+      const LexiconEntry('calma', 0.7),
+    ],
+
+    'vulnerable': [
+      const LexiconEntry('vulnerabilidad', 0.9),
+      const LexiconEntry('miedo', 0.3),
+    ],
+    'expuesto': [
+      const LexiconEntry('vulnerabilidad', 0.6),
+      const LexiconEntry('miedo', 0.3),
+    ],
+    'expuesta': [
+      const LexiconEntry('vulnerabilidad', 0.6),
+      const LexiconEntry('miedo', 0.3),
+    ],
+    'me siento débil': [
+      const LexiconEntry('vulnerabilidad', 0.8),
+      const LexiconEntry('agotamiento', 0.3),
+    ],
+
+    'irritable': [
+      const LexiconEntry('irritabilidad', 0.9),
+      const LexiconEntry('enojo', 0.5),
+    ],
+    'irritabilidad': [
+      const LexiconEntry('irritabilidad', 1.0),
+      const LexiconEntry('enojo', 0.4),
+    ],
+    'malhumorado': [
+      const LexiconEntry('irritabilidad', 0.8),
+      const LexiconEntry('enojo', 0.4),
+    ],
+    'malhumorada': [
+      const LexiconEntry('irritabilidad', 0.8),
+      const LexiconEntry('enojo', 0.4),
+    ],
+    'me molesta todo': [
+      const LexiconEntry('irritabilidad', 0.9),
+      const LexiconEntry('enojo', 0.4),
+    ],
+    'todo me molesta': [
+      const LexiconEntry('irritabilidad', 0.9),
+      const LexiconEntry('enojo', 0.4),
+    ],
+    'de malas': [
+      const LexiconEntry('irritabilidad', 0.8),
+      const LexiconEntry('enojo', 0.3),
+    ],
+
+    'inseguridad': [
+      const LexiconEntry('inseguridad', 1.0),
+      const LexiconEntry('ansiedad', 0.3),
+    ],
+    'dudo de mi': [
+      const LexiconEntry('inseguridad', 0.8),
+      const LexiconEntry('confusion', 0.3),
+    ],
+    'no me siento capaz': [
+      const LexiconEntry('inseguridad', 0.8),
+      const LexiconEntry('frustracion', 0.3),
+    ],
+
+    'decepcion': [
+      const LexiconEntry('decepcion', 0.9),
+      const LexiconEntry('tristeza', 0.5),
+    ],
+    'me decepcionó': [
+      const LexiconEntry('decepcion', 0.9),
+      const LexiconEntry('tristeza', 0.4),
+    ],
+    'me decepciono': [
+      const LexiconEntry('decepcion', 0.9),
+      const LexiconEntry('tristeza', 0.4),
+    ],
+    'me falló': [
+      const LexiconEntry('decepcion', 0.7),
+      const LexiconEntry('tristeza', 0.4),
+    ],
+    'me fallo': [
+      const LexiconEntry('decepcion', 0.7),
+      const LexiconEntry('tristeza', 0.4),
+    ],
+    'desilusionado': [
+      const LexiconEntry('decepcion', 0.8),
+      const LexiconEntry('tristeza', 0.4),
+    ],
+    'desilusionada': [
+      const LexiconEntry('decepcion', 0.8),
+      const LexiconEntry('tristeza', 0.4),
+    ],
+
+    'aburrido': [
+      const LexiconEntry('aburrimiento', 0.9),
+      const LexiconEntry('vacio', 0.3),
+    ],
+    'aburrida': [
+      const LexiconEntry('aburrimiento', 0.9),
+      const LexiconEntry('vacio', 0.3),
+    ],
+    'no hay nada que hacer': [
+      const LexiconEntry('aburrimiento', 0.8),
+      const LexiconEntry('vacio', 0.3),
+    ],
+
+    'melancolico': [
+      const LexiconEntry('melancolia', 0.8),
+      const LexiconEntry('nostalgia', 0.4),
+      const LexiconEntry('tristeza', 0.3),
+    ],
+    'melancólico': [
+      const LexiconEntry('melancolia', 0.8),
+      const LexiconEntry('nostalgia', 0.4),
+      const LexiconEntry('tristeza', 0.3),
+    ],
+    'melancólica': [
+      const LexiconEntry('melancolia', 0.8),
+      const LexiconEntry('nostalgia', 0.4),
+      const LexiconEntry('tristeza', 0.3),
+    ],
+
+    'curioso': [
+      const LexiconEntry('curiosidad', 0.9),
+      const LexiconEntry('inspiracion', 0.3),
+    ],
+    'curiosa': [
+      const LexiconEntry('curiosidad', 0.9),
+      const LexiconEntry('inspiracion', 0.3),
+    ],
+    'me intriga': [
+      const LexiconEntry('curiosidad', 0.8),
+      const LexiconEntry('anticipacion', 0.3),
+    ],
+    'me da curiosidad': [
+      const LexiconEntry('curiosidad', 0.9),
+    ],
+
+    'anticipacion': [
+      const LexiconEntry('anticipacion', 1.0),
+      const LexiconEntry('ansiedad', 0.3),
+    ],
+    'no veo la hora': [
+      const LexiconEntry('anticipacion', 0.9),
+      const LexiconEntry('entusiasmo', 0.4),
+    ],
+    'no puedo esperar': [
+      const LexiconEntry('anticipacion', 0.9),
+      const LexiconEntry('entusiasmo', 0.4),
+    ],
+    'impaciente': [
+      const LexiconEntry('anticipacion', 0.7),
+      const LexiconEntry('ansiedad', 0.3),
+    ],
+    'impaciencia': [
+      const LexiconEntry('anticipacion', 0.7),
+      const LexiconEntry('ansiedad', 0.3),
+    ],
+
+    'normal': [
+      const LexiconEntry('neutral', 0.5),
+    ],
+    'indiferente': [
+      const LexiconEntry('neutral', 0.7),
+      const LexiconEntry('vacio', 0.3),
+    ],
+    'sin más': [
+      const LexiconEntry('neutral', 0.5),
     ],
 
     // ── Negativas ──
@@ -562,8 +894,9 @@ class EmotionLexicon {
       const LexiconEntry('tristeza', 0.95),
     ],
     'melancolia': [
-      const LexiconEntry('tristeza', 0.7),
-      const LexiconEntry('nostalgia', 0.6),
+      const LexiconEntry('tristeza', 0.4),
+      const LexiconEntry('nostalgia', 0.5),
+      const LexiconEntry('melancolia', 1.0),
     ],
     'deprimido': [
       const LexiconEntry('tristeza', 0.9),
@@ -757,13 +1090,14 @@ class EmotionLexicon {
     ],
     'monótono': [
       const LexiconEntry('vacio', 0.5),
-      const LexiconEntry('aburrimiento', 0.3),
+      const LexiconEntry('aburrimiento', 0.6),
     ],
     'monotonía': [
       const LexiconEntry('vacio', 0.5),
     ],
     'aburrimiento': [
-      const LexiconEntry('vacio', 0.4),
+      const LexiconEntry('vacio', 0.3),
+      const LexiconEntry('aburrimiento', 0.9),
     ],
 
     'desesperanza': [
@@ -1008,14 +1342,17 @@ class EmotionLexicon {
     'inseguro': [
       const LexiconEntry('miedo', 0.6),
       const LexiconEntry('ansiedad', 0.3),
+      const LexiconEntry('inseguridad', 0.9),
     ],
     'insegura': [
       const LexiconEntry('miedo', 0.6),
       const LexiconEntry('ansiedad', 0.3),
+      const LexiconEntry('inseguridad', 0.9),
     ],
     'vulnerabilidad': [
       const LexiconEntry('miedo', 0.5),
       const LexiconEntry('ansiedad', 0.3),
+      const LexiconEntry('vulnerabilidad', 1.0),
     ],
     'acosado': [
       const LexiconEntry('miedo', 0.8),
@@ -1211,10 +1548,12 @@ class EmotionLexicon {
     'decepcionado': [
       const LexiconEntry('tristeza', 0.8),
       const LexiconEntry('desesperanza', 0.3),
+      const LexiconEntry('decepcion', 0.8),
     ],
     'decepcionada': [
       const LexiconEntry('tristeza', 0.8),
       const LexiconEntry('desesperanza', 0.3),
+      const LexiconEntry('decepcion', 0.8),
     ],
 
     'vergüenza': [
@@ -1326,9 +1665,11 @@ class EmotionLexicon {
     ],
     'cansado': [
       const LexiconEntry('agotamiento', 0.8),
+      const LexiconEntry('cansancio', 0.7),
     ],
     'cansada': [
       const LexiconEntry('agotamiento', 0.8),
+      const LexiconEntry('cansancio', 0.7),
     ],
     'sin energía': [
       const LexiconEntry('agotamiento', 0.9),
@@ -1382,10 +1723,12 @@ class EmotionLexicon {
       const LexiconEntry('agotamiento', 0.8),
     ],
     'cansancio': [
-      const LexiconEntry('agotamiento', 0.9),
+      const LexiconEntry('agotamiento', 0.4),
+      const LexiconEntry('cansancio', 0.9),
     ],
     'fatiga': [
       const LexiconEntry('agotamiento', 0.85),
+      const LexiconEntry('cansancio', 0.5),
     ],
     'exhausto': [
       const LexiconEntry('agotamiento', 0.95),
@@ -1516,6 +1859,7 @@ class EmotionLexicon {
     'añoranza': [
       const LexiconEntry('nostalgia', 0.9),
       const LexiconEntry('tristeza', 0.3),
+      const LexiconEntry('melancolia', 0.5),
     ],
 
     'incertidumbre': [
@@ -1597,6 +1941,18 @@ class EmotionLexicon {
     'demasiado': 1.4,
     'enormemente': 1.5,
     'sumamente': 1.4,
+    'mucho': 1.3,
+    'muchísimo': 1.5,
+    'muchisimo': 1.5,
+    'tanto': 1.3,
+    'increíblemente': 1.4,
+    'increiblemente': 1.4,
+    'fuertemente': 1.3,
+    'intensamente': 1.4,
+    'profundamente': 1.4,
+    'un montón': 1.4,
+    'un monton': 1.4,
+    'terriblemente': 1.5,
   };
 
   static const Map<String, double> diminishers = {
@@ -1608,6 +1964,13 @@ class EmotionLexicon {
     'más o menos': 0.5,
     'mas o menos': 0.5,
     'razonablemente': 0.7,
+    'casi': 0.7,
+    'poco': 0.5,
+    'un poquito': 0.4,
+    'poquito': 0.5,
+    'relativamente': 0.7,
+    'levemente': 0.5,
+    'no tanto': 0.6,
   };
 
   static Map<String, List<LexiconEntry>> get keywords => _keywords;

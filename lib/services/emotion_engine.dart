@@ -1,10 +1,32 @@
 import '../models/emotion.dart';
+import 'crisis_detector.dart';
 import 'emotion_lexicon.dart';
 
 class EmotionEngine {
   const EmotionEngine._();
 
   static const int _negationWindow = 3;
+  static const int _maxPhraseLength = 5;
+
+  static const Set<String> _clauseSeparators = {
+    'pero',
+    'aunque',
+    'sino',
+    'mientras',
+    'además',
+    'ademas',
+    'entonces',
+    'después',
+    'despues',
+    'luego',
+    'también',
+    'tambien',
+    'porque',
+    'y',
+    'o',
+    'e',
+    'u',
+  };
 
   static EmotionAnalysis analyze(String text) {
     if (text.trim().isEmpty) {
@@ -21,11 +43,15 @@ class EmotionEngine {
     final scores = <String, double>{};
     final matchedKw = <String>{};
     final matchedByEmotion = <String, Set<String>>{};
+    final used = List<bool>.filled(tokens.length, false);
+
+    _matchPhrases(tokens, used, scores, matchedKw, matchedByEmotion);
 
     for (var i = 0; i < tokens.length; i++) {
+      if (used[i]) continue;
       final token = tokens[i];
 
-      final entries = EmotionLexicon.keywords[token];
+      final entries = _entriesForToken(token);
       if (entries == null) continue;
 
       final negated = _isNegated(tokens, i);
@@ -35,8 +61,7 @@ class EmotionEngine {
         final baseWeight = entry.weight * multiplier;
         final effectiveWeight = negated ? baseWeight * 0.3 : baseWeight;
 
-        final current = scores[entry.emotionId] ?? 0;
-        scores[entry.emotionId] = current + effectiveWeight;
+        scores[entry.emotionId] = (scores[entry.emotionId] ?? 0) + effectiveWeight;
         matchedKw.add(token);
 
         matchedByEmotion
@@ -51,6 +76,8 @@ class EmotionEngine {
         scores[entry.key] = (scores[entry.key] ?? 0) + entry.value;
       }
     }
+
+    _applyCrisisOverride(text, scores);
 
     final ranked = _rankScores(scores);
     final totalWeight = ranked.fold<double>(0, (s, e) => s + e.percentage);
@@ -72,6 +99,67 @@ class EmotionEngine {
     );
   }
 
+  /// Devuelve la emoción dominante de un texto, o `null` si no se detectó nada.
+  static DominantEmotion? dominant(String text) =>
+      dominantFromAnalysis(analyze(text));
+
+  /// Devuelve la emoción dominante a partir de un análisis ya calculado.
+  static DominantEmotion? dominantFromAnalysis(EmotionAnalysis analysis) {
+    if (analysis.rankings.isEmpty) return null;
+
+    final top = analysis.rankings.first;
+    final intensity =
+        top.percentage / 100 * 0.6 + analysis.confidence / 100 * 0.4;
+
+    return DominantEmotion(
+      emotion: top.emotion,
+      intensity: double.parse(intensity.clamp(0.0, 1.0).toStringAsFixed(2)),
+      percentage: top.percentage,
+    );
+  }
+
+  static void _matchPhrases(
+    List<String> tokens,
+    List<bool> used,
+    Map<String, double> scores,
+    Set<String> matchedKw,
+    Map<String, Set<String>> matchedByEmotion,
+  ) {
+    for (var i = 0; i < tokens.length; i++) {
+      if (used[i]) continue;
+
+      var matchedLength = 1;
+      for (var len = _maxPhraseLength; len >= 2; len--) {
+        if (i + len > tokens.length) continue;
+        final phrase = tokens.sublist(i, i + len).join(' ');
+        if (EmotionLexicon.keywords.containsKey(phrase)) {
+          matchedLength = len;
+          break;
+        }
+      }
+
+      if (matchedLength == 1) continue;
+
+      final phrase = tokens.sublist(i, i + matchedLength).join(' ');
+      final entries = EmotionLexicon.keywords[phrase]!;
+      final multiplier = _getContextMultiplier(tokens, i);
+
+      for (final entry in entries) {
+        scores[entry.emotionId] =
+            (scores[entry.emotionId] ?? 0) + entry.weight * multiplier;
+        matchedByEmotion
+            .putIfAbsent(entry.emotionId, () => <String>{})
+            .add(phrase);
+      }
+      matchedKw.add(phrase);
+
+      for (var k = i; k < i + matchedLength; k++) {
+        used[k] = true;
+      }
+      i += matchedLength - 1;
+    }
+  }
+
   static String _normalize(String text) {
     var t = text.toLowerCase().trim();
     t = t.replaceAll(RegExp(r'[¿¡!?.;:,()\[\]{}\u00AB\u00BB\u2013\u2014\u2012\-]'), ' ');
@@ -85,10 +173,19 @@ class EmotionEngine {
 
   static bool _isNegated(List<String> tokens, int index) {
     final start = (index - _negationWindow).clamp(0, tokens.length);
+    var negations = 0;
+
     for (var i = start; i < index; i++) {
-      if (EmotionLexicon.negationWords.contains(tokens[i])) return true;
+      if (_clauseSeparators.contains(tokens[i])) {
+        negations = 0;
+        continue;
+      }
+      if (EmotionLexicon.negationWords.contains(tokens[i])) {
+        negations++;
+      }
     }
-    return false;
+
+    return negations.isOdd;
   }
 
   static double _getContextMultiplier(List<String> tokens, int index) {
@@ -97,30 +194,58 @@ class EmotionEngine {
     if (index > 0) {
       final prev = tokens[index - 1];
       final intens = EmotionLexicon.intensifiers[prev];
-      if (intens != null) {
-        multiplier *= intens;
-        return multiplier;
-      }
+      if (intens != null) multiplier *= intens;
     }
 
     if (index > 1) {
       final twoBack = '${tokens[index - 2]} ${tokens[index - 1]}';
       final diminisher = EmotionLexicon.diminishers[twoBack];
-      if (diminisher != null) {
-        multiplier *= diminisher;
-        return multiplier;
-      }
+      if (diminisher != null) multiplier *= diminisher;
     }
 
     if (index > 0) {
       final prev = tokens[index - 1];
       final diminisher = EmotionLexicon.diminishers[prev];
-      if (diminisher != null) {
-        multiplier *= diminisher;
-      }
+      if (diminisher != null) multiplier *= diminisher;
     }
 
+    if (index < tokens.length - 1) {
+      final next = tokens[index + 1];
+      final intens = EmotionLexicon.intensifiers[next];
+      if (intens != null) multiplier *= intens;
+    }
+
+    final token = tokens[index];
+    if (_isSuperlative(token)) multiplier *= 1.4;
+
     return multiplier;
+  }
+
+  static bool _isSuperlative(String token) {
+    return token.endsWith('ísimo') ||
+        token.endsWith('ísima') ||
+        token.endsWith('isimo') ||
+        token.endsWith('isima');
+  }
+
+  /// Busca una palabra clave admitiendo su forma superlativa (p. ej.
+  /// `tristísima` -> `triste`).
+  static List<LexiconEntry>? _entriesForToken(String token) {
+    final direct = EmotionLexicon.keywords[token];
+    if (direct != null) return direct;
+
+    const suffixes = ['ísima', 'ísimo', 'isima', 'isimo'];
+    for (final suffix in suffixes) {
+      if (!token.endsWith(suffix)) continue;
+      final base = token.substring(0, token.length - suffix.length);
+      if (base.isEmpty) return null;
+      for (final ending in const ['e', 'o', 'a', '']) {
+        final entries = EmotionLexicon.keywords['$base$ending'];
+        if (entries != null) return entries;
+      }
+      break;
+    }
+    return null;
   }
 
   static List<EmotionScore> _rankScores(Map<String, double> scores) {
@@ -236,11 +361,21 @@ class EmotionEngine {
       'quisiera desaparecer', 'no quiero existir',
       'no doy más', 'no doy mas', 'todo me sale mal',
     ],
+    'estres': [
+      'no pude dormir', 'no duermo', 'sin dormir', 'dormir mal',
+      'desvelo', 'desvelada', 'presión', 'presion',
+      'presionado', 'presionada', 'agobiado', 'agobiada', 'agobio',
+      'agobiante', 'sobrepasado', 'sobrepasada', 'mucho trabajo',
+      'mucha carga', 'no me alcanza el tiempo', 'colapsado', 'colapsada',
+      'tengo mil cosas', 'estoy hasta el cuello', 'al límite', 'al limite',
+    ],
   };
 
   static const Set<String> _positiveEmotionIds = {
     'alegria', 'felicidad', 'amor', 'gratitud', 'esperanza',
     'calma', 'orgullo', 'motivacion', 'inspiracion',
+    'entusiasmo', 'ternura', 'ilusion', 'alivio', 'optimismo',
+    'confianza', 'diversion', 'paz',
   };
 
   static Map<String, double>? _detectContextOverride(
@@ -254,15 +389,24 @@ class EmotionEngine {
       for (final keyword in entry.value) {
         if (normalized.contains(keyword)) {
           triggers.add(keyword);
-          if (entry.key == 'tristeza') {
-            overrideScores['tristeza'] = (overrideScores['tristeza'] ?? 0) + 1.2;
-            overrideScores['desesperanza'] = (overrideScores['desesperanza'] ?? 0) + 0.3;
-          } else if (entry.key == 'ansiedad') {
-            overrideScores['ansiedad'] = (overrideScores['ansiedad'] ?? 0) + 1.2;
-            overrideScores['miedo'] = (overrideScores['miedo'] ?? 0) + 0.4;
-          } else if (entry.key == 'desesperanza') {
-            overrideScores['desesperanza'] = (overrideScores['desesperanza'] ?? 0) + 1.3;
-            overrideScores['tristeza'] = (overrideScores['tristeza'] ?? 0) + 0.5;
+          switch (entry.key) {
+            case 'tristeza':
+              overrideScores['tristeza'] = (overrideScores['tristeza'] ?? 0) + 1.2;
+              overrideScores['desesperanza'] = (overrideScores['desesperanza'] ?? 0) + 0.3;
+              break;
+            case 'ansiedad':
+              overrideScores['ansiedad'] = (overrideScores['ansiedad'] ?? 0) + 1.2;
+              overrideScores['miedo'] = (overrideScores['miedo'] ?? 0) + 0.4;
+              break;
+            case 'desesperanza':
+              overrideScores['desesperanza'] = (overrideScores['desesperanza'] ?? 0) + 1.3;
+              overrideScores['tristeza'] = (overrideScores['tristeza'] ?? 0) + 0.5;
+              break;
+            case 'estres':
+              overrideScores['estres'] = (overrideScores['estres'] ?? 0) + 1.2;
+              overrideScores['ansiedad'] = (overrideScores['ansiedad'] ?? 0) + 0.6;
+              overrideScores['agotamiento'] = (overrideScores['agotamiento'] ?? 0) + 0.3;
+              break;
           }
         }
       }
@@ -279,5 +423,13 @@ class EmotionEngine {
     }
 
     return overrideScores;
+  }
+
+  static void _applyCrisisOverride(String text, Map<String, double> scores) {
+    final crisis = CrisisDetector.detect(text);
+    if (!crisis.highRisk) return;
+
+    scores['desesperanza'] = (scores['desesperanza'] ?? 0) + 12.0;
+    scores['tristeza'] = (scores['tristeza'] ?? 0) + 4.0;
   }
 }

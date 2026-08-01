@@ -77,6 +77,7 @@ class EmotionPipeline {
     final memories = _memoryManager.addFromText(text);
 
     analysis = _fuseAnalysis(text, analysis);
+    analysis = _applyCrisisToAnalysis(crisis, analysis);
 
     _analysisHistory.add(analysis);
     if (_analysisHistory.length > 100) {
@@ -192,7 +193,70 @@ class EmotionPipeline {
   static const Set<String> _positiveIds = {
     'alegria', 'felicidad', 'amor', 'gratitud', 'esperanza',
     'calma', 'orgullo', 'motivacion', 'inspiracion',
+    'entusiasmo', 'ternura', 'ilusion', 'alivio', 'optimismo',
+    'confianza', 'diversion', 'paz',
   };
+
+  /// Si hay riesgo de crisis, fuerza la desesperanza como emoción dominante.
+  EmotionAnalysis _applyCrisisToAnalysis(
+    CrisisResult crisis,
+    EmotionAnalysis analysis,
+  ) {
+    if (!crisis.highRisk) return analysis;
+
+    final despair = emotionById('desesperanza');
+    if (despair == null) return analysis;
+
+    final others = analysis.rankings
+        .where((s) => s.emotion.id != 'desesperanza' && s.emotion.id != 'tristeza')
+        .take(2)
+        .toList();
+
+    final reranked = <EmotionScore>[
+      EmotionScore(
+        emotion: despair,
+        percentage: double.parse(
+          (70 - crisis.confidence * 5).toStringAsFixed(1),
+        ),
+        matchedKeywords: const [],
+      ),
+    ];
+
+    final sadness = emotionById('tristeza');
+    if (sadness != null) {
+      reranked.add(EmotionScore(
+        emotion: sadness,
+        percentage: double.parse(
+          (15 + crisis.confidence * 5).toStringAsFixed(1),
+        ),
+        matchedKeywords: const [],
+      ));
+    }
+
+    for (final score in others) {
+      reranked.add(EmotionScore(
+        emotion: score.emotion,
+        percentage: double.parse((score.percentage * 0.2).toStringAsFixed(1)),
+        matchedKeywords: const [],
+      ));
+    }
+
+    final allKw = List<String>.from(analysis.detectedKeywords);
+    for (final trigger in crisis.triggers) {
+      if (!allKw.contains(trigger)) allKw.add(trigger);
+    }
+
+    return EmotionAnalysis(
+      rankings: reranked,
+      confidence: double.parse(
+        analysis.confidence.clamp(0, 100).toStringAsFixed(1),
+      ),
+      detectedKeywords: allKw..sort(),
+      explanation: 'Se detectó un momento de alta vulnerabilidad. '
+          'La desesperanza domina este análisis.\n'
+          '${analysis.explanation}',
+    );
+  }
 
   EmotionAnalysis _fuseAnalysis(String text, EmotionAnalysis original) {
     if (original.rankings.isEmpty) return original;

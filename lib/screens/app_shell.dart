@@ -19,9 +19,31 @@ class AppShell extends StatefulWidget {
   State<AppShell> createState() => _AppShellState();
 }
 
-class _AppShellState extends State<AppShell> {
+class _AppShellState extends State<AppShell>
+    with SingleTickerProviderStateMixin {
   int _index = 0;
   final _pages = List<Widget?>.filled(5, null);
+  late final AnimationController _fadeCtrl;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeCtrl = AnimationController(
+      vsync: this,
+      duration: BrandDurations.medium,
+      value: 1,
+    );
+    _fade = Tween<double>(begin: 0.45, end: 1).animate(
+      CurvedAnimation(parent: _fadeCtrl, curve: BrandDurations.standard),
+    );
+  }
+
+  @override
+  void dispose() {
+    _fadeCtrl.dispose();
+    super.dispose();
+  }
 
   Widget _page(int index) {
     _pages[index] ??= switch (index) {
@@ -77,15 +99,23 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
       ),
-      body: IndexedStack(
-        index: _index,
-        children: List.generate(5, (i) => _page(i)),
+      body: AnimatedBuilder(
+        animation: _fade,
+        builder: (context, child) => Opacity(
+          opacity: _fade.value,
+          child: child,
+        ),
+        child: IndexedStack(
+          index: _index,
+          children: List.generate(5, (i) => _page(i)),
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (value) {
           HapticFeedback.selectionClick();
           setState(() => _index = value);
+          _fadeCtrl.forward(from: 0.35);
         },
         animationDuration: BrandDurations.normal,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_constants.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
 import '../models/mood.dart';
 import '../providers/journal_provider.dart';
@@ -10,6 +11,7 @@ import '../theme/brand/brand_durations.dart';
 
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
+import '../widgets/dominant_emotion_badge.dart';
 import '../widgets/empty_state.dart';
 
 class StatisticsScreen extends StatelessWidget {
@@ -273,6 +275,10 @@ class StatisticsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
 
+          // ── Top emociones (30) ──
+          _EmotionsSection(entries: entries),
+          const SizedBox(height: AppSpacing.md),
+
           // ── Predominant mood ──
           AppCard(
             gradient: isDark
@@ -534,6 +540,406 @@ class _WeeklyChart extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      duration: BrandDurations.slow,
+      curve: Curves.easeOutCubic,
+    );
+  }
+}
+
+class _EmotionsSection extends StatelessWidget {
+  const _EmotionsSection({required this.entries});
+
+  final List<JournalEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final withEmotion = JournalInsights.withEmotion(entries);
+    final counts = JournalInsights.dominantEmotionCounts(entries);
+    final categories = JournalInsights.categoryCounts(entries);
+    final avgIntensity = JournalInsights.averageIntensity(entries);
+    final analyzed = withEmotion.length;
+    final predominant = JournalInsights.predominantEmotion(entries);
+
+    final sorted = counts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top = sorted.take(5).toList();
+    final topTotal = sorted.isNotEmpty
+        ? sorted.first.value
+        : 1;
+
+    final positive = categories[EmotionCategory.positiva] ?? 0;
+    final negative = categories[EmotionCategory.negativa] ?? 0;
+    final mixed = categories[EmotionCategory.mixta] ?? 0;
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Tus 30 emociones',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            analyzed == 0
+                ? 'Guarda entradas para descubrir tus emociones.'
+                : 'Analizadas en $analyzed ${analyzed == 1 ? 'entrada' : 'entradas'}.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+
+          // ── Top emociones ──
+          if (top.isNotEmpty) ...[
+            Text('Las que más aparecen', style: theme.textTheme.labelMedium),
+            const SizedBox(height: 10),
+            ...top.map((item) {
+              final emotion = emotionById(item.key);
+              if (emotion == null) return const SizedBox.shrink();
+              final percent = item.value / topTotal;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Text(emotion.emoji, style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  emotion.name,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '${item.value}',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(AppRadii.pill),
+                            child: LinearProgressIndicator(
+                              value: percent.clamp(0.0, 1.0),
+                              color: emotion.color,
+                              minHeight: 6,
+                              backgroundColor: theme
+                                  .colorScheme.surfaceContainerHighest,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+
+          // ── Categorías ──
+          Text('Balance emocional', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 10),
+          _CategoryBar(
+            label: 'Positivas',
+            emoji: '😊',
+            color: theme.colorScheme.tertiary,
+            value: positive,
+            total: analyzed,
+          ),
+          const SizedBox(height: 10),
+          _CategoryBar(
+            label: 'Negativas',
+            emoji: '😔',
+            color: theme.colorScheme.error,
+            value: negative,
+            total: analyzed,
+          ),
+          const SizedBox(height: 10),
+          _CategoryBar(
+            label: 'Mixtas',
+            emoji: '🤔',
+            color: theme.colorScheme.tertiary,
+            value: mixed,
+            total: analyzed,
+          ),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // ── Intensidad promedio ──
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary.withValues(alpha: 0.1),
+                  theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(AppRadii.lg),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.speed_rounded,
+                  size: 22,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Intensidad promedio',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        avgIntensity == 0
+                            ? 'Aún sin datos'
+                            : '${(avgIntensity * 100).round()}%',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (avgIntensity > 0) ...[
+                  const Spacer(),
+                  DominantEmotionBadge(
+                    emotionId: predominant?.id,
+                    name: predominant?.name,
+                    emoji: predominant?.emoji,
+                    intensity: avgIntensity,
+                    compact: true,
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // ── Evolución semanal ──
+          Text('Evolución semanal', style: theme.textTheme.labelMedium),
+          const SizedBox(height: 4),
+          Text(
+            'Positivas y negativas por día (últimos 7 días).',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(height: 140, child: _EmotionWeeklyChart(entries: entries)),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryBar extends StatelessWidget {
+  const _CategoryBar({
+    required this.label,
+    required this.emoji,
+    required this.color,
+    required this.value,
+    required this.total,
+  });
+
+  final String label;
+  final String emoji;
+  final Color color;
+  final int value;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final percent = total > 0 ? value / total : 0.0;
+    return Row(
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 16)),
+        const SizedBox(width: 8),
+        SizedBox(
+          width: 92,
+          child: Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadii.pill),
+            child: LinearProgressIndicator(
+              value: percent.clamp(0.0, 1.0),
+              color: color,
+              minHeight: 8,
+              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 40,
+          child: Text(
+            '${(percent * 100).round()}%',
+            textAlign: TextAlign.right,
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmotionWeeklyChart extends StatelessWidget {
+  const _EmotionWeeklyChart({required this.entries});
+
+  final List<JournalEntry> entries;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final today = DateUtils.dateOnly(DateTime.now());
+    final days = List.generate(7, (index) {
+      return today.subtract(Duration(days: 6 - index));
+    }, growable: false);
+
+    List<double> positive = [];
+    List<double> negative = [];
+    for (final day in days) {
+      final dayEntries =
+          entries.where((e) => DateUtils.isSameDay(e.createdAt, day));
+      var pos = 0;
+      var neg = 0;
+      for (final entry in dayEntries) {
+        final emotion = emotionById(entry.dominantEmotionId ?? '');
+        if (emotion == null) continue;
+        if (emotion.category == EmotionCategory.positiva) pos++;
+        if (emotion.category == EmotionCategory.negativa) neg++;
+      }
+      positive.add(pos.toDouble());
+      negative.add(neg.toDouble());
+    }
+
+    final maxY = [
+      ...positive,
+      ...negative,
+      1.0,
+    ].reduce((a, b) => a > b ? a : b) + 1;
+
+    return LineChart(
+      LineChartData(
+        minX: 0,
+        maxX: 6,
+        minY: 0,
+        maxY: maxY,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: (maxY / 3).ceilToDouble().clamp(1, double.infinity),
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+            strokeWidth: 1,
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                const labels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+                final index = value.toInt();
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    index >= 0 && index < labels.length ? labels[index] : '',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        lineTouchData: LineTouchData(
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (_) => theme.colorScheme.primary,
+            getTooltipItems: (spots) => spots
+                .map(
+                  (spot) => LineTooltipItem(
+                    '${spot.y.toInt()}',
+                    const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: List.generate(7, (i) => FlSpot(i.toDouble(), positive[i])),
+            isCurved: true,
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.tertiary,
+                theme.colorScheme.tertiary.withValues(alpha: 0.5),
+              ],
+            ),
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+          ),
+          LineChartBarData(
+            spots: List.generate(7, (i) => FlSpot(i.toDouble(), negative[i])),
+            isCurved: true,
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.error,
+                theme.colorScheme.error.withValues(alpha: 0.6),
+              ],
+            ),
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+          ),
+        ],
       ),
       duration: BrandDurations.slow,
       curve: Curves.easeOutCubic,
