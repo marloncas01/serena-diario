@@ -18,6 +18,7 @@ import '../theme/brand/brand_spacing.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/ui/serena_background.dart';
 import '../services/cloud/auth_service_firebase.dart';
+import 'about_screen.dart';
 import 'edit_profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -924,6 +925,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const Divider(height: 1, indent: 68),
               ListTile(
                 leading: _SettingsIcon(
+                  icon: Icons.privacy_tip_outlined,
+                  color: theme.colorScheme.primary,
+                ),
+                title: const Text(AppTexts.legalInfo),
+                subtitle: const Text(
+                  'Política de privacidad y términos de uso',
+                ),
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.4,
+                  ),
+                ),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const AboutScreen(),
+                  ),
+                ),
+              ),
+              const Divider(height: 1, indent: 68),
+              ListTile(
+                leading: _SettingsIcon(
                   icon: Icons.workspace_premium_outlined,
                   color: theme.colorScheme.tertiary,
                 ),
@@ -938,7 +961,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => showLicensePage(
                   context: context,
                   applicationName: 'Serena',
-                  applicationVersion: '1.0',
+                  applicationVersion: '1.1',
                 ),
               ),
               const Divider(height: 1, indent: 68),

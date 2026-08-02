@@ -4,12 +4,16 @@ import 'package:provider/provider.dart';
 import '../core/app_constants.dart';
 import '../models/emotion.dart';
 import '../models/journal_entry.dart';
+import '../models/wellbeing_plan.dart';
 import '../providers/journal_provider.dart';
+import '../providers/objective_provider.dart';
+import '../services/achievement_service.dart';
 import '../theme/brand/brand_durations.dart';
 
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/objectives_card.dart';
 
 class WellbeingScreen extends StatelessWidget {
   const WellbeingScreen({super.key});
@@ -21,11 +25,13 @@ class WellbeingScreen extends StatelessWidget {
     );
 
     if (entries.isEmpty) {
-      return const SafeArea(
-        child: EmptyState(
-          icon: Icons.spa_outlined,
-          title: 'Tu bienestar empieza con una entrada',
-          message: 'Escribe una reflexión para ver tus indicadores.',
+      return _ObjectiveProgressSync(
+        child: const SafeArea(
+          child: EmptyState(
+            icon: Icons.spa_outlined,
+            title: 'Tu bienestar empieza con una entrada',
+            message: 'Escribe una reflexión para ver tus indicadores.',
+          ),
         ),
       );
     }
@@ -45,14 +51,15 @@ class WellbeingScreen extends StatelessWidget {
         ? (JournalInsights.totalWords(entries) / entries.length).round()
         : 0;
 
-    return SafeArea(
-      child: ListView(
-        padding: EdgeInsets.fromLTRB(
-          isWide ? 32 : 16,
-          24,
-          isWide ? 32 : 16,
-          110,
-        ),
+    return _ObjectiveProgressSync(
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            isWide ? 32 : 16,
+            24,
+            isWide ? 32 : 16,
+            110,
+          ),
         children: [
           Semantics(
             header: true,
@@ -336,7 +343,12 @@ class WellbeingScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: AppSpacing.md),
+
+          // ── Personal objectives ──
+          const ObjectivesCard(),
         ],
+        ),
       ),
     );
   }
@@ -420,5 +432,68 @@ class _Metric extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Mantiene el progreso de los objetivos sincronizado con la actividad de
+/// escritura. Al detectar cambios en entradas u objetivos, recalcula el
+/// progreso y celebra los objetivos recién completados.
+class _ObjectiveProgressSync extends StatefulWidget {
+  const _ObjectiveProgressSync({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ObjectiveProgressSync> createState() => _ObjectiveProgressSyncState();
+}
+
+class _ObjectiveProgressSyncState extends State<_ObjectiveProgressSync> {
+  String _lastSignature = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = context
+        .select<JournalProvider, List<JournalEntry>>((p) => p.entries);
+    final objectives = context
+        .select<ObjectiveProvider, List<WellbeingObjective>>(
+      (p) => p.objectives,
+    );
+
+    final signature = '${entries.length}|${objectives.length}';
+    if (signature != _lastSignature) {
+      _lastSignature = signature;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _sync(context);
+      });
+    }
+    return widget.child;
+  }
+
+  Future<void> _sync(BuildContext context) async {
+    final entries = context.read<JournalProvider>().entries;
+    if (entries.isEmpty) return;
+
+    final objectivesProvider = context.read<ObjectiveProvider>();
+    final completed = await objectivesProvider.computeProgress(entries);
+    if (completed.isEmpty || !context.mounted) return;
+
+    await AchievementService().checkAll(
+      entries,
+      completedGoals: objectivesProvider.completados,
+    );
+    if (!context.mounted) return;
+
+    final objective = objectivesProvider.objectives.firstWhere(
+      (o) => o.id == completed.last,
+    );
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('🎉 ¡Completaste "${objective.titulo}"!'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
   }
 }

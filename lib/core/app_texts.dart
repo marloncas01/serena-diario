@@ -48,7 +48,8 @@ class AppTexts {
   static const export_ = 'Exportar diario';
   static const reminders = 'Recordatorios';
   static const aboutSerena = 'Acerca de Serena';
-  static const version = 'v1.0';
+  static const version = 'v1.1';
+  static const legalInfo = 'Información legal y privacidad';
   static const designedFor = 'Diseñado para escribir con calma';
   static const developedBy = 'Marlon Castillo Rodríguez';
   static const aboutDescription =

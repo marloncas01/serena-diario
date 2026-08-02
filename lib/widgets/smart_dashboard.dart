@@ -17,7 +17,9 @@ import '../services/user_profile.dart';
 import '../services/emotional_pattern_analyzer.dart';
 import '../services/pattern_insight_generator.dart';
 import '../utils/journal_insights.dart';
+import '../providers/objective_provider.dart';
 import '../widgets/dashboard_components.dart';
+import '../widgets/emotional_timeline.dart';
 import '../widgets/glass_card.dart';
 import '../widgets/memory_card.dart';
 import '../widgets/emotion_trend_card.dart';
@@ -25,6 +27,7 @@ import '../widgets/emotional_profile_card.dart';
 import '../widgets/emotional_evolution_card.dart';
 import '../widgets/insights_card.dart';
 import '../widgets/pattern_insights_card.dart';
+import '../widgets/premium_dashboard.dart';
 import '../widgets/recommendations_card.dart';
 import '../widgets/monthly_summary_card.dart';
 import '../widgets/weekly_summary_card.dart';
@@ -90,6 +93,8 @@ class _SmartDashboardState extends State<SmartDashboard> {
   SmartAdvice? _smartAdvice;
   SmartMusicRecommendation? _smartMusic;
   List<Achievement> _recentAchievements = [];
+  int _achievementsCount = 0;
+  int _totalAchievements = 0;
   EmotionalPatternReport? _patternReport;
   List<PatternInsight> _patternInsights = [];
 
@@ -160,12 +165,19 @@ class _SmartDashboardState extends State<SmartDashboard> {
     });
 
     try {
-      await AchievementService().checkAll(widget.entries);
+      final completedGoals =
+          context.read<ObjectiveProvider>().completados;
+      await AchievementService().checkAll(
+        widget.entries,
+        completedGoals: completedGoals,
+      );
       if (!mounted) return;
       final all = await AchievementService().getUnlocked();
       if (!mounted) return;
       setState(() {
         _recentAchievements = all.take(3).toList();
+        _achievementsCount = all.length;
+        _totalAchievements = AchievementService().totalAchievements;
       });
     } catch (_) {
       // Achievement check is non-critical
@@ -198,6 +210,36 @@ class _SmartDashboardState extends State<SmartDashboard> {
         ],
       ),
     ));
+
+    if (widget.entries.isNotEmpty) {
+      sections.add(_DashboardSection(
+        id: 'quote',
+        priority: 97,
+        builder: (_) => const Column(
+          children: [
+            PremiumQuoteCard(),
+            SizedBox(height: BrandSpacing.md),
+          ],
+        ),
+      ));
+    }
+
+    if (widget.entries.isNotEmpty) {
+      sections.add(_DashboardSection(
+        id: 'premium_stats',
+        priority: 94,
+        builder: (_) => Column(
+          children: [
+            PremiumStatsCard(
+              entries: widget.entries,
+              achievementsCount: _achievementsCount,
+              totalAchievements: _totalAchievements,
+            ),
+            const SizedBox(height: BrandSpacing.md),
+          ],
+        ),
+      ));
+    }
 
     if (widget.entries.isNotEmpty) {
       sections.add(_DashboardSection(
@@ -342,6 +384,19 @@ class _SmartDashboardState extends State<SmartDashboard> {
               memories: widget.memories,
               onViewAll: widget.onViewAllMemories,
             ),
+            const SizedBox(height: BrandSpacing.md),
+          ],
+        ),
+      ));
+    }
+
+    if (widget.entries.isNotEmpty) {
+      sections.add(_DashboardSection(
+        id: 'emotional_timeline',
+        priority: 63,
+        builder: (_) => Column(
+          children: [
+            EmotionalTimeline(entries: widget.entries),
             const SizedBox(height: BrandSpacing.md),
           ],
         ),

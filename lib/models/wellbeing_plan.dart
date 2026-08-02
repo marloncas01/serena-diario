@@ -24,6 +24,7 @@ class WellbeingObjective {
     required this.duracion,
     required this.estado,
     required this.fechaInicio,
+    this.icono = '🎯',
     this.fechaFin,
     this.progreso = 0.0,
   });
@@ -35,9 +36,14 @@ class WellbeingObjective {
   final DificultadObjetivo dificultad;
   final DuracionObjetivo duracion;
   EstadoObjetivo estado;
+  final String icono;
   final DateTime fechaInicio;
   DateTime? fechaFin;
   double progreso;
+
+  bool get activo =>
+      estado == EstadoObjetivo.pendiente ||
+      estado == EstadoObjetivo.enProgreso;
 
   double get progresoClamp => progreso.clamp(0.0, 1.0);
 
@@ -59,6 +65,7 @@ class WellbeingObjective {
     'titulo': titulo,
     'descripcion': descripcion,
     'motivo': motivo,
+    'icono': icono,
     'dificultad': dificultad.name,
     'duracion': duracion.name,
     'estado': estado.name,
@@ -83,6 +90,7 @@ class WellbeingObjective {
           (e) => e.name == map['estado'],
         ),
         fechaInicio: DateTime.parse(map['fechaInicio'] as String),
+        icono: map['icono'] as String? ?? '🎯',
         fechaFin: map['fechaFin'] != null
             ? DateTime.parse(map['fechaFin'] as String)
             : null,

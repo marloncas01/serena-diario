@@ -1,4 +1,6 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
 
 class Achievement {
@@ -68,6 +70,16 @@ class Achievement {
       description: '30 días consecutivos. Tu dedicación es admirable.',
       emoji: '💎',
     ),
+    'streak_60': _AchievementDef(
+      title: 'Dos meses de constancia',
+      description: '60 días consecutivos escribiendo.',
+      emoji: '💫',
+    ),
+    'streak_100': _AchievementDef(
+      title: 'Cien días de hábito',
+      description: '100 días seguidos. Un logro extraordinario.',
+      emoji: '🏅',
+    ),
     'entries_10': _AchievementDef(
       title: 'Diez reflexiones',
       description: 'Has escrito 10 entradas.',
@@ -87,6 +99,11 @@ class Achievement {
       title: 'Cien entradas',
       description: '100 reflexiones. Un logro extraordinario.',
       emoji: '👑',
+    ),
+    'entries_200': _AchievementDef(
+      title: 'Doscientos reflejos',
+      description: '200 entradas. Tu historia merece contarse.',
+      emoji: '🎖️',
     ),
     'help_requested': _AchievementDef(
       title: 'Pediste ayuda',
@@ -123,6 +140,26 @@ class Achievement {
       description: 'Escribiste después de las 10 PM.',
       emoji: '🌙',
     ),
+    'first_positive': _AchievementDef(
+      title: 'Un destello de luz',
+      description: 'Registraste tu primera emoción positiva.',
+      emoji: '🌤️',
+    ),
+    'mood_diversity': _AchievementDef(
+      title: 'Espectro emocional',
+      description: 'Reconociste 10 emociones distintas.',
+      emoji: '🌈',
+    ),
+    'month_days': _AchievementDef(
+      title: 'Mes completo',
+      description: 'Escribiste 20 días en un mismo mes.',
+      emoji: '🗓️',
+    ),
+    'first_goal': _AchievementDef(
+      title: 'Meta cumplida',
+      description: 'Completaste tu primer objetivo.',
+      emoji: '🎯',
+    ),
   };
 }
 
@@ -137,24 +174,52 @@ class _AchievementDef {
   final String emoji;
 }
 
+/// Motor de logros con persistencia en Hive.
+///
+/// La caja `achievements` guarda los logros desbloqueados (`{id: {date}}`).
+/// Los datos antiguos de SharedPreferences se migran automáticamente en el
+/// primer arranque. Los indicadores "nuevo" se mantienen en prefs.
 class AchievementService {
   AchievementService._();
   static final AchievementService _instance = AchievementService._();
   factory AchievementService() => _instance;
 
+  static const _boxName = 'achievements';
   static const _achievementsKey = 'achievements_v1';
   static const _newAchievementsKey = 'new_achievements_v1';
 
-  Future<Map<String, Achievement>> getAll() async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_achievementsKey);
-    if (data == null || data.isEmpty) return {};
+  late Box<Map> _box;
+  bool _isReady = false;
 
+  Future<void> _ensureBox() async {
+    if (_isReady) return;
+    if (!Hive.isBoxOpen(_boxName)) {
+      _box = await Hive.openBox<Map>(_boxName);
+    } else {
+      _box = Hive.box<Map>(_boxName);
+    }
+    await _migrateLegacyAchievements();
+    _isReady = true;
+  }
+
+  Future<void> _migrateLegacyAchievements() async {
+    if (_box.isNotEmpty) return;
+    final preferences = await SharedPreferences.getInstance();
+    final legacy = preferences.getString(_achievementsKey);
+    if (legacy == null || legacy.isEmpty) return;
+    final decoded = _decodeMap(legacy);
+    for (final entry in decoded.entries) {
+      _box.put(entry.key, entry.value);
+    }
+  }
+
+  Future<Map<String, Achievement>> getAll() async {
+    await _ensureBox();
     final newIds = await getNewIds();
     final map = <String, Achievement>{};
-    final decoded = _decodeMap(data);
-    for (final entry in decoded.entries) {
-      map[entry.key] = Achievement.fromMap(entry.key, entry.value)
+    for (final entry in _box.toMap().entries) {
+      final data = Map<String, dynamic>.from(entry.value);
+      map[entry.key] = Achievement.fromMap(entry.key, data)
           .copyWith(isNew: newIds.contains(entry.key));
     }
     return map;
@@ -178,11 +243,8 @@ class AchievementService {
   }
 
   Future<bool> isUnlocked(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_achievementsKey);
-    if (data == null) return false;
-    final decoded = _decodeMap(data);
-    return decoded.containsKey(id);
+    await _ensureBox();
+    return _box.containsKey(id);
   }
 
   Future<bool> checkAndUnlock(String id) async {
@@ -191,8 +253,13 @@ class AchievementService {
     return true;
   }
 
-  Future<void> checkAll(List<JournalEntry> entries) async {
-    if (entries.isEmpty) return;
+  Future<void> checkAll(
+    List<JournalEntry> entries, {
+    int completedGoals = 0,
+  }) async {
+    if (entries.isEmpty && completedGoals == 0) return;
+
+    await _ensureBox();
 
     if (entries.isNotEmpty) await checkAndUnlock('first_entry');
     if (entries.length >= 3) await checkAndUnlock('three_entries');
@@ -201,50 +268,65 @@ class AchievementService {
     if (entries.length >= 30) await checkAndUnlock('entries_30');
     if (entries.length >= 50) await checkAndUnlock('entries_50');
     if (entries.length >= 100) await checkAndUnlock('entries_100');
+    if (entries.length >= 200) await checkAndUnlock('entries_200');
 
     final streak = _calculateStreak(entries);
     if (streak >= 3) await checkAndUnlock('streak_3');
     if (streak >= 7) await checkAndUnlock('streak_7');
     if (streak >= 14) await checkAndUnlock('streak_14');
     if (streak >= 30) await checkAndUnlock('streak_30');
+    if (streak >= 60) await checkAndUnlock('streak_60');
+    if (streak >= 100) await checkAndUnlock('streak_100');
+
+    if (completedGoals >= 1) await checkAndUnlock('first_goal');
+
+    final distinctEmotions = entries
+        .map((e) => emotionForLabel(e.mood).id)
+        .toSet();
+    if (distinctEmotions.length >= 10) await checkAndUnlock('mood_diversity');
+
+    if (entries.any((e) => emotionForLabel(e.mood).category == EmotionCategory.positiva)) {
+      await checkAndUnlock('first_positive');
+    }
 
     final now = DateTime.now();
+    final daysThisMonth = entries
+        .where(
+          (e) =>
+              e.createdAt.year == now.year && e.createdAt.month == now.month,
+        )
+        .map((e) => e.createdAt.day)
+        .toSet();
+    if (daysThisMonth.length >= 20) await checkAndUnlock('month_days');
+
     final isWeekend = now.weekday == 6 || now.weekday == 7;
 
     if (entries.isNotEmpty) {
       final lastEntry = entries.first;
       final entryHour = lastEntry.createdAt.hour;
 
-      if (isWeekend &&
-          lastEntry.createdAt.day == now.day &&
-          (now.weekday == 6 || now.weekday == 7)) {
+      if (isWeekend && lastEntry.createdAt.day == now.day) {
         await checkAndUnlock('weekend_entry');
       }
-      if (entryHour < 8 &&
-          lastEntry.createdAt.day == now.day) {
+      if (entryHour < 8 && lastEntry.createdAt.day == now.day) {
         await checkAndUnlock('morning_entry');
       }
-      if (entryHour >= 22 &&
-          lastEntry.createdAt.day == now.day) {
+      if (entryHour >= 22 && lastEntry.createdAt.day == now.day) {
         await checkAndUnlock('night_entry');
       }
     }
   }
 
   Future<void> _unlock(String id) async {
-    final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_achievementsKey);
-    final decoded = data != null && data.isNotEmpty ? _decodeMap(data) : <String, dynamic>{};
-
-    decoded[id] = {
+    await _ensureBox();
+    _box.put(id, {
       'date': DateTime.now().toIso8601String(),
-    };
-
-    await prefs.setString(_achievementsKey, _encodeMap(decoded));
+    });
 
     final newIds = await getNewIds();
     if (!newIds.contains(id)) {
       newIds.add(id);
+      final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(_newAchievementsKey, newIds);
     }
   }
@@ -274,14 +356,6 @@ class AchievementService {
   }
 
   int get totalAchievements => Achievement._definitions.length;
-
-  String _encodeMap(Map<String, dynamic> m) {
-    final parts = <String>[];
-    for (final e in m.entries) {
-      parts.add('${e.key}=${e.value['date']}');
-    }
-    return parts.join('&');
-  }
 
   Map<String, dynamic> _decodeMap(String s) {
     final map = <String, dynamic>{};

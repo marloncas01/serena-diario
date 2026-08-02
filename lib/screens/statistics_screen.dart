@@ -6,12 +6,15 @@ import '../core/app_constants.dart';
 import '../models/emotion.dart';
 import '../models/journal_entry.dart';
 import '../providers/journal_provider.dart';
+import '../services/pdf_report_service.dart';
+import '../services/user_profile.dart';
 import '../theme/brand/brand_durations.dart';
 
 import '../utils/journal_insights.dart';
 import '../widgets/app_card.dart';
 import '../widgets/dominant_emotion_badge.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/ui/shimmer_loading.dart';
 
 class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({super.key});
@@ -63,16 +66,33 @@ class StatisticsScreen extends StatelessWidget {
           110,
         ),
         children: [
-          Semantics(
-            header: true,
-            child: Text('Estadísticas', style: theme.textTheme.displaySmall),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Una mirada amable a tu práctica de escritura.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        'Estadísticas',
+                        style: theme.textTheme.displaySmall,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Una mirada amable a tu práctica de escritura.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              _ExportReportButton(entries: entries),
+            ],
           ),
           const SizedBox(height: AppSpacing.lg),
 
@@ -984,6 +1004,105 @@ class _Stat extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ExportReportButton extends StatefulWidget {
+  const _ExportReportButton({required this.entries});
+
+  final List<JournalEntry> entries;
+
+  @override
+  State<_ExportReportButton> createState() => _ExportReportButtonState();
+}
+
+class _ExportReportButtonState extends State<_ExportReportButton> {
+  bool _isExporting = false;
+
+  Future<void> _export() async {
+    if (_isExporting) return;
+    setState(() => _isExporting = true);
+    try {
+      final profile = context.read<UserProfile>();
+      await PdfReportService().generateAndShare(
+        entries: widget.entries,
+        userName: profile.userName,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('Informe PDF generado correctamente.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('No se pudo generar el informe PDF.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Tooltip(
+      message: 'Exportar informe PDF',
+      child: InkWell(
+        onTap: _isExporting ? null : _export,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                theme.colorScheme.primary,
+                theme.colorScheme.tertiary,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AppRadii.md),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ShimmerLoading(
+            enabled: _isExporting,
+            child: Center(
+              child: _isExporting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.picture_as_pdf_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+            ),
+          ),
+        ),
       ),
     );
   }
