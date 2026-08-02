@@ -29,6 +29,62 @@ class JournalInsights {
     return count;
   }
 
+  /// Días distintos con al menos una entrada dentro de [month].
+  static int daysWithEntries(List<JournalEntry> entries, DateTime month) {
+    final seen = <DateTime>{};
+    for (final entry in entries) {
+      if (entry.createdAt.year == month.year &&
+          entry.createdAt.month == month.month) {
+        seen.add(DateUtils.dateOnly(entry.createdAt));
+      }
+    }
+    return seen.length;
+  }
+
+  /// Racha más larga de días consecutivos escritos dentro de [month].
+  static int bestStreakInMonth(List<JournalEntry> entries, DateTime month) {
+    final days = <DateTime>{};
+    for (final entry in entries) {
+      if (entry.createdAt.year == month.year &&
+          entry.createdAt.month == month.month) {
+        days.add(DateUtils.dateOnly(entry.createdAt));
+      }
+    }
+    if (days.isEmpty) return 0;
+    var best = 0;
+    var current = 0;
+    var cursor = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 1);
+    while (cursor.isBefore(end)) {
+      if (days.contains(cursor)) {
+        current++;
+        if (current > best) best = current;
+      } else {
+        current = 0;
+      }
+      cursor = cursor.add(const Duration(days: 1));
+    }
+    return best;
+  }
+
+  /// Porcentaje (0-100) de entradas con emoción dominante positiva.
+  static double positiveRatio(List<JournalEntry> entries) {
+    final withEmotion = entries
+        .where((entry) =>
+            entry.dominantEmotionId != null &&
+            entry.dominantEmotionId!.isNotEmpty)
+        .toList(growable: false);
+    if (withEmotion.isEmpty) return 0;
+    var positive = 0;
+    for (final entry in withEmotion) {
+      final emotion = emotionById(entry.dominantEmotionId!);
+      if (emotion != null && emotion.category == EmotionCategory.positiva) {
+        positive++;
+      }
+    }
+    return positive / withEmotion.length * 100;
+  }
+
   static EmotionDefinition predominantMood(List<JournalEntry> entries) {
     if (entries.isEmpty) return neutralEmotion;
     final counts = <String, int>{};

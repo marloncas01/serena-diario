@@ -41,9 +41,11 @@ class EmotionalTimeline extends StatelessWidget {
               key: ValueKey('timeline_${recent[i].id}'),
               delay: Duration(milliseconds: 60 * i),
               duration: BrandDurations.medium,
-              child: _TimelineItem(
-                entry: recent[i],
-                isLast: i == recent.length - 1,
+              child: RepaintBoundary(
+                child: _TimelineItem(
+                  entry: recent[i],
+                  isLast: i == recent.length - 1,
+                ),
               ),
             ),
         ],

@@ -4,9 +4,10 @@ import '../theme/brand/brand_spacing.dart';
 import 'glass_card.dart';
 
 class EmotionalEvolutionCard extends StatelessWidget {
-  const EmotionalEvolutionCard({super.key, required this.report});
+  const EmotionalEvolutionCard({super.key, required this.report, this.onTap});
 
   final EmotionalHistoryReport report;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,7 @@ class EmotionalEvolutionCard extends StatelessWidget {
 
     return GlassCard(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -46,6 +48,14 @@ class EmotionalEvolutionCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onTap != null)
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.5,
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: BrandSpacing.sm),

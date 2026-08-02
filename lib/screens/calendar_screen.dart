@@ -30,6 +30,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime _currentMonth;
   DateTime _selected = DateUtils.dateOnly(DateTime.now());
 
+  int _recordsRevision = -1;
+  Map<DateTime, List<JournalEntry>> _recordsByDay = {};
+
+  Map<DateTime, List<JournalEntry>> _recordsFor(
+    List<JournalEntry> entries,
+    int revision,
+  ) {
+    if (_recordsRevision == revision) return _recordsByDay;
+    _recordsRevision = revision;
+    final grouped = <DateTime, List<JournalEntry>>{};
+    for (final entry in entries) {
+      final day = DateUtils.dateOnly(entry.createdAt);
+      (grouped[day] ??= []).add(entry);
+    }
+    _recordsByDay = grouped;
+    return _recordsByDay;
+  }
+
   void _goToToday() {
     HapticFeedback.selectionClick();
     setState(() {
@@ -89,11 +107,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       (index) => DateTime(_currentMonth.year, _currentMonth.month, index + 1),
     );
 
-    final recordsByDay = <DateTime, List<JournalEntry>>{};
-    for (final entry in journal.entries) {
-      final day = DateUtils.dateOnly(entry.createdAt);
-      (recordsByDay[day] ??= []).add(entry);
-    }
+    final recordsByDay = _recordsFor(journal.entries, journal.revision);
 
     final selectedEntries = recordsByDay[_selected] ?? const <JournalEntry>[];
     final monthEntries = journal.entries
@@ -152,6 +166,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       label: 'emoción predominante',
                       color: monthMood.color,
                       icon: Icons.mood_rounded,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            AppCard(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _MonthStat(
+                      value: '${JournalInsights.streak(journal.entries)}',
+                      label: 'racha actual en días',
+                      color: theme.colorScheme.tertiary,
+                      icon: Icons.local_fire_department_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _MonthStat(
+                      value: '${JournalInsights.bestStreakInMonth(monthEntries, _currentMonth)}',
+                      label: 'mejor racha del mes',
+                      color: theme.colorScheme.secondary,
+                      icon: Icons.whatshot_rounded,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _MonthStat(
+                      value: '${JournalInsights.positiveRatio(monthEntries).toStringAsFixed(0)}%',
+                      label: 'días positivos',
+                      color: Colors.green.shade400,
+                      icon: Icons.favorite_rounded,
                     ),
                   ),
                 ],
@@ -277,77 +324,92 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     }
                     final day = days[index - (days.first.weekday - 1)];
                     final records = recordsByDay[day] ?? const <JournalEntry>[];
+                    final dayEmotion = records.isEmpty
+                        ? null
+                        : JournalInsights.predominantMood(records);
+                    final dayIntensity = records.isEmpty
+                        ? 0.0
+                        : JournalInsights.averageIntensity(records);
                     final active = DateUtils.isSameDay(day, _selected);
                     final isToday = DateUtils.isSameDay(day, now);
                     return Semantics(
                       button: true,
                       label:
                           'Día ${day.day}${records.isEmpty ? '' : ', con entrada'}',
-                      child: InkWell(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selected = day);
-                          _showDayEntries(day);
-                        },
-                        borderRadius: BorderRadius.circular(AppRadii.pill),
-                        child: AnimatedContainer(
-                          duration: BrandDurations.fast,
-                          curve: Curves.easeOutCubic,
-                          margin: const EdgeInsets.all(3),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: records.isNotEmpty
-                                ? LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      emotionForLabel(records.first.mood).color,
-                                      emotionForLabel(
-                                        records.first.mood,
-                                      ).color.withValues(alpha: 0.6),
-                                    ],
-                                  )
-                                : null,
-                            color: records.isEmpty
-                                ? (active
-                                      ? theme.colorScheme.secondaryContainer
-                                      : null)
-                                : null,
-                            border: Border.all(
-                              color: active
-                                  ? theme.colorScheme.primary
-                                  : isToday
-                                  ? theme.colorScheme.outline
-                                  : Colors.transparent,
-                              width: active ? 2.5 : 1,
+                      child: Tooltip(
+                        message: records.isEmpty
+                            ? 'Sin entradas'
+                            : '${records.length} ${records.length == 1 ? 'entrada' : 'entradas'} · ${dayEmotion!.name}',
+                        waitDuration: const Duration(milliseconds: 400),
+                        child: RepaintBoundary(
+                          child: InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() => _selected = day);
+                            _showDayEntries(day);
+                          },
+                          borderRadius: BorderRadius.circular(AppRadii.pill),
+                          child: AnimatedContainer(
+                            duration: BrandDurations.fast,
+                            curve: Curves.easeOutCubic,
+                            margin: const EdgeInsets.all(3),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: dayEmotion != null
+                                  ? LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        dayEmotion.color,
+                                        _dayFillColor(
+                                          dayEmotion.color,
+                                          dayIntensity,
+                                        ),
+                                      ],
+                                    )
+                                  : null,
+                              color: dayEmotion == null
+                                  ? (active
+                                        ? theme.colorScheme.secondaryContainer
+                                        : null)
+                                  : null,
+                              border: Border.all(
+                                color: active
+                                    ? theme.colorScheme.primary
+                                    : isToday
+                                    ? theme.colorScheme.outline
+                                    : Colors.transparent,
+                                width: active ? 2.5 : 1,
+                              ),
+                              boxShadow: dayEmotion != null && active
+                                  ? [
+                                      BoxShadow(
+                                        color: dayEmotion.color.withValues(
+                                          alpha: 0.4,
+                                        ),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
                             ),
-                            boxShadow: records.isNotEmpty && active
-                                ? [
-                                    BoxShadow(
-                                      color: emotionForLabel(
-                                        records.first.mood,
-                                      ).color.withValues(alpha: 0.4),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
+                            child: Text(
+                              '${day.day}',
+                              style: TextStyle(
+                                fontWeight: active || isToday
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                              ),
+                            ),
                           ),
-                          child: Text(
-                            '${day.day}',
-                            style: TextStyle(
-                              fontWeight: active || isToday
-                                  ? FontWeight.w800
-                                  : FontWeight.w500,
-                              fontSize: 13,
-                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
               ],
             ),
           ),
@@ -518,12 +580,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
           const SizedBox(height: AppSpacing.lg),
 
           // ── Mood legend ──
-          Text('Indicadores de emoción', style: theme.textTheme.titleLarge),
+          Text(
+            'Emociones del mes (${JournalInsights.distinctEmotions(monthEntries).length})',
+            style: theme.textTheme.titleLarge,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: JournalInsights.distinctEmotions(selectedEntries)
+            children: JournalInsights.distinctEmotions(monthEntries)
                 .map(
                   (mood) => Semantics(
                     label: 'Emoción: ${mood.name}',
@@ -542,6 +607,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
     );
   }
+}
+
+/// Ajusta el color de un día según la intensidad de su emoción dominante:
+/// a mayor intensidad, más saturado aparece el relleno del día.
+Color _dayFillColor(Color base, double intensity) {
+  final clamped = intensity.clamp(0.0, 1.0);
+  return Color.lerp(base.withValues(alpha: 0.35), base, clamped)!;
 }
 
 class _MonthStat extends StatelessWidget {

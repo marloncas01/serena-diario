@@ -20,6 +20,7 @@ import '../widgets/ui/serena_background.dart';
 import '../services/cloud/auth_service_firebase.dart';
 import 'about_screen.dart';
 import 'edit_profile_screen.dart';
+import 'reminders_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -591,17 +592,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTile(
                 leading: _SettingsIcon(
                   icon: Icons.notifications_outlined,
-                  color: theme.colorScheme.error,
+                  color: theme.colorScheme.primary,
                 ),
                 title: const Text(AppTexts.reminders),
-                subtitle: const Text('Próximamente'),
+                subtitle: const Text('Recordatorios diarios para escribir'),
                 trailing: Icon(
                   Icons.chevron_right_rounded,
                   color: theme.colorScheme.onSurfaceVariant.withValues(
                     alpha: 0.4,
                   ),
                 ),
-                onTap: () => _showComingSoon(context),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const RemindersScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),

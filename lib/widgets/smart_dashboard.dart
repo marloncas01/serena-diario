@@ -26,13 +26,14 @@ import '../widgets/emotion_trend_card.dart';
 import '../widgets/emotional_profile_card.dart';
 import '../widgets/emotional_evolution_card.dart';
 import '../widgets/insights_card.dart';
+import '../screens/evolution_screen.dart';
 import '../widgets/pattern_insights_card.dart';
 import '../widgets/premium_dashboard.dart';
 import '../widgets/recommendations_card.dart';
-import '../widgets/monthly_summary_card.dart';
-import '../widgets/weekly_summary_card.dart';
+import '../widgets/summaries_section.dart';
 import '../widgets/daily_tip_card.dart';
 import '../widgets/emotional_summary_card.dart';
+import '../widgets/quick_mood_checkin.dart';
 import '../theme/brand/brand_spacing.dart';
 
 class _DashboardSection {
@@ -207,6 +208,17 @@ class _SmartDashboardState extends State<SmartDashboard> {
         children: [
           HeroHeader(entries: widget.entries, profile: profile),
           const SizedBox(height: BrandSpacing.md),
+        ],
+      ),
+    ));
+
+    sections.add(_DashboardSection(
+      id: 'quick_mood_checkin',
+      priority: 98,
+      builder: (_) => const Column(
+        children: [
+          QuickMoodCheckIn(),
+          SizedBox(height: BrandSpacing.md),
         ],
       ),
     ));
@@ -461,26 +473,18 @@ class _SmartDashboardState extends State<SmartDashboard> {
       ));
     }
 
-    if (widget.emotionHistory.isNotEmpty && widget.weeklySummary != null) {
+    if (widget.emotionHistory.isNotEmpty &&
+        widget.weeklySummary != null &&
+        widget.monthlySummary != null) {
       sections.add(_DashboardSection(
-        id: 'weekly_summary',
-        priority: 40,
+        id: 'summaries',
+        priority: 38,
         builder: (_) => Column(
           children: [
-            WeeklySummaryCard(summary: widget.weeklySummary!),
-            const SizedBox(height: BrandSpacing.md),
-          ],
-        ),
-      ));
-    }
-
-    if (widget.emotionHistory.isNotEmpty && widget.monthlySummary != null) {
-      sections.add(_DashboardSection(
-        id: 'monthly_summary',
-        priority: 35,
-        builder: (_) => Column(
-          children: [
-            MonthlySummaryCard(summary: widget.monthlySummary!),
+            SummariesSection(
+              weekly: widget.weeklySummary!,
+              monthly: widget.monthlySummary!,
+            ),
             const SizedBox(height: BrandSpacing.md),
           ],
         ),
@@ -493,7 +497,14 @@ class _SmartDashboardState extends State<SmartDashboard> {
         priority: 30,
         builder: (_) => Column(
           children: [
-            EmotionalEvolutionCard(report: widget.historyReport!),
+            EmotionalEvolutionCard(
+              report: widget.historyReport!,
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const EvolutionScreen(),
+                ),
+              ),
+            ),
             const SizedBox(height: BrandSpacing.md),
           ],
         ),

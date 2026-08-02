@@ -75,6 +75,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
   MonthlySummary? _cachedMonthlySummary;
   int _lastRevision = -1;
   int _lastAnalysisLength = -1;
+  DateTime? _lastSummaryDate;
   bool _historyRehydrated = false;
 
   @override
@@ -339,11 +340,14 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
     final currentRevision = journal.revision;
     final currentAnalysisLength = _pipeline.analysisHistory.length;
+    final today = DateUtils.dateOnly(DateTime.now());
 
     if (currentRevision != _lastRevision ||
-        currentAnalysisLength != _lastAnalysisLength) {
+        currentAnalysisLength != _lastAnalysisLength ||
+        _lastSummaryDate != today) {
       _lastRevision = currentRevision;
       _lastAnalysisLength = currentAnalysisLength;
+      _lastSummaryDate = today;
 
       _cachedProfile = _profileService.generate(
         history: _pipeline.analysisHistory,

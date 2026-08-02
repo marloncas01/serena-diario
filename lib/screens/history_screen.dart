@@ -258,13 +258,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       final entry = _newestFirst
                           ? filtered[index]
                           : filtered[filtered.length - 1 - index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: JournalEntryCard(
-                          entry: entry,
-                          onTap: () => _openEntry(context, entry),
-                          onEdit: () => editEntrySheet(context, entry),
-                          onDelete: () => confirmDeleteEntry(context, entry.id),
+                      return RepaintBoundary(
+                        key: ValueKey('entry_${entry.id}'),
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: JournalEntryCard(
+                            entry: entry,
+                            onTap: () => _openEntry(context, entry),
+                            onEdit: () => editEntrySheet(context, entry),
+                            onDelete: () =>
+                                confirmDeleteEntry(context, entry.id),
+                          ),
                         ),
                       );
                     },

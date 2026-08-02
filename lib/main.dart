@@ -8,6 +8,7 @@ import 'core/app_texts.dart';
 import 'database/hive_journal_database.dart';
 import 'providers/journal_provider.dart';
 import 'providers/objective_provider.dart';
+import 'providers/reminder_provider.dart';
 import 'screens/app_shell.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/setup_screen.dart';
@@ -15,6 +16,7 @@ import 'screens/splash_screen.dart';
 import 'services/app_preferences.dart';
 import 'services/emotion_pipeline.dart';
 import 'services/objective_service.dart';
+import 'services/reminder_service.dart';
 import 'services/theme_controller.dart';
 import 'services/user_profile.dart';
 import 'theme/app_theme.dart';
@@ -55,6 +57,9 @@ class SerenaApp extends StatelessWidget {
       ),
       ChangeNotifierProvider(
         create: (_) => ObjectiveProvider(ObjectiveService())..initialize(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => ReminderProvider(ReminderService())..initialize(),
       ),
       ChangeNotifierProvider(create: (_) => UserProfile()..load()),
       ChangeNotifierProvider(create: (_) => ThemeController()..initialize()),
