@@ -48,7 +48,12 @@ class _AppShellState extends State<AppShell>
   Widget _page(int index) {
     _pages[index] ??= switch (index) {
       0 => const DiaryScreen(),
-      1 => const CalendarScreen(),
+      1 => CalendarScreen(
+          onWriteTap: () {
+            setState(() => _index = 0);
+            _fadeCtrl.forward(from: 0.35);
+          },
+        ),
       2 => const WellbeingScreen(),
       3 => const StatisticsScreen(),
       4 => const SettingsScreen(),

@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_constants.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../theme/brand/brand_durations.dart';
 
@@ -18,7 +18,9 @@ import '../widgets/ui/glass_bottom_sheet.dart';
 import 'entry_detail_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+  const CalendarScreen({super.key, this.onWriteTap});
+
+  final VoidCallback? onWriteTap;
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -27,6 +29,14 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   late DateTime _currentMonth;
   DateTime _selected = DateUtils.dateOnly(DateTime.now());
+
+  void _goToToday() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _currentMonth = DateUtils.dateOnly(DateTime.now());
+      _selected = DateUtils.dateOnly(DateTime.now());
+    });
+  }
 
   @override
   void initState() {
@@ -95,7 +105,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         .toList(growable: false);
     final monthMood = monthEntries.isNotEmpty
         ? JournalInsights.predominantMood(monthEntries)
-        : moodByName('Normal');
+        : emotionForLabel('Normal');
 
     final isCurrentMonth =
         _currentMonth.year == now.year && _currentMonth.month == now.month;
@@ -142,6 +152,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       label: 'emoción predominante',
                       color: monthMood.color,
                       icon: Icons.mood_rounded,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ] else ...[
+            AppCard(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.edit_note_outlined,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Sin entradas este mes todavía.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -202,6 +234,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
+                if (!isCurrentMonth) ...[
+                  Align(
+                    alignment: Alignment.center,
+                    child: TextButton.icon(
+                      onPressed: _goToToday,
+                      icon: const Icon(Icons.today_outlined, size: 16),
+                      label: const Text('Ir a hoy'),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                ],
                 Row(
                   children: ['L', 'M', 'X', 'J', 'V', 'S', 'D']
                       .map(
@@ -259,8 +302,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      moodByName(records.first.mood).color,
-                                      moodByName(
+                                      emotionForLabel(records.first.mood).color,
+                                      emotionForLabel(
                                         records.first.mood,
                                       ).color.withValues(alpha: 0.6),
                                     ],
@@ -282,7 +325,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             boxShadow: records.isNotEmpty && active
                                 ? [
                                     BoxShadow(
-                                      color: moodByName(
+                                      color: emotionForLabel(
                                         records.first.mood,
                                       ).color.withValues(alpha: 0.4),
                                       blurRadius: 8,
@@ -316,11 +359,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
             child: selectedEntries.isEmpty
-                ? const EmptyState(
+                ? EmptyState(
                     key: ValueKey('empty'),
                     icon: Icons.event_available_outlined,
                     title: 'No registraste emociones este día',
                     message: 'Elige otro día o escribe una nueva reflexión.',
+                    actionLabel: widget.onWriteTap != null
+                        ? 'Escribir reflexión'
+                        : null,
+                    onAction: widget.onWriteTap,
                   )
                 : AppCard(
                     key: ValueKey(_selected),
@@ -335,10 +382,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    moodByName(
+                                    emotionForLabel(
                                       selectedEntries.first.mood,
                                     ).color,
-                                    moodByName(
+                                    emotionForLabel(
                                       selectedEntries.first.mood,
                                     ).color.withValues(alpha: 0.6),
                                   ],
@@ -347,7 +394,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  moodByName(selectedEntries.first.mood).emoji,
+                                  emotionForLabel(selectedEntries.first.mood).emoji,
                                   style: const TextStyle(fontSize: 24),
                                 ),
                               ),
@@ -406,7 +453,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           child: Row(
                             children: [
                               Text(
-                                moodByName(selectedEntries.first.mood).emoji,
+                                emotionForLabel(selectedEntries.first.mood).emoji,
                                 style: const TextStyle(fontSize: 18),
                               ),
                               const SizedBox(width: 8),
@@ -426,25 +473,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ...selectedEntries.map(
                           (entry) => Padding(
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  moodByName(entry.mood).emoji,
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    entry.note,
-                                    maxLines: 3,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      height: 1.4,
-                                    ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.md,
+                              ),
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) =>
+                                        EntryDetailScreen(entryId: entry.id),
                                   ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(4),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      emotionForLabel(entry.mood).emoji,
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        entry.note,
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(height: 1.4),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -460,7 +523,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: moods
+            children: JournalInsights.distinctEmotions(selectedEntries)
                 .map(
                   (mood) => Semantics(
                     label: 'Emoción: ${mood.name}',
@@ -591,7 +654,7 @@ class _DayEntriesSheetState extends State<_DayEntriesSheet> {
               separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final entry = entries[index];
-                final mood = moodByName(entry.mood);
+                final mood = emotionForLabel(entry.mood);
                 return AppCard(
                   onTap: () => _openEntry(context, entry),
                   padding: const EdgeInsets.all(AppSpacing.md),

@@ -14,6 +14,8 @@ class GeminiProvider implements AIProvider {
     ApiKeyDiagnostics.logSummary(_apiKey, origin: 'Gemini');
   }
 
+  static const _requestTimeout = Duration(seconds: 20);
+
   final String _apiKey;
   final String _modelId;
 
@@ -60,7 +62,7 @@ class GeminiProvider implements AIProvider {
     try {
       final response = await _getModel.generateContent([
         Content.text('hola'),
-      ]);
+      ]).timeout(_requestTimeout);
       _available = response.text != null && response.text!.isNotEmpty;
       debugPrint('[Gemini] Init: ${_available ? "OK" : "FAIL"} '
           '(modelo: $_modelId)');
@@ -80,7 +82,9 @@ class GeminiProvider implements AIProvider {
     try {
       final prompt = PromptBuilder.buildResponsePrompt(context);
       final response =
-          await _getModel.generateContent([Content.text(prompt)]);
+          await _getModel.generateContent([Content.text(prompt)]).timeout(
+        _requestTimeout,
+      );
 
       if (response.text == null || response.text!.isEmpty) {
         return await FallbackProvider().generateResponse(context);
@@ -110,7 +114,9 @@ class GeminiProvider implements AIProvider {
     try {
       final prompt = PromptBuilder.buildInsightPrompt(context);
       final response =
-          await _getModel.generateContent([Content.text(prompt)]);
+          await _getModel.generateContent([Content.text(prompt)]).timeout(
+        _requestTimeout,
+      );
       return response.text ?? '';
     } catch (e) {
       debugPrint('[Gemini] Insight error: ${e.runtimeType}: $e');

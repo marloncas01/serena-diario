@@ -21,10 +21,14 @@ import 'widgets/ui/serena_background.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES');
+  final platformDark =
+      WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+      Brightness.dark;
   SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
+    SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness:
+          platformDark ? Brightness.light : Brightness.dark,
     ),
   );
 
@@ -60,16 +64,26 @@ class SerenaApp extends StatelessWidget {
         locale: const Locale('es', 'ES'),
         supportedLocales: const [Locale('es', 'ES')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        builder: (context, child) => Stack(
-          fit: StackFit.expand,
-          children: [
-            SerenaBackgroundView(
-              background: theme.background,
-              isDark: Theme.of(context).brightness == Brightness.dark,
-            ),
-            child ?? const SizedBox.shrink(),
-          ],
-        ),
+        builder: (context, child) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              SerenaBackgroundView(
+                background: theme.background,
+                isDark: isDark,
+              ),
+              AnnotatedRegion<SystemUiOverlayStyle>(
+                value: SystemUiOverlayStyle(
+                  statusBarColor: Colors.transparent,
+                  statusBarIconBrightness:
+                      isDark ? Brightness.light : Brightness.dark,
+                ),
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ],
+          );
+        },
         home: const StartupGate(),
       ),
     ),

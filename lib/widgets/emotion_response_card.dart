@@ -352,7 +352,7 @@ class EmotionResponseCard extends StatelessWidget {
   }
 
   Widget _buildConfidenceBadge(ThemeData theme, EmotionAnalysis analysis) {
-    final pct = (analysis.confidence * 100).round();
+    final pct = analysis.confidence.round();
     final label = pct >= 80
         ? 'Alta'
         : pct >= 50

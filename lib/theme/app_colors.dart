@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../models/emotion.dart';
+
 class AppColors {
   const AppColors._();
 
@@ -106,33 +108,12 @@ class AppColors {
     colors: [glassWhite, glassBlack],
   );
 
-  static Color moodColor(String mood) => switch (mood) {
-    'Feliz' => peach,
-    'En calma' => mint,
-    'Normal' => lavender,
-    'Triste' => rose,
-    'Cansada' => tired,
-    _ => lavender,
-  };
-
-  static Gradient moodGradient(String mood) => switch (mood) {
-    'Feliz' => peachGradient,
-    'En calma' => mintGradient,
-    'Normal' => const LinearGradient(
+  static Gradient moodGradient(String mood) {
+    final emotion = emotionForLabel(mood);
+    return LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
-      colors: [lavender, Color(0xFFD6CAF0)],
-    ),
-    'Triste' => roseGradient,
-    'Cansada' => const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [tired, Color(0xFFC6BDE8)],
-    ),
-    _ => const LinearGradient(
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-      colors: [lavender, Color(0xFFD6CAF0)],
-    ),
-  };
+      colors: [emotion.color, Color.lerp(emotion.color, Colors.white, 0.5)!],
+    );
+  }
 }

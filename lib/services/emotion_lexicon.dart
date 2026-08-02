@@ -791,6 +791,37 @@ class EmotionLexicon {
       const LexiconEntry('neutral', 0.5),
     ],
 
+    'sorpresa': [
+      const LexiconEntry('sorpresa', 1.0),
+    ],
+    'sorprendido': [
+      const LexiconEntry('sorpresa', 0.9),
+    ],
+    'sorprendida': [
+      const LexiconEntry('sorpresa', 0.9),
+    ],
+    'sorprendente': [
+      const LexiconEntry('sorpresa', 0.8),
+    ],
+    'me sorprende': [
+      const LexiconEntry('sorpresa', 0.9),
+      const LexiconEntry('curiosidad', 0.3),
+    ],
+    'inesperado': [
+      const LexiconEntry('sorpresa', 0.7),
+      const LexiconEntry('incertidumbre', 0.3),
+    ],
+    'inesperada': [
+      const LexiconEntry('sorpresa', 0.7),
+      const LexiconEntry('incertidumbre', 0.3),
+    ],
+    'asombrado': [
+      const LexiconEntry('sorpresa', 0.8),
+    ],
+    'asombrada': [
+      const LexiconEntry('sorpresa', 0.8),
+    ],
+
     // ── Negativas ──
     'triste': [
       const LexiconEntry('tristeza', 1.0),

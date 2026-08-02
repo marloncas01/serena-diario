@@ -42,10 +42,12 @@ class AuthServiceFirebase implements AuthService {
 
   @override
   Future<void> signOut() async {
-    await Future.wait([
-      _auth.signOut(),
-      _google.signOut(),
-    ]);
+    try {
+      await _google.signOut();
+    } catch (_) {
+      // Si Google ya no tiene sesión activa, no bloqueamos el cierre local.
+    }
+    await _auth.signOut();
   }
 
   @override

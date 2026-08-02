@@ -18,6 +18,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   var _page = 0;
+  bool _isFinishing = false;
 
   static const _slides = [
     (
@@ -38,6 +39,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   Future<void> _finish() async {
+    if (_isFinishing) return;
+    _isFinishing = true;
     await AppPreferences().completeOnboarding();
     widget.onComplete();
   }
@@ -132,8 +135,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              theme.colorScheme.primary,
-                              theme.colorScheme.tertiary,
+                              Color.lerp(
+                                theme.colorScheme.primary,
+                                Colors.black,
+                                0.25,
+                              )!,
+                              Color.lerp(
+                                theme.colorScheme.tertiary,
+                                Colors.black,
+                                0.25,
+                              )!,
                             ],
                           )
                         : LinearGradient(

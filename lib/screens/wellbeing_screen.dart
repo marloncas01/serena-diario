@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_constants.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../theme/brand/brand_durations.dart';
 
@@ -38,7 +38,7 @@ class WellbeingScreen extends StatelessWidget {
     final weeklyEntries = _lastSevenDays(entries);
     final streak = _streak(entries);
     final dominantMood = entries.isEmpty
-        ? moodByName('Normal')
+        ? emotionForLabel('Normal')
         : JournalInsights.predominantMood(entries);
     final goal = weeklyEntries.where((items) => items.isNotEmpty).length;
     final avgWords = entries.isNotEmpty
@@ -143,7 +143,7 @@ class WellbeingScreen extends StatelessWidget {
                       final records = weeklyEntries[index];
                       final mood = records.isEmpty
                           ? null
-                          : moodByName(records.first.mood);
+                          : emotionForLabel(records.first.mood);
                       final height = records.isEmpty
                           ? 8.0
                           : 30.0 + (records.length.clamp(1, 5) * 18);

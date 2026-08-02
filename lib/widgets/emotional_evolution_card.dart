@@ -93,8 +93,10 @@ class EmotionalEvolutionCard extends StatelessWidget {
               }).toList(),
             ),
           ],
-          const SizedBox(height: BrandSpacing.sm),
-          _buildTrendBar(theme, report.tendencia),
+          if (report.diasAnalizados >= 3) ...[
+            const SizedBox(height: BrandSpacing.sm),
+            _buildTrendBar(theme, report.tendencia),
+          ],
         ],
       ),
     );

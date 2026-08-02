@@ -7,6 +7,7 @@ import 'conversation_context_service.dart';
 import 'emotional_response_engine.dart';
 import 'ai_config_service.dart';
 import 'providers/gemini_provider.dart';
+import 'user_profile.dart';
 
 /// Utilidad para inspeccionar una API key sin exponerla nunca completa.
 class ApiKeyDiagnostics {
@@ -59,6 +60,7 @@ class ResponseContext {
     required this.history,
     required this.conversationContext,
     this.conversationHistory = const [],
+    this.sex = UserSex.prefieroNoDecirlo,
   });
 
   final String text;
@@ -70,6 +72,7 @@ class ResponseContext {
   final List<EmotionAnalysis> history;
   final ConversationContext? conversationContext;
   final List<ConversationMessage> conversationHistory;
+  final UserSex sex;
 }
 
 abstract class AIProvider {

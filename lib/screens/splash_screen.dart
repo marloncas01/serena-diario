@@ -95,13 +95,24 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+            colors: isDark
+                ? [
+                    Color.lerp(theme.colorScheme.primary, Colors.black, 0.22)!,
+                    Color.lerp(
+                      theme.colorScheme.secondary,
+                      Colors.black,
+                      0.22,
+                    )!,
+                  ]
+                : [theme.colorScheme.primary, theme.colorScheme.secondary],
           ),
         ),
         child: SafeArea(

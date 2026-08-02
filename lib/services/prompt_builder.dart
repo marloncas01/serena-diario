@@ -35,11 +35,11 @@ REGLAS DE ANÁLISIS EMOCIONAL:
     if (context.analysis.rankings.isNotEmpty) {
       final top = context.analysis.rankings.first;
       buffer.writeln('Emoción principal: ${top.emotion.name} '
-          '(${(top.percentage * 100).round()}%)');
+          '(${top.percentage.round()}%)');
       if (context.analysis.rankings.length > 1) {
         final second = context.analysis.rankings[1];
         buffer.writeln('Emoción secundaria: ${second.emotion.name} '
-            '(${(second.percentage * 100).round()}%)');
+            '(${second.percentage.round()}%)');
       }
     }
 

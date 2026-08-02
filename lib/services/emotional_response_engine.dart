@@ -2,6 +2,8 @@ import '../models/emotion.dart';
 import 'emotion_interpreter.dart';
 import 'crisis_detector.dart';
 import 'ai_provider.dart';
+import 'emotion_grammar.dart';
+import 'user_profile.dart';
 
 class EmotionalResponse {
   const EmotionalResponse({
@@ -70,6 +72,45 @@ class EmotionalResponseEngine {
     'aburrimiento': 'vacio',
     'melancolia': 'nostalgia',
   };
+
+  static const Map<String, String> _feminineVariants = {
+    'No estás solo en esto, aunque se sienta así.':
+        'No estás sola en esto, aunque se sienta así.',
+    'Es válido sentirse abrumado a veces.': 'Es válido sentirse abrumada a veces.',
+    'Puede ser que estés preocupado por algo que aún no ha pasado.':
+        'Puede ser que estés preocupada por algo que aún no ha pasado.',
+    '¿Cuándo fue la última vez que te sentiste tranquilo?':
+        '¿Cuándo fue la última vez que te sentiste tranquila?',
+    'No estás mal por sentirte frustrado.': 'No estás mal por sentirte frustrada.',
+    'No estás solo en sentirte así.': 'No estás sola en sentirte así.',
+    'Es válido sentirse asustado.': 'Es válido sentirse asustada.',
+    '¿Cuándo fue la última vez que te sentiste orgulloso?':
+        '¿Cuándo fue la última vez que te sentiste orgullosa?',
+    'Se nota que algo te hizo sentir agradecido.':
+        'Se nota que algo te hizo sentir agradecida.',
+    '¡Qué bueno que te sientas orgulloso!': '¡Qué bueno que te sientas orgullosa!',
+    'Veo que te sientes solo.': 'Veo que te sientes sola.',
+    'No es fácil sentirse solo.': 'No es fácil sentirse sola.',
+    'No estás tan solo como crees.': 'No estás tan sola como crees.',
+    'Estar solo no significa estar vacío.': 'Estar sola no significa estar vacía.',
+    'No estás roto por sentirte solo.': 'No estás rota por sentirte sola.',
+    'No es debilidad sentirse solo.': 'No es debilidad sentirse sola.',
+    'Un paseo puede hacer que te sientas menos solo.':
+        'Un paseo puede hacer que te sientas menos sola.',
+    '¿Qué sería diferente si no estuvieras solo?':
+        '¿Qué sería diferente si no estuvieras sola?',
+    'Veo que estás agotado.': 'Veo que estás agotada.',
+    'No estás solo en esto.': 'No estás sola en esto.',
+    'No tienes que cargar con esto solo.': 'No tienes que cargar con esto sola.',
+    '¡Veo que estás motivado!': '¡Veo que estás motivada!',
+    'Está bien sentirse motivado.': 'Está bien sentirse motivada.',
+    '¿Hay algo que puedas hacer para sentirte más seguro?':
+        '¿Hay algo que puedas hacer para sentirte más segura?',
+    '¿Qué necesitas para sentirte seguro?': '¿Qué necesitas para sentirte segura?',
+  };
+
+  static String _flexMessage(UserSex sex, String message) =>
+      EmotionGrammar.flex(sex, message, _feminineVariants[message] ?? message);
 
   static _MessageBank _bankFor(String emotionId) =>
       _banks[emotionId] ??
@@ -1351,7 +1392,10 @@ class EmotionalResponseEngine {
     ),
   };
 
-  static EmotionalResponse generate(EmotionInterpretation interpretation) {
+  static EmotionalResponse generate(
+    EmotionInterpretation interpretation, {
+    UserSex sex = UserSex.prefieroNoDecirlo,
+  }) {
     if (interpretation.primaryEmotions.isEmpty) {
       return EmotionalResponse(
         greeting: 'Gracias por escribir.',
@@ -1367,20 +1411,21 @@ class EmotionalResponseEngine {
     final bank = _bankFor(primary);
 
     return EmotionalResponse(
-      greeting: _pick(bank.greetings, interpretation),
-      validation: _pick(bank.validations, interpretation),
+      greeting: _pick(bank.greetings, interpretation, sex),
+      validation: _pick(bank.validations, interpretation, sex),
       interpretation: interpretation.summary,
-      suggestion: _pick(bank.suggestions, interpretation),
-      reflectionQuestion: _pick(bank.questions, interpretation),
+      suggestion: _pick(bank.suggestions, interpretation, sex),
+      reflectionQuestion: _pick(bank.questions, interpretation, sex),
       emergencyRisk: false,
     );
   }
 
   static EmotionalResponse generateWithCrisis(
     EmotionInterpretation interpretation,
-    CrisisResult crisis,
-  ) {
-    final base = generate(interpretation);
+    CrisisResult crisis, {
+    UserSex sex = UserSex.prefieroNoDecirlo,
+  }) {
+    final base = generate(interpretation, sex: sex);
 
     if (crisis.highRisk) {
       return const EmotionalResponse(
@@ -1399,12 +1444,16 @@ class EmotionalResponseEngine {
     return base;
   }
 
-  static String _pick(List<String> messages, EmotionInterpretation interp) {
+  static String _pick(
+    List<String> messages,
+    EmotionInterpretation interp,
+    UserSex sex,
+  ) {
     final seed = interp.summary.hashCode +
         interp.primaryEmotions.length +
         DateTime.now().millisecondsSinceEpoch;
     final index = seed.abs() % messages.length;
-    return messages[index];
+    return _flexMessage(sex, messages[index]);
   }
 
   static final List<String> _recentGreetings = [];
@@ -1424,6 +1473,7 @@ class EmotionalResponseEngine {
     List<String> messages,
     List<String> recent,
     EmotionInterpretation interp,
+    UserSex sex,
   ) {
     final available = messages.where((m) => !recent.contains(m)).toList();
     final pool = available.isNotEmpty ? available : messages;
@@ -1435,12 +1485,16 @@ class EmotionalResponseEngine {
     if (recent.length > _maxRecent) {
       recent.removeAt(0);
     }
-    return picked;
+    return _flexMessage(sex, picked);
   }
 
   static EmotionalResponse generateWithContext(ResponseContext context) {
     if (context.crisis.highRisk) {
-      return generateWithCrisis(context.interpretation, context.crisis);
+      return generateWithCrisis(
+        context.interpretation,
+        context.crisis,
+        sex: context.sex,
+      );
     }
 
     if (context.interpretation.primaryEmotions.isEmpty) {
@@ -1463,11 +1517,13 @@ class EmotionalResponseEngine {
       bank.greetings,
       _recentGreetings,
       context.interpretation,
+      context.sex,
     );
     final validation = _pickUnique(
       bank.validations,
       _recentValidations,
       context.interpretation,
+      context.sex,
     );
 
     final parts = <String>[context.interpretation.summary];
@@ -1538,6 +1594,7 @@ class EmotionalResponseEngine {
             bank.suggestions,
             _recentSuggestions,
             context.interpretation,
+            context.sex,
           );
     final question = variant == 2
         ? ''
@@ -1545,6 +1602,7 @@ class EmotionalResponseEngine {
             bank.questions,
             _recentQuestions,
             context.interpretation,
+            context.sex,
           );
 
     return EmotionalResponse(

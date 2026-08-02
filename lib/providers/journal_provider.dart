@@ -11,16 +11,29 @@ class JournalProvider extends ChangeNotifier {
   JournalStatus _status = JournalStatus.loading;
   String? _errorMessage;
   List<JournalEntry> _entries = const [];
+  List<JournalEntry>? _entriesView;
+  int _revision = 0;
 
   JournalStatus get status => _status;
   String? get errorMessage => _errorMessage;
-  List<JournalEntry> get entries => List.unmodifiable(_entries);
+  List<JournalEntry> get entries =>
+      _entriesView ??= List.unmodifiable(_entries);
+
+  /// Bumps on every successful persistence change (add/update/delete/restore),
+  /// so callers can detect edits that leave [entries].length unchanged.
+  int get revision => _revision;
+
+  set _entriesList(List<JournalEntry> value) {
+    _entries = value;
+    _entriesView = null;
+  }
 
   Future<void> initialize() async {
     try {
       await _database.initialize();
-      _entries = _database.readAll();
+      _entriesList = _database.readAll();
       _status = JournalStatus.ready;
+      _revision++;
     } catch (_) {
       _status = JournalStatus.error;
       _errorMessage = 'No pudimos abrir tus entradas. Inténtalo de nuevo.';
@@ -44,7 +57,8 @@ class JournalProvider extends ChangeNotifier {
         tags: _normalizeTags(tags),
       );
       await _database.save(entry);
-      _entries = [entry, ..._entries];
+      _entriesList = [entry, ..._entries];
+      _revision++;
       notifyListeners();
       return true;
     } catch (_) {
@@ -64,13 +78,20 @@ class JournalProvider extends ChangeNotifier {
       final existing = _entries.firstWhere((e) => e.id == updated.id);
       if (existing.note == updated.note &&
           existing.mood == updated.mood &&
-          _listEquals(existing.tags, updated.tags)) {
+          _listEquals(existing.tags, updated.tags) &&
+          existing.dominantEmotionId == updated.dominantEmotionId &&
+          existing.dominantEmotionName == updated.dominantEmotionName &&
+          existing.dominantEmotionCategory ==
+              updated.dominantEmotionCategory &&
+          existing.dominantEmotionIntensity ==
+              updated.dominantEmotionIntensity) {
         return true;
       }
       await _database.save(updated);
-      _entries = _entries
+      _entriesList = _entries
           .map((item) => item.id == updated.id ? updated : item)
           .toList(growable: false);
+      _revision++;
       notifyListeners();
       return true;
     } catch (_) {
@@ -94,7 +115,8 @@ class JournalProvider extends ChangeNotifier {
     final entry = matches.first;
     try {
       await _database.delete(id);
-      _entries = _entries.where((item) => item.id != id).toList();
+      _entriesList = _entries.where((item) => item.id != id).toList();
+      _revision++;
       notifyListeners();
       return entry;
     } catch (_) {
@@ -107,8 +129,9 @@ class JournalProvider extends ChangeNotifier {
   Future<bool> restore(JournalEntry entry) async {
     try {
       await _database.save(entry);
-      _entries = [..._entries, entry]
+      _entriesList = [..._entries, entry]
         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      _revision++;
       notifyListeners();
       return true;
     } catch (_) {

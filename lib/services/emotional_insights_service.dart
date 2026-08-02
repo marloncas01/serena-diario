@@ -44,8 +44,12 @@ class EmotionalInsightsService {
     if (entries.length < 3) return insights;
 
     final dayEmotions = <int, List<String>>{};
-    for (var i = 0; i < entries.length && i < history.length; i++) {
-      final day = entries[i].createdAt.weekday;
+    final oldestFirst = entries.reversed.toList();
+    final n = oldestFirst.length < history.length
+        ? oldestFirst.length
+        : history.length;
+    for (var i = 0; i < n; i++) {
+      final day = oldestFirst[i].createdAt.weekday;
       final topEmotions = history[i].rankings
           .take(2)
           .map((s) => s.emotion.id)
@@ -102,8 +106,12 @@ class EmotionalInsightsService {
     int lowWordEntries = 0;
     int lowWordPositive = 0;
 
-    for (var i = 0; i < entries.length && i < history.length; i++) {
-      final wordCount = entries[i].note.split(RegExp(r'\s+')).length;
+    final oldestFirst = entries.reversed.toList();
+    final n = oldestFirst.length < history.length
+        ? oldestFirst.length
+        : history.length;
+    for (var i = 0; i < n; i++) {
+      final wordCount = oldestFirst[i].note.split(RegExp(r'\s+')).length;
       final topEmotions = history[i].rankings.take(2).toList();
       final hasPositive = topEmotions.any(
         (s) => s.emotion.category == EmotionCategory.positiva,

@@ -54,12 +54,14 @@ class EmotionalProfileService {
     final emotionScores = <String, double>{};
     int totalPositive = 0;
     int totalNegative = 0;
+    int totalRanked = 0;
 
     for (final analysis in history) {
       for (final score in analysis.rankings) {
         final id = score.emotion.id;
         emotionCounts[id] = (emotionCounts[id] ?? 0) + 1;
         emotionScores[id] = (emotionScores[id] ?? 0) + score.percentage;
+        totalRanked++;
         if (score.emotion.category == EmotionCategory.positiva) {
           totalPositive++;
         } else if (score.emotion.category == EmotionCategory.negativa) {
@@ -83,7 +85,7 @@ class EmotionalProfileService {
 
     final tristezaCount = emotionCounts['tristeza'] ?? 0;
     final alegriaCount = emotionCounts['alegria'] ?? 0;
-    final total = totalPositive + totalNegative;
+    final total = totalRanked;
 
     final stability = _calculateStability(history);
     final writingPatterns = _analyzeWritingPatterns(entries);
@@ -135,33 +137,33 @@ class EmotionalProfileService {
     if (entries.isEmpty) {
       return const _WritingPatterns(0, 0, 0);
     }
-    final hours = <int>{};
-    final days = <int>{};
+    final hourCounts = <int, int>{};
+    final dayCounts = <int, int>{};
     int totalWords = 0;
 
     for (final entry in entries) {
-      hours.add(entry.createdAt.hour);
-      days.add(entry.createdAt.weekday);
+      final hour = entry.createdAt.hour;
+      hourCounts[hour] = (hourCounts[hour] ?? 0) + 1;
+      final day = entry.createdAt.weekday;
+      dayCounts[day] = (dayCounts[day] ?? 0) + 1;
       totalWords += entry.note.split(RegExp(r'\s+')).length;
     }
 
-    final hourCounts = <int, int>{};
-    for (final h in hours) {
-      hourCounts[h] = (hourCounts[h] ?? 0) + 1;
-    }
     final frequentHour = hourCounts.isNotEmpty
         ? (hourCounts.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value)))
+              ..sort((a, b) {
+                final byCount = b.value.compareTo(a.value);
+                return byCount != 0 ? byCount : a.key.compareTo(b.key);
+              }))
             .first.key
         : 0;
 
-    final dayCounts = <int, int>{};
-    for (final d in days) {
-      dayCounts[d] = (dayCounts[d] ?? 0) + 1;
-    }
     final frequentDay = dayCounts.isNotEmpty
         ? (dayCounts.entries.toList()
-              ..sort((a, b) => b.value.compareTo(a.value)))
+              ..sort((a, b) {
+                final byCount = b.value.compareTo(a.value);
+                return byCount != 0 ? byCount : a.key.compareTo(b.key);
+              }))
             .first.key
         : 1;
 

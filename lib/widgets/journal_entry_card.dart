@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 
 import '../core/app_constants.dart';
 import '../core/app_texts.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import 'app_card.dart';
 import 'dominant_emotion_badge.dart';
 
@@ -24,7 +24,7 @@ class JournalEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mood = moodByName(entry.mood);
+    final mood = emotionForLabel(entry.mood);
     final theme = Theme.of(context);
     final wordCount = entry.note
         .split(RegExp(r'\s+'))

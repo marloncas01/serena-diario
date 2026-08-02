@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:serena_diario/models/emotion.dart';
 import 'package:serena_diario/models/journal_entry.dart';
 import 'package:serena_diario/services/emotion_engine.dart';
+import 'package:serena_diario/services/emotion_grammar.dart';
+import 'package:serena_diario/services/user_profile.dart';
 
 void main() {
   group('EmotionEngine.analyze', () {
@@ -137,6 +139,38 @@ void main() {
       final cleared = entry.copyWith(clearDominantEmotion: true);
       expect(cleared.dominantEmotionId, isNull);
       expect(cleared.dominantEmotionIntensity, isNull);
+    });
+  });
+
+  group('EmotionGrammar', () {
+    test('flex devuelve la forma femenina solo para sexo mujer', () {
+      expect(EmotionGrammar.flex(UserSex.hombre, 'solo', 'sola'), 'solo');
+      expect(EmotionGrammar.flex(UserSex.mujer, 'solo', 'sola'), 'sola');
+      expect(
+        EmotionGrammar.flex(UserSex.prefieroNoDecirlo, 'solo', 'sola'),
+        'solo',
+      );
+    });
+
+    test('labelFor flexiona el estado según el sexo', () {
+      final cansancio = emotionById('cansancio')!;
+      expect(EmotionGrammar.labelFor(cansancio, UserSex.hombre), 'Cansado');
+      expect(EmotionGrammar.labelFor(cansancio, UserSex.mujer), 'Cansada');
+      expect(
+        EmotionGrammar.labelFor(cansancio, UserSex.prefieroNoDecirlo),
+        'Con cansancio',
+      );
+    });
+
+    test('labelFor mantiene Neutral sin flexión', () {
+      expect(
+        EmotionGrammar.labelFor(neutralEmotion, UserSex.hombre),
+        'Neutral',
+      );
+      expect(
+        EmotionGrammar.labelFor(neutralEmotion, UserSex.mujer),
+        'Neutral',
+      );
     });
   });
 }

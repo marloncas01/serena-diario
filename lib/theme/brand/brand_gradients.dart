@@ -29,43 +29,6 @@ class BrandGradients {
     colors: [BrandColors.purple50, BrandColors.lavender],
   );
 
-  // ── Mood gradients ──
-  static const LinearGradient peach = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [BrandColors.peach, BrandColors.peachDeep],
-  );
-
-  static const LinearGradient mint = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [BrandColors.mint, BrandColors.mintDeep],
-  );
-
-  static const LinearGradient rose = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [BrandColors.rose, BrandColors.roseDeep],
-  );
-
-  static const LinearGradient sky = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [BrandColors.sky, Color(0xFFB0C4DE)],
-  );
-
-  static const LinearGradient lavenderGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [BrandColors.lavender, Color(0xFFD6CAF0)],
-  );
-
-  static const LinearGradient tiredGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [BrandColors.tired, BrandColors.tiredDeep],
-  );
-
   // ── Surface gradients ──
   static const LinearGradient glass = LinearGradient(
     begin: Alignment.topLeft,
@@ -94,16 +57,5 @@ class BrandGradients {
       end: Alignment.bottomRight,
       colors: [center, edge],
     );
-  }
-
-  static LinearGradient fromMood(String mood) {
-    return switch (mood) {
-      'Feliz' => peach,
-      'En calma' => mint,
-      'Normal' => lavenderGradient,
-      'Triste' => rose,
-      'Cansada' => tiredGradient,
-      _ => lavenderGradient,
-    };
   }
 }

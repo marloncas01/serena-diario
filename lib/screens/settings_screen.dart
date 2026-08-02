@@ -95,9 +95,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildProfileCard(BuildContext context, ThemeData theme, UserProfile profile) {
+    final isDark = theme.brightness == Brightness.dark;
+    final foreground = isDark
+        ? Color.lerp(
+            theme.colorScheme.onPrimary,
+            theme.colorScheme.onSecondary,
+            0.5,
+          )!
+        : Colors.white;
+    final foregroundSoft = foreground.withValues(alpha: isDark ? 0.7 : 0.6);
     return GlassCard(
       gradient: LinearGradient(
-        colors: [theme.colorScheme.primary, theme.colorScheme.secondary],
+        colors: isDark
+            ? [
+                Color.lerp(
+                  theme.colorScheme.primary,
+                  Colors.black,
+                  0.18,
+                )!,
+                Color.lerp(
+                  theme.colorScheme.secondary,
+                  Colors.black,
+                  0.18,
+                )!,
+              ]
+            : [theme.colorScheme.primary, theme.colorScheme.secondary],
       ),
       borderColor: Colors.transparent,
       padding: const EdgeInsets.all(BrandSpacing.xl),
@@ -113,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
+              color: foreground.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(BrandRadius.lg),
               boxShadow: [
                 BoxShadow(
@@ -144,8 +166,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             : 'Tu espacio personal',
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: foreground,
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -0.2,
@@ -156,7 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icon(
                       Icons.edit_outlined,
                       size: 14,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: foregroundSoft,
                     ),
                   ],
                 ),
@@ -167,13 +189,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.12),
+                    color: foreground.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(BrandRadius.pill),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Editar perfil',
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: foregroundSoft,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
@@ -182,9 +204,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          const Icon(
+          Icon(
             Icons.chevron_right_rounded,
-            color: Colors.white,
+            color: foreground,
             size: 20,
           ),
         ],
@@ -618,7 +640,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         title: const Text('Cerrar sesión'),
                         onTap: () async {
-                          await auth.signOut();
+                          try {
+                            await auth.signOut();
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  e.toString().replaceFirst(
+                                    'Exception: ',
+                                    'Error: ',
+                                  ),
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
                           if (!context.mounted) return;
                           setState(() {});
                           ScaffoldMessenger.of(context).showSnackBar(

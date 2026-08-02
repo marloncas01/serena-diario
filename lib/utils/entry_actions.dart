@@ -3,9 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_texts.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import '../providers/journal_provider.dart';
+import '../services/emotion_grammar.dart';
+import '../services/user_profile.dart';
 import '../theme/brand/brand_durations.dart';
 import 'app_feedback.dart';
 
@@ -18,7 +20,8 @@ Future<bool> editEntrySheet(
   HapticFeedback.lightImpact();
   final note = TextEditingController(text: entry.note);
   final tags = TextEditingController(text: entry.tags.join(', '));
-  var mood = entry.mood;
+  final sex = context.read<UserProfile>().sex;
+  var mood = emotionForLabel(entry.mood).name;
   final saved = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
@@ -57,16 +60,25 @@ Future<bool> editEntrySheet(
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: moods
+                children: allEmotions
                     .map(
                       (item) => AnimatedScale(
                         scale: mood == item.name ? 1.05 : 1.0,
                         duration: BrandDurations.fast,
                         curve: Curves.easeOutCubic,
                         child: ChoiceChip(
-                          label: Text('${item.emoji} ${item.name}'),
+                          label: Text(
+                            '${item.emoji} ${EmotionGrammar.labelFor(item, sex)}',
+                          ),
                           selected: mood == item.name,
                           selectedColor: item.color,
+                          labelStyle: mood == item.name
+                              ? TextStyle(
+                                  color: item.color.computeLuminance() > 0.5
+                                      ? Colors.black87
+                                      : Colors.white,
+                                )
+                              : null,
                           onSelected: (_) =>
                               setSheetState(() => mood = item.name),
                         ),
@@ -94,12 +106,20 @@ Future<bool> editEntrySheet(
                 ),
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(sheetContext, true),
-                  child: const Text('Guardar cambios'),
-                ),
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: note,
+                builder: (context, value, _) {
+                  final canSave = value.text.trim().isNotEmpty;
+                  return SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: canSave
+                          ? () => Navigator.pop(sheetContext, true)
+                          : null,
+                      child: const Text('Guardar cambios'),
+                    ),
+                  );
+                },
               ),
             ],
           ),

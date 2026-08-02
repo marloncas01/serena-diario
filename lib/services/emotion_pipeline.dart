@@ -1,4 +1,5 @@
 import '../models/emotion.dart';
+import '../models/journal_entry.dart';
 import '../models/memory_item.dart';
 import 'emotion_engine.dart';
 import 'emotion_interpreter.dart';
@@ -8,6 +9,7 @@ import 'memory_manager.dart';
 import 'conversation_context_service.dart';
 import 'ai_provider.dart';
 import 'ai_config_service.dart';
+import 'user_profile.dart';
 
 class EmotionPipelineResult {
   const EmotionPipelineResult({
@@ -48,6 +50,41 @@ class EmotionPipeline {
   List<EmotionAnalysis> get analysisHistory =>
       List.unmodifiable(_analysisHistory);
 
+  /// Reconstruye el historial de análisis desde las emociones dominantes ya
+  /// persistidas en las entradas, para que el dashboard no quede vacío tras
+  /// reiniciar la app. Solo actúa si el historial aún está vacío y preserva el
+  /// orden cronológico (más antiguo primero) esperado por los servicios.
+  void rehydrateHistory(List<JournalEntry> entries) {
+    if (_analysisHistory.isNotEmpty) return;
+
+    final rebuilt = <EmotionAnalysis>[];
+    for (final entry in entries.reversed) {
+      final id = entry.dominantEmotionId;
+      final intensity = entry.dominantEmotionIntensity;
+      if (id == null || id.isEmpty) continue;
+      final emotion = emotionById(id);
+      if (emotion == null) continue;
+      rebuilt.add(EmotionAnalysis(
+        rankings: [
+          EmotionScore(
+            emotion: emotion,
+            percentage: (intensity ?? 0.5).clamp(0.0, 1.0) * 100,
+            matchedKeywords: const [],
+          ),
+        ],
+        confidence: 100,
+        detectedKeywords: const [],
+        explanation: 'Reconstruido a partir de la entrada guardada.',
+      ));
+    }
+    if (rebuilt.isEmpty) return;
+
+    _analysisHistory.addAll(rebuilt);
+    if (_analysisHistory.length > 100) {
+      _analysisHistory.removeRange(0, _analysisHistory.length - 100);
+    }
+  }
+
   Future<void> init() async {
     if (_isInitialized) return;
     _initFuture ??= _doInit();
@@ -65,7 +102,10 @@ class EmotionPipeline {
     }
   }
 
-  Future<EmotionPipelineResult> processEntry(String text) async {
+  Future<EmotionPipelineResult> processEntry(
+    String text, {
+    UserSex sex = UserSex.prefieroNoDecirlo,
+  }) async {
     await ensureInitialized();
 
     var analysis = EmotionEngine.analyze(text);
@@ -102,6 +142,7 @@ class EmotionPipeline {
       history: _analysisHistory,
       conversationContext: conversationContext,
       conversationHistory: _config.history,
+      sex: sex,
     );
 
     if (crisis.highRisk) {
@@ -112,6 +153,7 @@ class EmotionPipeline {
         response: EmotionalResponseEngine.generateWithCrisis(
           interpretation,
           crisis,
+          sex: sex,
         ),
         memoriesAdded: memories,
         relatedMemory: relatedMemory,
@@ -139,13 +181,13 @@ class EmotionPipeline {
     return _memoryManager.getMostImportant(limit: limit);
   }
 
-  Map<String, int> getEmotionTrends({int lastDays = 7}) {
+  Map<String, int> getEmotionTrends() {
     final counts = <String, int>{};
 
     for (final analysis in _analysisHistory) {
       if (analysis.rankings.isEmpty) continue;
       for (final score in analysis.rankings.take(3)) {
-        counts[score.emotion.name] = (counts[score.emotion.name] ?? 0) + 1;
+        counts[score.emotion.id] = (counts[score.emotion.id] ?? 0) + 1;
       }
     }
 

@@ -7,7 +7,6 @@ import '../core/app_constants.dart';
 import '../core/app_texts.dart';
 import '../models/journal_entry.dart';
 import '../models/memory_item.dart';
-import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../services/app_preferences.dart';
 
@@ -25,8 +24,9 @@ import '../services/emotional_history_service.dart';
 import '../services/emotional_insights_service.dart';
 import '../services/recommendation_engine.dart';
 import '../services/journal_summary_service.dart';
-import '../services/mood_emotion_mapper.dart';
 import '../services/emotion_engine.dart';
+import '../services/emotion_grammar.dart';
+import '../services/user_profile.dart';
 import '../utils/entry_actions.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/emotion_response_card.dart';
@@ -73,8 +73,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
   List<Recommendation> _cachedRecommendations = const [];
   WeeklySummary? _cachedWeeklySummary;
   MonthlySummary? _cachedMonthlySummary;
-  int _lastEntriesLength = -1;
+  int _lastRevision = -1;
   int _lastAnalysisLength = -1;
+  bool _historyRehydrated = false;
 
   @override
   void initState() {
@@ -124,7 +125,11 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   int get _wordCount => JournalInsights.wordCount(_noteController.text);
 
-  int get _readingTime => (_wordCount / 200).ceil().clamp(1, 99);
+  int get _readingTime {
+    final count = _wordCount;
+    if (count == 0) return 0;
+    return (count / 200).ceil().clamp(1, 99);
+  }
 
   String _getDynamicHint() {
     final hour = DateTime.now().hour;
@@ -169,13 +174,12 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
       setState(() => _isProcessingAI = true);
       try {
-        final result = await _pipeline.processEntry(text);
+        final sex = context.read<UserProfile>().sex;
+        final result = await _pipeline.processEntry(text, sex: sex);
         if (!mounted) return;
 
-        final detectedMood = MoodEmotionMapper.moodFromEmotionAnalysis(
-          result.analysis,
-        );
         final dominant = EmotionEngine.dominantFromAnalysis(result.analysis);
+        final detectedMood = dominant?.emotion.name ?? 'Normal';
         final savedEntry = _lastAiEntry;
         if (savedEntry != null) {
           final current = context
@@ -185,9 +189,11 @@ class _DiaryScreenState extends State<DiaryScreen> {
               .toList();
           if (current.isNotEmpty) {
             final entry = current.first;
-            final newMood = entry.mood == 'Normal' && detectedMood != 'Normal'
-                ? detectedMood
-                : entry.mood;
+            final newMood =
+                emotionForLabel(entry.mood).id == 'neutral' &&
+                        detectedMood != 'Normal'
+                    ? detectedMood
+                    : entry.mood;
             await context.read<JournalProvider>().update(
               entry.copyWith(
                 mood: newMood,
@@ -317,20 +323,26 @@ class _DiaryScreenState extends State<DiaryScreen> {
       );
     }
 
+    if (!_historyRehydrated) {
+      _historyRehydrated = true;
+      _pipeline.rehydrateHistory(journal.entries);
+    }
+
     final filtered = journal.entries
         .where((entry) {
-          final source = '${entry.note} ${entry.tags.join(' ')} ${entry.mood}'
+          final source = '${entry.note} ${entry.tags.join(' ')} ${entry.mood} '
+                  '${entry.dominantEmotionName ?? ''}'
               .toLowerCase();
           return source.contains(_query.toLowerCase());
         })
         .toList(growable: false);
 
-    final currentEntriesLength = journal.entries.length;
+    final currentRevision = journal.revision;
     final currentAnalysisLength = _pipeline.analysisHistory.length;
 
-    if (currentEntriesLength != _lastEntriesLength ||
+    if (currentRevision != _lastRevision ||
         currentAnalysisLength != _lastAnalysisLength) {
-      _lastEntriesLength = currentEntriesLength;
+      _lastRevision = currentRevision;
       _lastAnalysisLength = currentAnalysisLength;
 
       _cachedProfile = _profileService.generate(
@@ -896,9 +908,10 @@ class _DetectedEmotionBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final sex = context.watch<UserProfile>().sex;
     final top = analysis.rankings.isNotEmpty ? analysis.rankings.first : null;
     final confidence = analysis.confidence.round();
-    final mood = moodByName(selectedMood);
+    final mood = emotionForLabel(selectedMood);
 
     return GlassCard(
       child: Column(
@@ -934,7 +947,7 @@ class _DetectedEmotionBanner extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${top?.emotion.emoji ?? mood.emoji} ${top?.emotion.name ?? mood.name}',
+                      '${top?.emotion.emoji ?? mood.emoji} ${top != null ? EmotionGrammar.labelFor(top.emotion, sex) : mood.name}',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
@@ -982,12 +995,21 @@ class _DetectedEmotionBanner extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: moods
+              children: allEmotions
                   .map(
                     (item) => ChoiceChip(
-                      label: Text('${item.emoji} ${item.name}'),
-                      selected: selectedMood == item.name,
+                      label: Text(
+                        '${item.emoji} ${EmotionGrammar.labelFor(item, sex)}',
+                      ),
+                      selected: mood.id == item.id,
                       selectedColor: item.color,
+                      labelStyle: mood.id == item.id
+                          ? TextStyle(
+                              color: item.color.computeLuminance() > 0.5
+                                  ? Colors.black87
+                                  : Colors.white,
+                            )
+                          : null,
                       onSelected: (_) => onMoodSelected(item.name),
                     ),
                   )

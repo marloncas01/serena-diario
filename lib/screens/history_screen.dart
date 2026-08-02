@@ -184,7 +184,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               : theme.colorScheme.onSurfaceVariant,
                         ),
                         label: Text(_from != null && _to != null
-                            ? '${_from!.day}/${_from!.month} – ${_to!.day}/${_to!.month}'
+                            ? '${_from!.day}/${_from!.month}/${_from!.year} – ${_to!.day}/${_to!.month}/${_to!.year}'
                             : 'Fechas'),
                         onSelected: (_) => _pickDateRange(),
                         selected: _from != null,
@@ -290,7 +290,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ? 'Emoción'
           : (emotionById(_emotionId!)?.name ?? 'Emoción')),
       selected: _emotionId != null,
-      onSelected: (_) => showModalBottomSheet<void>(
+      onSelected: (selected) {
+        if (selected && _emotionId != null) {
+          setState(() => _emotionId = null);
+          return;
+        }
+        showModalBottomSheet<void>(
         context: context,
         showDragHandle: true,
         builder: (sheetContext) => ListView(
@@ -333,9 +338,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   Widget _buildCategoryFilter(ThemeData theme) {
     return FilterChip(
@@ -348,7 +354,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ? 'Negativas'
                   : 'Mixtas'),
       selected: _category != null,
-      onSelected: (_) => showModalBottomSheet<void>(
+      onSelected: (selected) {
+        if (selected && _category != null) {
+          setState(() => _category = null);
+          return;
+        }
+        showModalBottomSheet<void>(
         context: context,
         showDragHandle: true,
         builder: (sheetContext) => Column(
@@ -388,9 +399,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   Widget _buildIntensityFilter(ThemeData theme) {
     final levels = [
@@ -410,7 +422,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       label: Text(current <= 0 ? 'Intensidad' : levels[current].$2),
       selected: _minIntensity > 0,
-      onSelected: (_) => showModalBottomSheet<void>(
+      onSelected: (selected) {
+        if (selected && _minIntensity > 0) {
+          setState(() => _minIntensity = 0);
+          return;
+        }
+        showModalBottomSheet<void>(
         context: context,
         showDragHandle: true,
         builder: (sheetContext) => Column(
@@ -446,9 +463,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   String _categoryLabel(EmotionCategory category) => switch (category) {
         EmotionCategory.positiva => 'Positiva',

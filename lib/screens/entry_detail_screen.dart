@@ -6,13 +6,13 @@ import '../core/app_constants.dart';
 import '../core/app_texts.dart';
 import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../services/ai_provider.dart';
 import '../services/crisis_detector.dart';
 import '../services/emotion_engine.dart';
 import '../services/emotion_interpreter.dart';
 import '../services/emotional_response_engine.dart';
+import '../services/user_profile.dart';
 import '../utils/entry_actions.dart';
 import '../widgets/app_card.dart';
 import '../widgets/dominant_emotion_badge.dart';
@@ -31,19 +31,61 @@ class EntryDetailScreen extends StatelessWidget {
     if (entries.isEmpty) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: Text('Esta entrada ya no existe.')),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.folder_off_outlined, size: 42),
+                SizedBox(height: 16),
+                Text(
+                  'Esta entrada ya no existe.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
-    return _EntryDetailBody(entry: entries.first);
+    return _EntryDetailBody(key: ValueKey(entryId), entry: entries.first);
   }
 }
 
-class _EntryDetailBody extends StatelessWidget {
-  const _EntryDetailBody({required this.entry});
+class _EntryDetailBody extends StatefulWidget {
+  const _EntryDetailBody({super.key, required this.entry});
 
   final JournalEntry entry;
 
-  _AnalysisData _compute() {
+  @override
+  State<_EntryDetailBody> createState() => _EntryDetailBodyState();
+}
+
+class _EntryDetailBodyState extends State<_EntryDetailBody> {
+  late _AnalysisData _data;
+  late UserSex _sex;
+
+  @override
+  void initState() {
+    super.initState();
+    _sex = context.read<UserProfile>().sex;
+    _data = _compute(widget.entry, _sex);
+  }
+
+  @override
+  void didUpdateWidget(_EntryDetailBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sex = context.read<UserProfile>().sex;
+    if (oldWidget.entry.id != widget.entry.id ||
+        oldWidget.entry.note != widget.entry.note ||
+        oldWidget.entry.mood != widget.entry.mood) {
+      _data = _compute(widget.entry, _sex);
+    }
+  }
+
+  static _AnalysisData _compute(JournalEntry entry, UserSex sex) {
     final analysis = EmotionEngine.analyze(entry.note);
     final interpretation = EmotionInterpreter.interpret(analysis);
     final crisis = CrisisDetector.detect(entry.note);
@@ -57,6 +99,7 @@ class _EntryDetailBody extends StatelessWidget {
         relatedMemory: null,
         history: const [],
         conversationContext: null,
+        sex: sex,
       ),
     );
     return _AnalysisData(analysis, interpretation, crisis, response);
@@ -65,8 +108,9 @@ class _EntryDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final mood = moodByName(entry.mood);
-    final data = _compute();
+    final entry = widget.entry;
+    final mood = emotionForLabel(entry.mood);
+    final data = _data;
     final wordCount = entry.note
         .split(RegExp(r'\s+'))
         .where((w) => w.isNotEmpty)

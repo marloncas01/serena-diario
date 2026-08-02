@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../core/app_constants.dart';
 import '../data/motivational_quotes.dart';
+import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import '../services/spotify_service.dart';
 import '../services/user_profile.dart';
 import '../theme/app_colors.dart';
@@ -64,8 +64,7 @@ class HeroHeader extends StatelessWidget {
     final isWide = screenWidth > AppBreakpoints.compact;
 
     return Semantics(
-      button: true,
-      label: 'Avatar de perfil. Toca para cambiar.',
+      label: 'Avatar de perfil.',
       child: GlassCard(
         padding: EdgeInsets.all(isWide ? AppSpacing.xl : AppSpacing.lg),
         gradient: isDark ? AppColors.darkHeroGradient : AppColors.heroGradient,
@@ -689,6 +688,7 @@ class _ActionButtonState extends State<_ActionButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animController;
   late final Animation<double> _scale;
+  DateTime? _lastTapAt;
 
   @override
   void initState() {
@@ -725,6 +725,12 @@ class _ActionButtonState extends State<_ActionButton>
             onTapDown: (_) => _animController.forward(),
             onTapUp: (_) {
               _animController.reverse();
+              final now = DateTime.now();
+              if (_lastTapAt != null &&
+                  now.difference(_lastTapAt!).inMilliseconds < 600) {
+                return;
+              }
+              _lastTapAt = now;
               HapticFeedback.lightImpact();
               widget.onTap();
             },
@@ -776,7 +782,6 @@ class MoodSummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final mood = JournalInsights.predominantMood(entries);
-    final moodObj = moodByName(mood.name);
     final totalMoods = entries.length;
     final moodCount = entries.where((e) => e.mood == mood.name).length;
     final percentage = totalMoods > 0 ? (moodCount / totalMoods) * 100 : 0;
@@ -798,11 +803,11 @@ class MoodSummaryCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: moodObj.color.withValues(alpha: 0.2),
+                  color: mood.color.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
-                  child: Text(moodObj.emoji, style: const TextStyle(fontSize: 24)),
+                  child: Text(mood.emoji, style: const TextStyle(fontSize: 24)),
                 ),
               ),
               const SizedBox(width: 14),
@@ -837,7 +842,7 @@ class MoodSummaryCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
-                    color: moodObj.color,
+                    color: mood.color,
                   ),
                 ),
               ),
@@ -850,7 +855,7 @@ class MoodSummaryCard extends StatelessWidget {
               value: percentage / 100,
               minHeight: 6,
               backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              valueColor: AlwaysStoppedAnimation<Color>(moodObj.color),
+              valueColor: AlwaysStoppedAnimation<Color>(mood.color),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -1026,7 +1031,7 @@ class ActivityTimeline extends StatelessWidget {
         ...recent.asMap().entries.map((entry) {
           final i = entry.key;
           final e = entry.value;
-          final mood = moodByName(e.mood);
+          final mood = emotionForLabel(e.mood);
           final isLast = i == recent.length - 1;
           return Padding(
             padding: EdgeInsets.only(bottom: isLast ? 0 : AppSpacing.sm),
@@ -1041,7 +1046,7 @@ class ActivityTimeline extends StatelessWidget {
 class _ActivityItem extends StatelessWidget {
   const _ActivityItem({required this.e, required this.mood});
   final JournalEntry e;
-  final Mood mood;
+  final EmotionDefinition mood;
 
   @override
   Widget build(BuildContext context) {

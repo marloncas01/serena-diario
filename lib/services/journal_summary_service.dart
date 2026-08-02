@@ -114,7 +114,12 @@ class JournalSummaryService {
     required List<JournalEntry> entries,
   }) {
     final now = DateTime.now();
-    final monthAgo = DateTime(now.year, now.month - 1, now.day);
+    final prevMonthDays = DateTime(now.year, now.month, 0).day;
+    final monthAgo = DateTime(
+      now.year,
+      now.month - 1,
+      now.day.clamp(1, prevMonthDays).toInt(),
+    );
 
     final monthEntries = entries
         .where((e) => e.createdAt.isAfter(monthAgo))
@@ -212,12 +217,20 @@ class JournalSummaryService {
     List<EmotionAnalysis> history,
   ) {
     if (history.isEmpty || all.isEmpty) return [];
-    final targetIds = target.map((e) => e.id).toSet();
+    // `all` is newest-first (as stored); `history` is oldest-first
+    // (appended in pipeline processing order). Align both by reversing `all`.
+    final byId = <String, EmotionAnalysis>{};
+    final oldestFirst = all.reversed.toList();
+    final n = oldestFirst.length < history.length
+        ? oldestFirst.length
+        : history.length;
+    for (var i = 0; i < n; i++) {
+      byId[oldestFirst[i].id] = history[i];
+    }
     final result = <EmotionAnalysis>[];
-    for (var i = 0; i < all.length && i < history.length; i++) {
-      if (targetIds.contains(all[i].id)) {
-        result.add(history[i]);
-      }
+    for (final entry in target) {
+      final analysis = byId[entry.id];
+      if (analysis != null) result.add(analysis);
     }
     return result;
   }

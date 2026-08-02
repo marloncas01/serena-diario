@@ -10,7 +10,12 @@ enum SerenaThemeStyle {
   azul('Azul', Color(0xFF5B8DEF), Color(0xFF0F1720)),
   verde('Verde', Color(0xFF4CAF50), Color(0xFF0F1A14)),
   rosa('Rosa', Color(0xFFE91E8C), Color(0xFF1C0F1A)),
-  amoled('Negro', Color(0xFF6C5CE7), Color(0xFF000000));
+  amoled('Negro', Color(0xFF1E1E1E), Color(0xFF000000)),
+  naranja('Naranja', Color(0xFFF57C00), Color(0xFF1A0F07)),
+  rojo('Rojo', Color(0xFFE53935), Color(0xFF1C0A0A)),
+  dorado('Dorado', Color(0xFFC9A227), Color(0xFF17120A)),
+  celeste('Celeste', Color(0xFF29B6F6), Color(0xFF081420)),
+  cafe('Café', Color(0xFF795548), Color(0xFF140E0A));
 
   const SerenaThemeStyle(this.label, this.seedColor, this.darkScaffold);
   final String label;
@@ -57,7 +62,7 @@ SerenaThemeStyle _migrateFromThemeColor(String? label) {
     'Azul' => SerenaThemeStyle.azul,
     'Verde' => SerenaThemeStyle.verde,
     'Rosa' => SerenaThemeStyle.rosa,
-    'Naranja' => SerenaThemeStyle.rosa,
+    'Naranja' => SerenaThemeStyle.naranja,
     _ => SerenaThemeStyle.lavanda,
   };
 }

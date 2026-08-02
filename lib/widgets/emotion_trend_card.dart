@@ -56,17 +56,17 @@ class EmotionTrendCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (totalEntries > 0)
-                Flexible(
-                  child: Text(
-                    'Últimos 7 días',
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  if (totalEntries > 0)
+                    Flexible(
+                      child: Text(
+                        'Historial reciente',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
             ],
           ),
           const SizedBox(height: BrandSpacing.sm),

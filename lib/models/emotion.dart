@@ -97,7 +97,7 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'orgullo',
     name: 'Orgullo',
-    emoji: '💪',
+    emoji: '😌',
     color: Color(0xFFFFAB91),
     category: EmotionCategory.positiva,
   ),
@@ -118,7 +118,7 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'tristeza',
     name: 'Tristeza',
-    emoji: '😔',
+    emoji: '😢',
     color: Color(0xFFFCCFD6),
     category: EmotionCategory.negativa,
   ),
@@ -153,7 +153,7 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'estres',
     name: 'Estrés',
-    emoji: '😤',
+    emoji: '😵',
     color: Color(0xFFFFAB91),
     category: EmotionCategory.negativa,
   ),
@@ -167,7 +167,7 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'frustracion',
     name: 'Frustración',
-    emoji: '😖',
+    emoji: '😤',
     color: Color(0xFFFF8A80),
     category: EmotionCategory.negativa,
   ),
@@ -181,7 +181,7 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'culpa',
     name: 'Culpa',
-    emoji: '😥',
+    emoji: '😔',
     color: Color(0xFFA1887F),
     category: EmotionCategory.negativa,
   ),
@@ -230,21 +230,21 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'entusiasmo',
     name: 'Entusiasmo',
-    emoji: '🥳',
+    emoji: '🤩',
     color: Color(0xFFFFB74D),
     category: EmotionCategory.positiva,
   ),
   EmotionDefinition(
     id: 'ternura',
     name: 'Ternura',
-    emoji: '🥰',
+    emoji: '🥹',
     color: Color(0xFFF8BBD0),
     category: EmotionCategory.positiva,
   ),
   EmotionDefinition(
     id: 'ilusion',
     name: 'Ilusión',
-    emoji: '💫',
+    emoji: '✨',
     color: Color(0xFFE1BEE7),
     category: EmotionCategory.positiva,
   ),
@@ -265,14 +265,14 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'confianza',
     name: 'Confianza',
-    emoji: '🤝',
+    emoji: '💙',
     color: Color(0xFF90CAF9),
     category: EmotionCategory.positiva,
   ),
   EmotionDefinition(
     id: 'diversion',
     name: 'Diversión',
-    emoji: '🎉',
+    emoji: '😂',
     color: Color(0xFFFFF176),
     category: EmotionCategory.positiva,
   ),
@@ -286,7 +286,7 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'vulnerabilidad',
     name: 'Vulnerabilidad',
-    emoji: '🥺',
+    emoji: '🫣',
     color: Color(0xFFFFCCBC),
     category: EmotionCategory.negativa,
   ),
@@ -321,14 +321,14 @@ const List<EmotionDefinition> allEmotions = [
   EmotionDefinition(
     id: 'cansancio',
     name: 'Cansancio',
-    emoji: '😪',
+    emoji: '😴',
     color: Color(0xFFB0BEC5),
     category: EmotionCategory.negativa,
   ),
   EmotionDefinition(
     id: 'melancolia',
     name: 'Melancolía',
-    emoji: '🌧️',
+    emoji: '🥀',
     color: Color(0xFF9575CD),
     category: EmotionCategory.mixta,
   ),
@@ -337,6 +337,13 @@ const List<EmotionDefinition> allEmotions = [
     name: 'Curiosidad',
     emoji: '🤔',
     color: Color(0xFF80DEEA),
+    category: EmotionCategory.mixta,
+  ),
+  EmotionDefinition(
+    id: 'sorpresa',
+    name: 'Sorpresa',
+    emoji: '😲',
+    color: Color(0xFF80CBC4),
     category: EmotionCategory.mixta,
   ),
   EmotionDefinition(
@@ -377,4 +384,29 @@ EmotionDefinition? emotionById(String id) {
     if (e.id == id) return e;
   }
   return null;
+}
+
+/// Emoción neutral de respaldo para etiquetas desconocidas o vacías.
+final EmotionDefinition neutralEmotion = emotionById('neutral')!;
+
+/// Resuelve una etiqueta guardada en `JournalEntry.mood` a su emoción
+/// equivalente. Entiende tanto los moods antiguos (Feliz, En calma, Normal,
+/// Triste, Cansada) como los nombres de las emociones actuales, manteniendo
+/// compatibilidad con entradas ya guardadas.
+EmotionDefinition emotionForLabel(String label) {
+  final trimmed = label.trim();
+  if (trimmed.isEmpty) return neutralEmotion;
+
+  for (final emotion in allEmotions) {
+    if (emotion.name == trimmed) return emotion;
+  }
+
+  return switch (trimmed) {
+    'Feliz' => emotionById('felicidad')!,
+    'En calma' => emotionById('calma')!,
+    'Normal' => neutralEmotion,
+    'Triste' => emotionById('tristeza')!,
+    'Cansada' => emotionById('cansancio')!,
+    _ => neutralEmotion,
+  };
 }

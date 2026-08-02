@@ -12,17 +12,27 @@ class DailyTipCard extends StatefulWidget {
 
 class _DailyTipCardState extends State<DailyTipCard> {
   final _service = DailyWellnessService();
-  late final Future<WellnessTip> _tipFuture;
+  late Future<WellnessTip> _tipFuture;
+  String _dayKey = '';
 
   @override
   void initState() {
     super.initState();
+    _refreshIfDayChanged();
+  }
+
+  void _refreshIfDayChanged() {
+    final now = DateTime.now();
+    final key = '${now.year}-${now.month}-${now.day}';
+    if (key == _dayKey) return;
+    _dayKey = key;
     _tipFuture = _service.getTodayTip();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    _refreshIfDayChanged();
 
     return FutureBuilder<WellnessTip>(
       future: _tipFuture,

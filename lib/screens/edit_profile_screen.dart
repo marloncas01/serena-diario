@@ -38,12 +38,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _save() async {
     if (_isSaving) return;
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      AppFeedback.info(context, 'Escribe tu nombre antes de guardar');
+      return;
+    }
     HapticFeedback.lightImpact();
     setState(() => _isSaving = true);
-    final name = _nameController.text.trim();
-    if (name.isNotEmpty) {
-      await context.read<UserProfile>().setUserName(name);
-    }
+    await context.read<UserProfile>().setUserName(name);
     if (!mounted) return;
     AppFeedback.success(context, 'Perfil actualizado');
     Navigator.of(context).pop();
@@ -79,6 +81,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _buildPreview(appTheme, profile, theme),
             const SizedBox(height: 24),
             _buildNameSection(appTheme),
+            const SizedBox(height: 24),
+            _buildSexSection(appTheme, profile),
             const SizedBox(height: 24),
             _buildAvatarSection(appTheme, profile),
             const SizedBox(height: 24),
@@ -214,6 +218,50 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               focusedBorder: InputBorder.none,
               filled: false,
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSexSection(ThemeData theme, UserProfile profile) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionTitle(
+          theme,
+          icon: Icons.transgender_rounded,
+          title: 'Sexo',
+        ),
+        const SizedBox(height: 8),
+        GlassCard(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: UserSex.values.map((option) {
+                  final selected = profile.sex == option;
+                  return ChoiceChip(
+                    label: Text(option.label),
+                    selected: selected,
+                    onSelected: (_) {
+                      HapticFeedback.selectionClick();
+                      profile.setSex(option);
+                    },
+                  );
+                }).toList(growable: false),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Solo cambia cómo Serena escribe algunos textos. Tu emoción no cambia.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
         ),
       ],

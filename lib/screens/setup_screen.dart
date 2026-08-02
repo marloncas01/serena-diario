@@ -23,6 +23,7 @@ class _SetupScreenState extends State<SetupScreen> {
   var _selectedColor = SerenaThemeStyle.lavanda;
   var _goal = '';
   var _selectedPersonality = SerenaPersonality.amigable;
+  bool _isFinishing = false;
 
   @override
   void dispose() {
@@ -32,6 +33,8 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Future<void> _finish() async {
+    if (_isFinishing) return;
+    _isFinishing = true;
     final profile = context.read<UserProfile>();
     final themeCtrl = context.read<ThemeController>();
     await profile.setUserName(_nameController.text.trim());

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../core/app_constants.dart';
 import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 import '../providers/journal_provider.dart';
 import '../theme/brand/brand_durations.dart';
 
@@ -197,7 +196,7 @@ class StatisticsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 ...moods.entries.map((item) {
-                  final mood = moodByName(item.key);
+                  final mood = emotionForLabel(item.key);
                   final percent = item.value / entries.length;
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 14),
@@ -448,6 +447,7 @@ class _WeeklyChart extends StatelessWidget {
     final maxY = values.isEmpty
         ? 1.0
         : (values.reduce((a, b) => a > b ? a : b) + 1).toDouble();
+    final today = DateUtils.dateOnly(DateTime.now());
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
@@ -493,13 +493,17 @@ class _WeeklyChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                const labels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+                const weekdays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
                 final index = value.toInt();
-                final isLast = index == labels.length - 1;
+                final date = today.subtract(Duration(days: 6 - index));
+                final isLast = index == 6;
+                final label = index >= 0 && index <= 6
+                    ? weekdays[date.weekday - 1]
+                    : '';
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    index >= 0 && index < labels.length ? labels[index] : '',
+                    label,
                     style: TextStyle(
                       fontWeight: isLast ? FontWeight.w800 : FontWeight.w500,
                       fontSize: 12,
@@ -880,12 +884,15 @@ class _EmotionWeeklyChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                const labels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+                const weekdays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
                 final index = value.toInt();
+                final label = index >= 0 && index < days.length
+                    ? weekdays[days[index].weekday - 1]
+                    : '';
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    index >= 0 && index < labels.length ? labels[index] : '',
+                    label,
                     style: TextStyle(
                       fontSize: 11,
                       color: theme.colorScheme.onSurfaceVariant,
@@ -965,7 +972,7 @@ class _Stat extends StatelessWidget {
           Text(
             value,
             style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.primary,
+              color: color,
               fontWeight: FontWeight.w800,
             ),
           ),

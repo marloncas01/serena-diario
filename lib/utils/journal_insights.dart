@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/emotion.dart';
 import '../models/journal_entry.dart';
-import '../models/mood.dart';
 
 class JournalInsights {
   const JournalInsights._();
@@ -30,8 +29,8 @@ class JournalInsights {
     return count;
   }
 
-  static Mood predominantMood(List<JournalEntry> entries) {
-    if (entries.isEmpty) return moodByName('Normal');
+  static EmotionDefinition predominantMood(List<JournalEntry> entries) {
+    if (entries.isEmpty) return neutralEmotion;
     final counts = <String, int>{};
     for (final entry in entries) {
       counts.update(entry.mood, (count) => count + 1, ifAbsent: () => 1);
@@ -39,7 +38,7 @@ class JournalInsights {
     final name = counts.entries
         .reduce((a, b) => a.value >= b.value ? a : b)
         .key;
-    return moodByName(name);
+    return emotionForLabel(name);
   }
 
   static Map<String, int> moodCounts(List<JournalEntry> entries) {
@@ -142,4 +141,17 @@ class JournalInsights {
               entry.dominantEmotionId != null &&
               entry.dominantEmotionId!.isNotEmpty)
           .toList(growable: false);
+
+  /// Emociones distintas presentes en las entradas, en orden de aparición.
+  static List<EmotionDefinition> distinctEmotions(
+    List<JournalEntry> entries,
+  ) {
+    final seen = <String>{};
+    final result = <EmotionDefinition>[];
+    for (final entry in entries) {
+      final emotion = emotionForLabel(entry.mood);
+      if (seen.add(emotion.id)) result.add(emotion);
+    }
+    return result;
+  }
 }
