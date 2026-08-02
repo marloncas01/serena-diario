@@ -4,6 +4,8 @@ import 'crisis_detector.dart';
 import 'ai_provider.dart';
 import 'emotion_grammar.dart';
 import 'user_profile.dart';
+import 'contextual_memory_service.dart';
+import 'response_variation_tracker.dart';
 
 class EmotionalResponse {
   const EmotionalResponse({
@@ -1411,11 +1413,12 @@ class EmotionalResponseEngine {
     final bank = _bankFor(primary);
 
     return EmotionalResponse(
-      greeting: _pick(bank.greetings, interpretation, sex),
-      validation: _pick(bank.validations, interpretation, sex),
+      greeting: _pickUnique('greeting', bank.greetings, interpretation, sex),
+      validation: _pickUnique('validation', bank.validations, interpretation, sex),
       interpretation: interpretation.summary,
-      suggestion: _pick(bank.suggestions, interpretation, sex),
-      reflectionQuestion: _pick(bank.questions, interpretation, sex),
+      suggestion: _pickUnique('suggestion', bank.suggestions, interpretation, sex),
+      reflectionQuestion:
+          _pickUnique('question', bank.questions, interpretation, sex),
       emergencyRisk: false,
     );
   }
@@ -1444,47 +1447,23 @@ class EmotionalResponseEngine {
     return base;
   }
 
-  static String _pick(
-    List<String> messages,
-    EmotionInterpretation interp,
-    UserSex sex,
-  ) {
-    final seed = interp.summary.hashCode +
-        interp.primaryEmotions.length +
-        DateTime.now().millisecondsSinceEpoch;
-    final index = seed.abs() % messages.length;
-    return _flexMessage(sex, messages[index]);
-  }
+  static final ResponseVariationTracker _variation = ResponseVariationTracker();
 
-  static final List<String> _recentGreetings = [];
-  static final List<String> _recentValidations = [];
-  static final List<String> _recentSuggestions = [];
-  static final List<String> _recentQuestions = [];
-  static const int _maxRecent = 8;
+  static int _seed(EmotionInterpretation interp) =>
+      interp.summary.hashCode +
+      interp.primaryEmotions.length +
+      DateTime.now().millisecondsSinceEpoch;
 
-  static int _structureVariant(EmotionInterpretation interp) {
-    final seed = interp.summary.hashCode +
-        interp.primaryEmotions.length +
-        DateTime.now().millisecondsSinceEpoch;
-    return seed.abs() % 3;
-  }
+  static int _structureVariant(EmotionInterpretation interp) =>
+      _variation.pickIndex('structure', 3, _seed(interp));
 
   static String _pickUnique(
+    String key,
     List<String> messages,
-    List<String> recent,
     EmotionInterpretation interp,
     UserSex sex,
   ) {
-    final available = messages.where((m) => !recent.contains(m)).toList();
-    final pool = available.isNotEmpty ? available : messages;
-    final seed = interp.summary.hashCode +
-        interp.primaryEmotions.length +
-        DateTime.now().millisecondsSinceEpoch;
-    final picked = pool[seed.abs() % pool.length];
-    recent.add(picked);
-    if (recent.length > _maxRecent) {
-      recent.removeAt(0);
-    }
+    final picked = _variation.pickUnique(key, messages, _seed(interp));
     return _flexMessage(sex, picked);
   }
 
@@ -1514,14 +1493,14 @@ class EmotionalResponseEngine {
     final bank = _bankFor(primary);
 
     final greeting = _pickUnique(
+      'greeting',
       bank.greetings,
-      _recentGreetings,
       context.interpretation,
       context.sex,
     );
     final validation = _pickUnique(
+      'validation',
       bank.validations,
-      _recentValidations,
       context.interpretation,
       context.sex,
     );
@@ -1585,22 +1564,40 @@ class EmotionalResponseEngine {
       }
     }
 
+    var existing = parts.join(' ');
+    final memoryContext = ContextualMemoryService.build(
+      memories: context.memories,
+    );
+    if (!memoryContext.isEmpty) {
+      final sentences = ContextualMemoryService.sentences(
+        memoryContext,
+        limit: 2,
+        includeResumed: context.relatedMemory == null,
+      );
+      for (final sentence in sentences) {
+        final quoted = RegExp(r'"([^"]+)"').firstMatch(sentence)?.group(1);
+        if (quoted != null && existing.contains(quoted)) continue;
+        parts.add(sentence);
+        existing += ' $sentence';
+      }
+    }
+
     final interpretation = parts.join(' ');
 
     final variant = _structureVariant(context.interpretation);
     final suggestion = variant == 1
         ? ''
         : _pickUnique(
+            'suggestion',
             bank.suggestions,
-            _recentSuggestions,
             context.interpretation,
             context.sex,
           );
     final question = variant == 2
         ? ''
         : _pickUnique(
+            'question',
             bank.questions,
-            _recentQuestions,
             context.interpretation,
             context.sex,
           );

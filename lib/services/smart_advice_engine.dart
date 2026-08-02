@@ -5,6 +5,8 @@ import '../models/journal_entry.dart';
 import '../models/memory_item.dart';
 import 'emotional_profile_service.dart';
 import 'emotional_history_service.dart';
+import 'emotional_pattern_analyzer.dart';
+import 'response_variation_tracker.dart';
 
 class SmartAdvice {
   const SmartAdvice({
@@ -28,6 +30,7 @@ class SmartAdviceEngine {
   factory SmartAdviceEngine() => _instance;
 
   final _random = Random();
+  final _variation = ResponseVariationTracker();
 
   SmartAdvice generate({
     required List<JournalEntry> entries,
@@ -38,25 +41,37 @@ class SmartAdviceEngine {
     required int streak,
     String? sleepQuality,
     String? recentActivity,
+    EmotionalPatternReport? patterns,
+    String? currentEmotionId,
+    DateTime? now,
   }) {
-    final candidates = <SmartAdvice>[];
-
-    candidates.addAll(_fromEmotionContext(emotionHistory, profile));
-    candidates.addAll(_fromTimeOfDay());
-    candidates.addAll(_fromStreak(streak));
-    candidates.addAll(_fromMemories(memories));
-    candidates.addAll(_fromProfile(profile));
-    candidates.addAll(_fromHistoryReport(historyReport));
-    candidates.addAll(_fromSleep(sleepQuality));
-    candidates.addAll(_fromActivity(recentActivity));
+    final candidates = _dedupe(
+      _collectCandidates(
+        entries: entries,
+        emotionHistory: emotionHistory,
+        profile: profile,
+        historyReport: historyReport,
+        memories: memories,
+        streak: streak,
+        sleepQuality: sleepQuality,
+        recentActivity: recentActivity,
+        patterns: patterns,
+        currentEmotionId: currentEmotionId,
+        now: now,
+      ),
+    );
 
     if (candidates.isEmpty) {
-      return _fallbackAdvice();
+      final fallback = _fallbackAdvice();
+      _recordUsed([fallback]);
+      return fallback;
     }
 
     candidates.sort((a, b) => b.priority.compareTo(a.priority));
     final top = candidates.take(3).toList();
-    return top[_random.nextInt(top.length)];
+    final chosen = top[_random.nextInt(top.length)];
+    _recordUsed([chosen]);
+    return chosen;
   }
 
   List<SmartAdvice> generateMultiple({
@@ -67,11 +82,52 @@ class SmartAdviceEngine {
     required int streak,
     String? sleepQuality,
     String? recentActivity,
+    EmotionalPatternReport? patterns,
+    String? currentEmotionId,
+    DateTime? now,
   }) {
+    final candidates = _dedupe(
+      _collectCandidates(
+        entries: const [],
+        emotionHistory: emotionHistory,
+        profile: profile,
+        historyReport: historyReport,
+        memories: memories,
+        streak: streak,
+        sleepQuality: sleepQuality,
+        recentActivity: recentActivity,
+        patterns: patterns,
+        currentEmotionId: currentEmotionId,
+        now: now,
+      ),
+    );
+
+    candidates.sort((a, b) => b.priority.compareTo(a.priority));
+    final selected = candidates.take(5).toList();
+    _recordUsed(selected);
+    return selected;
+  }
+
+  List<SmartAdvice> _collectCandidates({
+    required List<JournalEntry> entries,
+    required List<EmotionAnalysis> emotionHistory,
+    required EmotionalProfile? profile,
+    required EmotionalHistoryReport? historyReport,
+    required List<MemoryItem> memories,
+    required int streak,
+    String? sleepQuality,
+    String? recentActivity,
+    EmotionalPatternReport? patterns,
+    String? currentEmotionId,
+    DateTime? now,
+  }) {
+    final reference = now ?? DateTime.now();
     final candidates = <SmartAdvice>[];
 
+    candidates.addAll(_fromCurrentEmotion(currentEmotionId));
     candidates.addAll(_fromEmotionContext(emotionHistory, profile));
-    candidates.addAll(_fromTimeOfDay());
+    candidates.addAll(_fromPatterns(patterns, reference));
+    candidates.addAll(_fromTimeOfDay(reference));
     candidates.addAll(_fromStreak(streak));
     candidates.addAll(_fromMemories(memories));
     candidates.addAll(_fromProfile(profile));
@@ -79,9 +135,157 @@ class SmartAdviceEngine {
     candidates.addAll(_fromSleep(sleepQuality));
     candidates.addAll(_fromActivity(recentActivity));
 
-    candidates.sort((a, b) => b.priority.compareTo(a.priority));
-    return candidates.take(5).toList();
+    return candidates;
   }
+
+  /// Filtra consejos ya entregados recientemente para priorizar alternativas.
+  List<SmartAdvice> _dedupe(List<SmartAdvice> candidates) {
+    final kept = <SmartAdvice>[];
+    for (final candidate in candidates) {
+      if (_variation.wasRecentlyUsed('advice', candidate.title)) continue;
+      kept.add(candidate);
+    }
+    return kept.isNotEmpty ? kept : candidates;
+  }
+
+  void _recordUsed(List<SmartAdvice> advices) {
+    for (final advice in advices) {
+      _variation.record('advice', advice.title);
+    }
+  }
+
+  /// Limpia el historial anti-repetición de consejos (útil en tests).
+  void resetHistory() => _variation.resetAll();
+
+  List<SmartAdvice> _fromCurrentEmotion(String? currentEmotionId) {
+    switch (currentEmotionId) {
+      case 'ansiedad':
+      case 'miedo':
+        return const [
+          SmartAdvice(
+            title: 'Ancla con la respiración',
+            message: 'Sientes ansiedad o miedo ahora mismo. Respira lento 4 veces: inhala, retén, exhala.',
+            category: 'mindfulness',
+            emoji: '🫁',
+            priority: 6,
+          ),
+        ];
+      case 'tristeza':
+      case 'soledad':
+        return const [
+          SmartAdvice(
+            title: 'Date un abrazo',
+            message: 'Hoy sientes tristeza. Permítete sentirla sin juicio; escribirla ya es un acto valiente.',
+            category: 'apoyo',
+            emoji: '🤍',
+            priority: 5,
+          ),
+        ];
+      case 'estres':
+      case 'frustracion':
+        return const [
+          SmartAdvice(
+            title: 'Suelta la presión',
+            message: 'El estrés está alto. Un descanso breve de 5 minutos puede ayudarte a recuperar claridad.',
+            category: 'bienestar',
+            emoji: '🍃',
+            priority: 5,
+          ),
+        ];
+      case 'alegria':
+      case 'felicidad':
+      case 'gratitud':
+      case 'entusiasmo':
+        return const [
+          SmartAdvice(
+            title: 'Atesora este momento',
+            message: 'Hoy te sientes bien. Guarda un detalle de este momento para los días grises.',
+            category: 'motivacion',
+            emoji: '☀️',
+            priority: 3,
+          ),
+        ];
+      default:
+        return const [];
+    }
+  }
+
+  List<SmartAdvice> _fromPatterns(
+    EmotionalPatternReport? patterns,
+    DateTime reference,
+  ) {
+    if (patterns == null || patterns.totalEntries < 3) return [];
+    final advices = <SmartAdvice>[];
+
+    if (patterns.trend == TrendDirection.worsening) {
+      advices.add(const SmartAdvice(
+        title: 'Cuidado con la tendencia',
+        message: 'He notado que tu ánimo viene bajando. Una pausa y respirar puede ayudarte a estabilizarte.',
+        category: 'cuidado',
+        emoji: '🌊',
+        priority: 6,
+      ));
+    }
+
+    if (patterns.negativeStreak >= 3) {
+      advices.add(SmartAdvice(
+        title: 'Varios días difíciles',
+        message: 'Llevas ${patterns.negativeStreak} días con emociones negativas. Contarlo aquí, aunque sea breve, ya ayuda.',
+        category: 'apoyo',
+        emoji: '🤍',
+        priority: 5,
+      ));
+    }
+
+    final todayCounts = patterns.emotionsByWeekday[reference.weekday];
+    if (todayCounts != null && _negativeCount(todayCounts) >= 2) {
+      final dayLabel =
+          EmotionalPatternAnalyzer.weekdayLabels[reference.weekday] ?? 'hoy';
+      advices.add(SmartAdvice(
+        title: 'Día difícil por patrón',
+        message: 'Los $dayLabel suelen ser difíciles para ti. Sé especialmente amable contigo hoy.',
+        category: 'cuidado',
+        emoji: '🌦️',
+        priority: 4,
+      ));
+    }
+
+    final nightCounts = patterns.emotionsByHour[EmotionalPatternAnalyzer.noche];
+    if (nightCounts != null && _negativeCount(nightCounts) >= 2) {
+      advices.add(const SmartAdvice(
+        title: 'Noches difíciles',
+        message: 'Tus emociones negativas suelen aparecer por la noche. Una rutina de descanso puede ayudarte.',
+        category: 'sueno',
+        emoji: '🌙',
+        priority: 4,
+      ));
+    }
+
+    if (patterns.positiveStreak >= 2) {
+      advices.add(SmartAdvice(
+        title: 'Momentum positivo',
+        message: 'Llevas ${patterns.positiveStreak} días de emociones positivas. Aprovecha para fijar una meta pequeña.',
+        category: 'motivacion',
+        emoji: '⚡',
+        priority: 4,
+      ));
+    }
+
+    if (patterns.stabilityScore <= 0.4) {
+      advices.add(const SmartAdvice(
+        title: 'Altibajos frecuentes',
+        message: 'Tu ánimo cambia mucho entre días. Registrar desencadenantes puede ayudarte a entenderlos.',
+        category: 'autoconocimiento',
+        emoji: '🎢',
+        priority: 3,
+      ));
+    }
+
+    return advices;
+  }
+
+  int _negativeCount(Map<String, int> counts) =>
+      EmotionalPatternAnalyzer.countNegative(counts);
 
   List<SmartAdvice> _fromEmotionContext(
     List<EmotionAnalysis> history,
@@ -170,8 +374,8 @@ class SmartAdviceEngine {
     return advices;
   }
 
-  List<SmartAdvice> _fromTimeOfDay() {
-    final hour = DateTime.now().hour;
+  List<SmartAdvice> _fromTimeOfDay(DateTime reference) {
+    final hour = reference.hour;
     final advices = <SmartAdvice>[];
 
     if (hour < 7) {

@@ -14,6 +14,8 @@ import '../services/smart_spotify_service.dart';
 import '../services/achievement_service.dart';
 import '../services/journal_summary_service.dart';
 import '../services/user_profile.dart';
+import '../services/emotional_pattern_analyzer.dart';
+import '../services/pattern_insight_generator.dart';
 import '../utils/journal_insights.dart';
 import '../widgets/dashboard_components.dart';
 import '../widgets/glass_card.dart';
@@ -22,6 +24,7 @@ import '../widgets/emotion_trend_card.dart';
 import '../widgets/emotional_profile_card.dart';
 import '../widgets/emotional_evolution_card.dart';
 import '../widgets/insights_card.dart';
+import '../widgets/pattern_insights_card.dart';
 import '../widgets/recommendations_card.dart';
 import '../widgets/monthly_summary_card.dart';
 import '../widgets/weekly_summary_card.dart';
@@ -87,6 +90,8 @@ class _SmartDashboardState extends State<SmartDashboard> {
   SmartAdvice? _smartAdvice;
   SmartMusicRecommendation? _smartMusic;
   List<Achievement> _recentAchievements = [];
+  EmotionalPatternReport? _patternReport;
+  List<PatternInsight> _patternInsights = [];
 
   @override
   void initState() {
@@ -124,6 +129,10 @@ class _SmartDashboardState extends State<SmartDashboard> {
     final historyReport = widget.historyReport;
     final streak = JournalInsights.streak(widget.entries);
 
+    final patternReport = EmotionalPatternAnalyzer.analyze(widget.entries);
+    final currentEmotionId =
+        emotionForLabel(widget.selectedMood ?? 'Normal').id;
+
     final advice = SmartAdviceEngine().generate(
       entries: widget.entries,
       emotionHistory: widget.emotionHistory,
@@ -131,6 +140,8 @@ class _SmartDashboardState extends State<SmartDashboard> {
       historyReport: historyReport,
       memories: pipeline.memoryManager.all,
       streak: streak,
+      patterns: patternReport,
+      currentEmotionId: currentEmotionId,
     );
 
     final currentMood = widget.selectedMood ?? 'Normal';
@@ -144,6 +155,8 @@ class _SmartDashboardState extends State<SmartDashboard> {
     setState(() {
       _smartAdvice = advice;
       _smartMusic = music;
+      _patternReport = patternReport;
+      _patternInsights = PatternInsightGenerator().generate(patternReport);
     });
 
     try {
@@ -284,6 +297,22 @@ class _SmartDashboardState extends State<SmartDashboard> {
         builder: (_) => Column(
           children: [
             InsightsCard(insights: widget.insights),
+            const SizedBox(height: BrandSpacing.md),
+          ],
+        ),
+      ));
+    }
+
+    if (_patternReport != null && (_patternInsights.isNotEmpty)) {
+      sections.add(_DashboardSection(
+        id: 'pattern_insights',
+        priority: 74,
+        builder: (_) => Column(
+          children: [
+            PatternInsightsCard(
+              report: _patternReport,
+              insights: _patternInsights,
+            ),
             const SizedBox(height: BrandSpacing.md),
           ],
         ),

@@ -8,6 +8,13 @@ class EmotionEngine {
   static const int _negationWindow = 3;
   static const int _maxPhraseLength = 5;
 
+  /// Bonificación de prioridad del léxico para frases multi-palabra: son
+  /// señales más específicas que las palabras sueltas genéricas.
+  static const double _phrasePriorityBonus = 1.25;
+
+  /// Umbral mínimo de porcentaje para que una emoción entre al ranking.
+  static const double _minRankPercentage = 1.5;
+
   static const Set<String> _clauseSeparators = {
     'pero',
     'aunque',
@@ -43,9 +50,17 @@ class EmotionEngine {
     final scores = <String, double>{};
     final matchedKw = <String>{};
     final matchedByEmotion = <String, Set<String>>{};
+    final lastPosition = <String, int>{};
     final used = List<bool>.filled(tokens.length, false);
 
-    _matchPhrases(tokens, used, scores, matchedKw, matchedByEmotion);
+    _matchPhrases(
+      tokens,
+      used,
+      scores,
+      matchedKw,
+      matchedByEmotion,
+      lastPosition,
+    );
 
     for (var i = 0; i < tokens.length; i++) {
       if (used[i]) continue;
@@ -67,6 +82,7 @@ class EmotionEngine {
         matchedByEmotion
             .putIfAbsent(entry.emotionId, () => <String>{})
             .add(token);
+        lastPosition[entry.emotionId] = i;
       }
     }
 
@@ -79,14 +95,23 @@ class EmotionEngine {
 
     _applyCrisisOverride(text, scores);
 
-    final ranked = _rankScores(scores);
+    final ranked = _rankScores(scores, matchedByEmotion, lastPosition);
     final totalWeight = ranked.fold<double>(0, (s, e) => s + e.percentage);
 
-    final confidence = _calculateConfidence(
+    var confidence = _calculateConfidence(
       totalWeight,
       tokens.length,
       matchedKw.length,
     );
+
+    // Penaliza la ambigüedad: si el top-2 está muy pegado, la detección es
+    // menos confiable.
+    if (ranked.length >= 2 &&
+        ranked[0].percentage - ranked[1].percentage < 1.5) {
+      confidence = double.parse(
+        (confidence * 0.85).toStringAsFixed(1),
+      );
+    }
 
     final explanation =
         _buildExplanation(ranked, matchedKw, matchedByEmotion, confidence);
@@ -124,6 +149,7 @@ class EmotionEngine {
     Map<String, double> scores,
     Set<String> matchedKw,
     Map<String, Set<String>> matchedByEmotion,
+    Map<String, int> lastPosition,
   ) {
     for (var i = 0; i < tokens.length; i++) {
       if (used[i]) continue;
@@ -144,12 +170,15 @@ class EmotionEngine {
       final entries = EmotionLexicon.keywords[phrase]!;
       final multiplier = _getContextMultiplier(tokens, i);
 
+      // Las frases multi-palabra son más específicas y deben priorizar sobre
+      // palabras sueltas genéricas.
       for (final entry in entries) {
-        scores[entry.emotionId] =
-            (scores[entry.emotionId] ?? 0) + entry.weight * multiplier;
+        final weight = entry.weight * multiplier * _phrasePriorityBonus;
+        scores[entry.emotionId] = (scores[entry.emotionId] ?? 0) + weight;
         matchedByEmotion
             .putIfAbsent(entry.emotionId, () => <String>{})
             .add(phrase);
+        lastPosition[entry.emotionId] = i;
       }
       matchedKw.add(phrase);
 
@@ -248,7 +277,11 @@ class EmotionEngine {
     return null;
   }
 
-  static List<EmotionScore> _rankScores(Map<String, double> scores) {
+  static List<EmotionScore> _rankScores(
+    Map<String, double> scores,
+    Map<String, Set<String>> matchedByEmotion,
+    Map<String, int> lastPosition,
+  ) {
     if (scores.isEmpty) return const [];
 
     final entries = scores.entries.toList()
@@ -263,7 +296,7 @@ class EmotionEngine {
       if (emotion == null) continue;
 
       final percentage = (entry.value / total) * 100;
-      if (percentage < 1.0) continue;
+      if (percentage < _minRankPercentage) continue;
 
       results.add(EmotionScore(
         emotion: emotion,
@@ -271,6 +304,19 @@ class EmotionEngine {
         matchedKeywords: const [],
       ));
     }
+
+    // Resuelve conflictos entre emociones con puntuación casi idéntica:
+    // gana la que tiene más palabras clave distintas y, en último término,
+    // la que aparece más tarde en el texto (suele ser el estado real).
+    results.sort((a, b) {
+      final byScore = b.percentage.compareTo(a.percentage);
+      if (byScore != 0) return byScore;
+      final byKeywords = (matchedByEmotion[b.emotion.id]?.length ?? 0)
+          .compareTo(matchedByEmotion[a.emotion.id]?.length ?? 0);
+      if (byKeywords != 0) return byKeywords;
+      return (lastPosition[b.emotion.id] ?? -1)
+          .compareTo(lastPosition[a.emotion.id] ?? -1);
+    });
 
     return results;
   }
